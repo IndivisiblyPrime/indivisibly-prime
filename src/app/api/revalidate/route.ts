@@ -4,8 +4,17 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   // Verify the secret to ensure the request is coming from Sanity
   const secret = request.nextUrl.searchParams.get('secret')
+  const envSecret = process.env.REVALIDATE_SECRET
 
-  if (secret !== process.env.REVALIDATE_SECRET) {
+  // Debug logging (remove after fixing)
+  console.log('Revalidate debug:', {
+    receivedSecretLength: secret?.length ?? 0,
+    envSecretLength: envSecret?.length ?? 0,
+    envSecretExists: !!envSecret,
+    secretsMatch: secret === envSecret,
+  })
+
+  if (secret !== envSecret) {
     return NextResponse.json(
       { message: 'Invalid token' },
       { status: 401 }
