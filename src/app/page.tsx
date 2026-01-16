@@ -1,7 +1,5 @@
 import { client } from "@/sanity/lib/client";
 
-export const dynamic = "force-dynamic";
-
 interface HeroSection {
   headline: string;
   subtitle?: string;
