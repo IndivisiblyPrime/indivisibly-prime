@@ -1,29 +1,61 @@
+"use client"
+
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
+import { SanityFileAsset } from "@/lib/types"
 
 interface HeroSectionProps {
   heroImage?: SanityImageSource
+  heroVideo?: SanityFileAsset
+  heroVideoUrl?: string
 }
 
-export function HeroSection({ heroImage }: HeroSectionProps) {
+export function HeroSection({ heroImage, heroVideo, heroVideoUrl }: HeroSectionProps) {
+  // Determine video source - uploaded file takes priority, then external URL
+  const getVideoUrl = () => {
+    if (heroVideo?.asset?._ref) {
+      // Convert Sanity file reference to URL
+      const ref = heroVideo.asset._ref
+      const [, id, extension] = ref.split('-')
+      return `https://cdn.sanity.io/files/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/${id}.${extension}`
+    }
+    return heroVideoUrl
+  }
+
+  const videoSrc = getVideoUrl()
+  const hasVideo = !!videoSrc
+
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-blue-950"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-900"
     >
-      {/* Background - either Sanity image or gradient fallback */}
+      {/* Background - Video or Image */}
       <div className="absolute inset-0">
-        {heroImage ? (
+        {hasVideo ? (
+          <>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            >
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-neutral-900/40" />
+          </>
+        ) : heroImage ? (
           <>
             <img
               src={urlFor(heroImage).width(1920).height(1080).url()}
               alt=""
               className="h-full w-full rotate-180 object-cover"
             />
-            <div className="absolute inset-0 bg-blue-950/40" />
+            <div className="absolute inset-0 bg-neutral-900/40" />
           </>
         ) : (
-          <div className="h-full w-full bg-gradient-to-b from-blue-900 via-blue-950 to-blue-950" />
+          <div className="h-full w-full bg-gradient-to-b from-neutral-800 via-neutral-900 to-neutral-900" />
         )}
       </div>
       <div className="relative z-10 px-4 text-center">

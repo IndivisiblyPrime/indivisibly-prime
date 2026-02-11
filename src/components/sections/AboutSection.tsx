@@ -16,6 +16,8 @@ import {
   Globe,
 } from "lucide-react"
 import { AccordionItem as AccordionItemType, SocialLink } from "@/lib/types"
+import { ShootingStars } from "@/components/ui/shooting-stars"
+import { StarsBackground } from "@/components/ui/stars-background"
 
 interface AboutSectionProps {
   accordionItems?: AccordionItemType[]
@@ -38,21 +40,25 @@ const defaultAccordionItems: AccordionItemType[] = [
     _key: "1",
     title: "About Me",
     content: "Welcome to my personal website. Add your bio in Sanity Studio.",
+    showSocialLinks: false,
   },
   {
     _key: "2",
     title: "Career Highlights",
     content: "Add your career highlights in Sanity Studio.",
+    showSocialLinks: false,
   },
   {
     _key: "3",
     title: "Meditation & Hobbies",
     content: "Add your hobbies and interests in Sanity Studio.",
+    showSocialLinks: false,
   },
   {
     _key: "4",
     title: "Contact Me",
     content: "Get in touch with me through the social links below.",
+    showSocialLinks: true,
   },
 ]
 
@@ -64,9 +70,12 @@ export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps)
   return (
     <section
       id="about"
-      className="min-h-screen bg-blue-950 px-4 py-20"
+      className="relative min-h-screen overflow-hidden bg-neutral-900 px-4 py-20"
     >
-      <div className="mx-auto max-w-3xl">
+      <ShootingStars className="absolute inset-0 z-0" />
+      <StarsBackground className="absolute inset-0 z-0" />
+
+      <div className="relative z-10 mx-auto max-w-3xl">
         <h2 className="mb-12 text-center text-5xl font-bold tracking-tight text-white md:text-6xl">
           About Me
         </h2>
@@ -75,7 +84,7 @@ export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps)
             <AccordionItem
               key={item._key}
               value={item._key}
-              className="rounded-lg border border-blue-800 bg-blue-900/50 px-6"
+              className="rounded-lg border border-neutral-700 bg-neutral-800/50 px-6"
             >
               <AccordionTrigger className="text-left hover:no-underline">
                 <div className="flex items-center gap-4">
@@ -87,10 +96,10 @@ export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps)
                   </span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="pb-4 pt-2 text-blue-200">
+              <AccordionContent className="pb-4 pt-2 text-neutral-300">
                 <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
-                {/* Show social links in Contact Me item */}
-                {item.title.toLowerCase().includes("contact") && socialLinks && socialLinks.length > 0 && (
+                {/* Show social links if this item has showSocialLinks enabled */}
+                {item.showSocialLinks && socialLinks && socialLinks.length > 0 && (
                   <div className="mt-6 flex flex-wrap gap-4">
                     {socialLinks.map((link) => {
                       const Icon = iconMap[link.platform] || Globe
@@ -100,10 +109,10 @@ export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps)
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="group flex h-12 w-12 items-center justify-center rounded-full bg-blue-800 transition-all hover:scale-110 hover:bg-blue-600"
+                          className="group flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-all hover:scale-110 hover:bg-blue-600"
                           aria-label={link.platform}
                         >
-                          <Icon className="h-5 w-5 text-blue-200 transition-colors group-hover:text-white" />
+                          <Icon className="h-5 w-5 text-neutral-300 transition-colors group-hover:text-white" />
                         </a>
                       )
                     })}
