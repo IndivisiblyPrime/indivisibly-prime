@@ -8,7 +8,6 @@ const navItems = [
   { label: "Book", href: "#book" },
   { label: "NFTs", href: "#nfts" },
   { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
 ]
 
 export function Navbar() {
@@ -36,7 +35,7 @@ export function Navbar() {
       className={cn(
         "fixed left-0 right-0 top-0 z-50 transition-all duration-300",
         isScrolled
-          ? "bg-black/80 backdrop-blur-md"
+          ? "bg-blue-950/80 backdrop-blur-md"
           : "bg-transparent"
       )}
     >

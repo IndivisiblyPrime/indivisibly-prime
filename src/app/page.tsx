@@ -5,27 +5,33 @@ import { HeroSection } from "@/components/sections/HeroSection"
 import { BookSection } from "@/components/sections/BookSection"
 import { NFTSection } from "@/components/sections/NFTSection"
 import { AboutSection } from "@/components/sections/AboutSection"
-import { ContactSection } from "@/components/sections/ContactSection"
 import { Footer } from "@/components/sections/Footer"
 
 async function getHomepageSettings(): Promise<HomepageSettings | null> {
   try {
     const query = `*[_type == "homepageSettings"][0]{
+      heroImage,
       bookTitle,
       bookDescription,
+      bookImage,
       nftGallery[]{
         _key,
         title,
         image,
-        alt
+        alt,
+        year
       },
-      aboutPhoto,
-      aboutText,
+      aboutAccordion[]{
+        _key,
+        title,
+        content
+      },
       socialLinks[]{
         _key,
         platform,
         url
-      }
+      },
+      footerMarqueeItems
     }`
     return await client.fetch(query)
   } catch {
@@ -40,19 +46,19 @@ export default async function Home() {
     <>
       <Navbar />
       <main>
-        <HeroSection />
+        <HeroSection heroImage={settings?.heroImage} />
         <BookSection
           title={settings?.bookTitle || "Book"}
           description={settings?.bookDescription}
+          bookImage={settings?.bookImage}
         />
         <NFTSection nfts={settings?.nftGallery || []} />
         <AboutSection
-          photo={settings?.aboutPhoto}
-          text={settings?.aboutText}
+          accordionItems={settings?.aboutAccordion}
+          socialLinks={settings?.socialLinks}
         />
-        <ContactSection socialLinks={settings?.socialLinks} />
       </main>
-      <Footer />
+      <Footer marqueeItems={settings?.footerMarqueeItems} />
     </>
   )
 }

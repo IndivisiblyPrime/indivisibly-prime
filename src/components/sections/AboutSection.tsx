@@ -1,66 +1,118 @@
-import { urlFor } from "@/sanity/lib/image"
-import { SanityImageSource } from "@sanity/image-url/lib/types/types"
+"use client"
 
-type AboutPhoto = SanityImageSource & { alt?: string }
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+  Twitter,
+  Linkedin,
+  Github,
+  Instagram,
+  Youtube,
+  Mail,
+  Globe,
+} from "lucide-react"
+import { AccordionItem as AccordionItemType, SocialLink } from "@/lib/types"
 
 interface AboutSectionProps {
-  photo?: AboutPhoto
-  text?: string
+  accordionItems?: AccordionItemType[]
+  socialLinks?: SocialLink[]
 }
 
-export function AboutSection({ photo, text }: AboutSectionProps) {
-  const hasContent = photo || text
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  twitter: Twitter,
+  linkedin: Linkedin,
+  github: Github,
+  instagram: Instagram,
+  youtube: Youtube,
+  email: Mail,
+  website: Globe,
+}
 
-  if (!hasContent) {
-    return (
-      <section
-        id="about"
-        className="flex min-h-screen items-center justify-center bg-white"
-      >
-        <div className="text-center">
-          <h2 className="mb-4 text-5xl font-bold tracking-tight text-neutral-900 md:text-6xl">
-            About Me
-          </h2>
-          <p className="text-neutral-500">Add your photo and bio in Sanity Studio</p>
-        </div>
-      </section>
-    )
-  }
+// Default accordion items if none provided from Sanity
+const defaultAccordionItems: AccordionItemType[] = [
+  {
+    _key: "1",
+    title: "About Me",
+    content: "Welcome to my personal website. Add your bio in Sanity Studio.",
+  },
+  {
+    _key: "2",
+    title: "Career Highlights",
+    content: "Add your career highlights in Sanity Studio.",
+  },
+  {
+    _key: "3",
+    title: "Meditation & Hobbies",
+    content: "Add your hobbies and interests in Sanity Studio.",
+  },
+  {
+    _key: "4",
+    title: "Contact Me",
+    content: "Get in touch with me through the social links below.",
+  },
+]
+
+export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps) {
+  const items = accordionItems && accordionItems.length > 0
+    ? accordionItems
+    : defaultAccordionItems
 
   return (
     <section
       id="about"
-      className="flex min-h-screen items-center justify-center bg-white px-4 py-20"
+      className="min-h-screen bg-blue-950 px-4 py-20"
     >
-      <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-2 md:items-center">
-        {/* Photo */}
-        <div className="flex justify-center">
-          {photo ? (
-            <img
-              src={urlFor(photo).width(500).height(500).url()}
-              alt={photo.alt || "Profile photo"}
-              className="h-auto w-full max-w-md rounded-2xl object-cover shadow-xl"
-            />
-          ) : (
-            <div className="flex h-80 w-80 items-center justify-center rounded-2xl bg-neutral-200">
-              <span className="text-neutral-400">Photo placeholder</span>
-            </div>
-          )}
-        </div>
-
-        {/* Text */}
-        <div>
-          <h2 className="mb-6 text-5xl font-bold tracking-tight text-neutral-900 md:text-6xl">
-            About Me
-          </h2>
-          {text ? (
-            <p className="text-lg leading-relaxed text-neutral-600 md:text-xl">
-              {text}
-            </p>
-          ) : (
-            <p className="text-neutral-400">Add your bio in Sanity Studio</p>
-          )}
-        </div>
+      <div className="mx-auto max-w-3xl">
+        <h2 className="mb-12 text-center text-5xl font-bold tracking-tight text-white md:text-6xl">
+          About Me
+        </h2>
+        <Accordion type="single" collapsible className="w-full space-y-4">
+          {items.map((item, index) => (
+            <AccordionItem
+              key={item._key}
+              value={item._key}
+              className="rounded-lg border border-blue-800 bg-blue-900/50 px-6"
+            >
+              <AccordionTrigger className="text-left hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <span className="text-lg font-semibold text-white">
+                    {item.title}
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 pt-2 text-blue-200">
+                <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
+                {/* Show social links in Contact Me item */}
+                {item.title.toLowerCase().includes("contact") && socialLinks && socialLinks.length > 0 && (
+                  <div className="mt-6 flex flex-wrap gap-4">
+                    {socialLinks.map((link) => {
+                      const Icon = iconMap[link.platform] || Globe
+                      return (
+                        <a
+                          key={link._key}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex h-12 w-12 items-center justify-center rounded-full bg-blue-800 transition-all hover:scale-110 hover:bg-blue-600"
+                          aria-label={link.platform}
+                        >
+                          <Icon className="h-5 w-5 text-blue-200 transition-colors group-hover:text-white" />
+                        </a>
+                      )
+                    })}
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </section>
   )

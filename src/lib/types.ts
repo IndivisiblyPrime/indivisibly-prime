@@ -5,6 +5,13 @@ export interface NFTItem {
   title?: string;
   image: SanityImageSource;
   alt?: string;
+  year?: string;
+}
+
+export interface AccordionItem {
+  _key: string;
+  title: string;
+  content: string;
 }
 
 export interface SocialLink {
@@ -14,10 +21,12 @@ export interface SocialLink {
 }
 
 export interface HomepageSettings {
+  heroImage?: SanityImageSource;
   bookTitle?: string;
   bookDescription?: string;
+  bookImage?: SanityImageSource;
   nftGallery?: NFTItem[];
-  aboutPhoto?: SanityImageSource & { alt?: string };
-  aboutText?: string;
+  aboutAccordion?: AccordionItem[];
   socialLinks?: SocialLink[];
+  footerMarqueeItems?: string[];
 }
