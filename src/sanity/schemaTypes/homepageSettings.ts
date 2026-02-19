@@ -7,6 +7,7 @@ export const homepageSettings = defineType({
   type: 'document',
   icon: HomeIcon,
   groups: [
+    { name: 'site', title: 'Site Settings' },
     { name: 'navigation', title: 'Navigation' },
     { name: 'hero', title: 'Hero Section' },
     { name: 'book', title: 'Book Section' },
@@ -16,7 +17,25 @@ export const homepageSettings = defineType({
     { name: 'footer', title: 'Footer' },
   ],
   fields: [
-    // Navigation Items
+    // ─── Site Settings ───────────────────────────────────────────────────────
+    defineField({
+      name: 'siteTitle',
+      title: 'Browser Tab Title',
+      type: 'string',
+      group: 'site',
+      description: 'Text shown in the browser tab (e.g. "Jack Harvey")',
+      initialValue: 'Jack Harvey',
+    }),
+    defineField({
+      name: 'siteFavicon',
+      title: 'Favicon',
+      type: 'image',
+      group: 'site',
+      description: 'Icon shown in the browser tab. Use a square image (e.g. 32×32 or 64×64 px).',
+      options: { hotspot: false },
+    }),
+
+    // ─── Navigation Items ────────────────────────────────────────────────────
     defineField({
       name: 'navItems',
       title: 'Navigation Items',
@@ -52,25 +71,20 @@ export const homepageSettings = defineType({
             }),
           ],
           preview: {
-            select: {
-              title: 'label',
-              subtitle: 'target',
-            },
+            select: { title: 'label', subtitle: 'target' },
           },
         }),
       ],
     }),
 
-    // Hero Section
+    // ─── Hero Section ────────────────────────────────────────────────────────
     defineField({
       name: 'heroImage',
       title: 'Hero Background Image',
       type: 'image',
       group: 'hero',
       description: 'Background image for the hero section (used if no video is set)',
-      options: {
-        hotspot: true,
-      },
+      options: { hotspot: true },
     }),
     defineField({
       name: 'heroVideo',
@@ -78,9 +92,7 @@ export const homepageSettings = defineType({
       type: 'file',
       group: 'hero',
       description: 'Background video for the hero section (MP4 recommended). Takes priority over image.',
-      options: {
-        accept: 'video/*',
-      },
+      options: { accept: 'video/*' },
     }),
     defineField({
       name: 'heroVideoUrl',
@@ -90,7 +102,7 @@ export const homepageSettings = defineType({
       description: 'External video URL (e.g., from a CDN). Used if no uploaded video.',
     }),
 
-    // Book Section
+    // ─── Book Section ────────────────────────────────────────────────────────
     defineField({
       name: 'bookTitle',
       title: 'Book Section Title',
@@ -113,9 +125,7 @@ export const homepageSettings = defineType({
       type: 'image',
       group: 'book',
       description: 'Book cover image (will preserve aspect ratio)',
-      options: {
-        hotspot: true,
-      },
+      options: { hotspot: true },
     }),
     defineField({
       name: 'bookButtonText',
@@ -133,66 +143,84 @@ export const homepageSettings = defineType({
       description: 'Link for the book button (optional)',
     }),
 
-    // NFT Gallery Section
+    // ─── NFT Gallery Section ─────────────────────────────────────────────────
     defineField({
-      name: 'nftGallery',
-      title: 'NFT Gallery',
+      name: 'nftSectionTitle',
+      title: 'Section Heading',
+      type: 'string',
+      group: 'nft',
+      description: 'Large heading at the top of this section (e.g. "NFTs" or "Art")',
+      initialValue: 'NFTs',
+    }),
+    defineField({
+      name: 'nftSectionSubtitle',
+      title: 'Section Subtitle',
+      type: 'string',
+      group: 'nft',
+      description: 'Smaller line below the heading (e.g. "Highlights from XYZ collection")',
+    }),
+    defineField({
+      name: 'landscapeGallery',
+      title: 'Landscape Paintings',
       type: 'array',
       group: 'nft',
-      description: 'Images for the NFT grid gallery (images will preserve their aspect ratio)',
+      description: 'Wide/landscape images shown above the portrait grid. Use for paintings wider than they are tall.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'landscapeItem',
+          title: 'Landscape Item',
+          fields: [
+            defineField({ name: 'title', title: 'Title', type: 'string' }),
+            defineField({
+              name: 'image',
+              title: 'Image',
+              type: 'image',
+              options: { hotspot: true },
+              validation: (rule) => rule.required(),
+            }),
+            defineField({ name: 'alt', title: 'Alt Text', type: 'string' }),
+            defineField({ name: 'year', title: 'Year', type: 'string', initialValue: '2025' }),
+            defineField({ name: 'collection', title: 'Collection / Portfolio Name', type: 'string' }),
+          ],
+          preview: {
+            select: { title: 'title', subtitle: 'collection', media: 'image' },
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'nftGallery',
+      title: 'Portrait Gallery',
+      type: 'array',
+      group: 'nft',
+      description: 'Portrait/square images shown in the 2-column grid.',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'nftItem',
           title: 'NFT Item',
           fields: [
-            defineField({
-              name: 'title',
-              title: 'Title',
-              type: 'string',
-              description: 'NFT name (bottom left)',
-            }),
+            defineField({ name: 'title', title: 'Title', type: 'string', description: 'NFT name (bottom left)' }),
             defineField({
               name: 'image',
               title: 'Image',
               type: 'image',
-              options: {
-                hotspot: true,
-              },
+              options: { hotspot: true },
               validation: (rule) => rule.required(),
             }),
-            defineField({
-              name: 'alt',
-              title: 'Alt Text',
-              type: 'string',
-              description: 'Alternative text for accessibility',
-            }),
-            defineField({
-              name: 'year',
-              title: 'Year',
-              type: 'string',
-              description: 'Year of the NFT (bottom left, below title)',
-              initialValue: '2025',
-            }),
-            defineField({
-              name: 'collection',
-              title: 'Collection / Portfolio Name',
-              type: 'string',
-              description: 'Collection name (bottom right)',
-            }),
+            defineField({ name: 'alt', title: 'Alt Text', type: 'string', description: 'Alternative text for accessibility' }),
+            defineField({ name: 'year', title: 'Year', type: 'string', description: 'Year of the NFT (bottom left, below title)', initialValue: '2025' }),
+            defineField({ name: 'collection', title: 'Collection / Portfolio Name', type: 'string', description: 'Collection name (bottom right)' }),
           ],
           preview: {
-            select: {
-              title: 'title',
-              subtitle: 'collection',
-              media: 'image',
-            },
+            select: { title: 'title', subtitle: 'collection', media: 'image' },
           },
         }),
       ],
     }),
 
-    // CTA Section (below NFTs)
+    // ─── CTA Section ─────────────────────────────────────────────────────────
     defineField({
       name: 'ctaButtonText',
       title: 'CTA Button Text',
@@ -213,17 +241,17 @@ export const homepageSettings = defineType({
       title: 'Encrypted Text',
       type: 'string',
       group: 'cta',
-      description: 'Text that will animate with encryption effect',
+      description: 'Text that decrypts when you hover over it',
       initialValue: 'Welcome to the Matrix, Neo.',
     }),
 
-    // About Me Section - Accordion Items
+    // ─── About Me Section ────────────────────────────────────────────────────
     defineField({
       name: 'aboutAccordion',
       title: 'About Me Accordion Items',
       type: 'array',
       group: 'about',
-      description: 'Accordion sections for the About Me page. Add "showSocialLinks: true" to show social links in that item.',
+      description: 'Accordion sections for the About Me page.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -237,29 +265,101 @@ export const homepageSettings = defineType({
               validation: (rule) => rule.required(),
             }),
             defineField({
+              name: 'itemType',
+              title: 'Item Type',
+              type: 'string',
+              initialValue: 'text',
+              options: {
+                list: [
+                  { title: 'Text (plain content)', value: 'text' },
+                  { title: 'Experience (job cards)', value: 'experience' },
+                  { title: 'Contact Form', value: 'contact' },
+                ],
+                layout: 'radio',
+              },
+              description: 'Choose how this accordion item renders when expanded.',
+            }),
+            defineField({
               name: 'content',
               title: 'Content',
               type: 'text',
               rows: 4,
-              validation: (rule) => rule.required(),
+              hidden: ({ parent }) =>
+                parent?.itemType === 'experience' || parent?.itemType === 'contact',
+              description: 'Text content shown when expanded (for "Text" type only).',
             }),
             defineField({
               name: 'showSocialLinks',
               title: 'Show Social Links',
               type: 'boolean',
-              description: 'Display social links in this accordion item',
+              description: 'Display social links below the content',
               initialValue: false,
+              hidden: ({ parent }) =>
+                parent?.itemType === 'experience' || parent?.itemType === 'contact',
+            }),
+            defineField({
+              name: 'experienceEntries',
+              title: 'Experience Entries',
+              type: 'array',
+              hidden: ({ parent }) => parent?.itemType !== 'experience',
+              description: 'Add one entry per job role.',
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'experienceEntry',
+                  title: 'Experience Entry',
+                  fields: [
+                    defineField({
+                      name: 'logo',
+                      title: 'Company Logo',
+                      type: 'image',
+                      description: 'Square company logo/icon',
+                      options: { hotspot: true },
+                    }),
+                    defineField({
+                      name: 'jobTitle',
+                      title: 'Job Title',
+                      type: 'string',
+                      validation: (rule) => rule.required(),
+                      description: 'e.g. "Full Stack Software Engineer – (Machine Learning)"',
+                    }),
+                    defineField({
+                      name: 'dateRange',
+                      title: 'Date Range',
+                      type: 'string',
+                      description: 'e.g. "Mar 2023 – now"',
+                    }),
+                    defineField({
+                      name: 'company',
+                      title: 'Company Name',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'bullets',
+                      title: 'Bullet Points',
+                      type: 'array',
+                      description: 'Each item becomes one bullet point.',
+                      of: [defineArrayMember({ type: 'string' })],
+                    }),
+                  ],
+                  preview: {
+                    select: { title: 'jobTitle', subtitle: 'company' },
+                  },
+                }),
+              ],
             }),
           ],
           preview: {
-            select: {
-              title: 'title',
-              showLinks: 'showSocialLinks',
-            },
-            prepare({ title, showLinks }) {
+            select: { title: 'title', itemType: 'itemType' },
+            prepare({ title, itemType }) {
+              const labels: Record<string, string> = {
+                experience: 'Experience cards',
+                contact: 'Contact form',
+                text: '',
+              }
               return {
                 title,
-                subtitle: showLinks ? '(includes social links)' : '',
+                subtitle: labels[itemType] || '',
               }
             },
           },
@@ -273,7 +373,7 @@ export const homepageSettings = defineType({
       title: 'Social Links',
       type: 'array',
       group: 'about',
-      description: 'Your social media links (displayed in accordion item with "Show Social Links" enabled)',
+      description: 'Social media links (shown in accordion items with "Show Social Links" enabled)',
       of: [
         defineArrayMember({
           type: 'object',
@@ -302,22 +402,17 @@ export const homepageSettings = defineType({
               title: 'URL',
               type: 'url',
               validation: (rule) =>
-                rule.required().uri({
-                  scheme: ['http', 'https', 'mailto'],
-                }),
+                rule.required().uri({ scheme: ['http', 'https', 'mailto'] }),
             }),
           ],
           preview: {
-            select: {
-              title: 'platform',
-              subtitle: 'url',
-            },
+            select: { title: 'platform', subtitle: 'url' },
           },
         }),
       ],
     }),
 
-    // Footer Marquee Items
+    // ─── Footer Marquee Items ─────────────────────────────────────────────────
     defineField({
       name: 'footerMarqueeItems',
       title: 'Footer Marquee Items',
@@ -341,16 +436,11 @@ export const homepageSettings = defineType({
               title: 'Icon',
               type: 'image',
               description: 'Optional icon to display alongside the text',
-              options: {
-                hotspot: true,
-              },
+              options: { hotspot: true },
             }),
           ],
           preview: {
-            select: {
-              title: 'text',
-              media: 'icon',
-            },
+            select: { title: 'text', media: 'icon' },
           },
         }),
       ],
@@ -358,9 +448,7 @@ export const homepageSettings = defineType({
   ],
   preview: {
     prepare() {
-      return {
-        title: 'Homepage Settings',
-      }
+      return { title: 'Homepage Settings' }
     },
   },
 })

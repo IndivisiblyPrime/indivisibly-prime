@@ -15,11 +15,22 @@ export interface NFTItem {
   collection?: string;
 }
 
+export interface ExperienceEntry {
+  _key: string;
+  logo?: SanityImageSource;
+  jobTitle: string;
+  dateRange?: string;
+  company?: string;
+  bullets?: string[];
+}
+
 export interface AccordionItem {
   _key: string;
   title: string;
-  content: string;
+  content?: string;
   showSocialLinks?: boolean;
+  itemType?: "text" | "experience" | "contact";
+  experienceEntries?: ExperienceEntry[];
 }
 
 export interface SocialLink {
@@ -31,7 +42,7 @@ export interface SocialLink {
 export interface SanityImageWithAsset {
   asset?: {
     _ref: string;
-    _type: 'reference';
+    _type: "reference";
   };
 }
 
@@ -42,14 +53,18 @@ export interface MarqueeItem {
 }
 
 export interface SanityFileAsset {
-  _type: 'file';
+  _type: "file";
   asset: {
     _ref: string;
-    _type: 'reference';
+    _type: "reference";
   };
 }
 
 export interface HomepageSettings {
+  // Site
+  siteTitle?: string;
+  siteFavicon?: SanityImageSource;
+
   // Navigation
   navItems?: NavItem[];
 
@@ -66,7 +81,10 @@ export interface HomepageSettings {
   bookButtonUrl?: string;
 
   // NFT
+  nftSectionTitle?: string;
+  nftSectionSubtitle?: string;
   nftGallery?: NFTItem[];
+  landscapeGallery?: NFTItem[];
 
   // CTA
   ctaButtonText?: string;

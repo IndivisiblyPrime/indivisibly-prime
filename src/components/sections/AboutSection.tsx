@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Accordion,
   AccordionContent,
@@ -18,6 +19,7 @@ import {
 import { AccordionItem as AccordionItemType, SocialLink } from "@/lib/types"
 import { ShootingStars } from "@/components/ui/shooting-stars"
 import { StarsBackground } from "@/components/ui/stars-background"
+import { urlFor } from "@/sanity/lib/image"
 
 interface AboutSectionProps {
   accordionItems?: AccordionItemType[]
@@ -62,6 +64,103 @@ const defaultAccordionItems: AccordionItemType[] = [
   },
 ]
 
+function ContactForm() {
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" })
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus("sending")
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error("Failed")
+      setStatus("sent")
+      setForm({ name: "", email: "", subject: "", message: "" })
+    } catch {
+      setStatus("error")
+    }
+  }
+
+  if (status === "sent") {
+    return (
+      <p className="text-green-400">Message sent! I&apos;ll get back to you soon.</p>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm text-neutral-400">Name</label>
+          <input
+            type="text"
+            name="name"
+            required
+            value={form.name}
+            onChange={handleChange}
+            className="w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-white placeholder-neutral-400 focus:border-blue-500 focus:outline-none"
+            placeholder="Your name"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm text-neutral-400">Email</label>
+          <input
+            type="email"
+            name="email"
+            required
+            value={form.email}
+            onChange={handleChange}
+            className="w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-white placeholder-neutral-400 focus:border-blue-500 focus:outline-none"
+            placeholder="your@email.com"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm text-neutral-400">Subject</label>
+        <input
+          type="text"
+          name="subject"
+          required
+          value={form.subject}
+          onChange={handleChange}
+          className="w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-white placeholder-neutral-400 focus:border-blue-500 focus:outline-none"
+          placeholder="Subject"
+        />
+      </div>
+      <div>
+        <label className="mb-1 block text-sm text-neutral-400">Message</label>
+        <textarea
+          name="message"
+          required
+          rows={4}
+          value={form.message}
+          onChange={handleChange}
+          className="w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-white placeholder-neutral-400 focus:border-blue-500 focus:outline-none"
+          placeholder="Your message..."
+        />
+      </div>
+      {status === "error" && (
+        <p className="text-sm text-red-400">Something went wrong. Please try again.</p>
+      )}
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        className="rounded-md bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
+      >
+        {status === "sending" ? "Sending…" : "Send Message"}
+      </button>
+    </form>
+  )
+}
+
 export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps) {
   const items = accordionItems && accordionItems.length > 0
     ? accordionItems
@@ -97,27 +196,69 @@ export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps)
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pb-4 pt-2 text-neutral-300">
-                <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
-                {/* Show social links if this item has showSocialLinks enabled */}
-                {item.showSocialLinks && socialLinks && socialLinks.length > 0 && (
-                  <div className="mt-6 flex flex-wrap gap-4">
-                    {socialLinks.map((link) => {
-                      const Icon = iconMap[link.platform] || Globe
-                      return (
-                        <a
-                          key={link._key}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-all hover:scale-110 hover:bg-blue-600"
-                          aria-label={link.platform}
-                        >
-                          <Icon className="h-5 w-5 text-neutral-300 transition-colors group-hover:text-white" />
-                        </a>
-                      )
-                    })}
+                {(!item.itemType || item.itemType === "text") && (
+                  <>
+                    <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
+                    {item.showSocialLinks && socialLinks && socialLinks.length > 0 && (
+                      <div className="mt-6 flex flex-wrap gap-4">
+                        {socialLinks.map((link) => {
+                          const Icon = iconMap[link.platform] || Globe
+                          return (
+                            <a
+                              key={link._key}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-all hover:scale-110 hover:bg-blue-600"
+                              aria-label={link.platform}
+                            >
+                              <Icon className="h-5 w-5 text-neutral-300 transition-colors group-hover:text-white" />
+                            </a>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {item.itemType === "experience" && item.experienceEntries && (
+                  <div className="space-y-6">
+                    {item.experienceEntries.map((entry) => (
+                      <div key={entry._key} className="flex gap-4">
+                        {entry.logo && (
+                          <div className="shrink-0">
+                            <img
+                              src={urlFor(entry.logo).width(80).height(80).url()}
+                              alt={entry.company ?? ""}
+                              className="h-20 w-20 rounded-lg object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="text-xl font-bold text-white">{entry.jobTitle}</p>
+                          {entry.company && (
+                            <p className="font-semibold text-neutral-200">{entry.company}</p>
+                          )}
+                          {entry.dateRange && (
+                            <p className="text-sm text-neutral-400">{entry.dateRange}</p>
+                          )}
+                          {entry.bullets && entry.bullets.length > 0 && (
+                            <ul className="mt-2 space-y-1">
+                              {entry.bullets.map((bullet, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm leading-relaxed">
+                                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
+                                  {bullet}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
+
+                {item.itemType === "contact" && <ContactForm />}
               </AccordionContent>
             </AccordionItem>
           ))}

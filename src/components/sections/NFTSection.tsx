@@ -7,9 +7,11 @@ import { StarsBackground } from "@/components/ui/stars-background"
 
 interface NFTSectionProps {
   nfts: NFTItem[]
+  title?: string
+  subtitle?: string
+  landscapeItems?: NFTItem[]
 }
 
-// Placeholder NFT items for demo
 const placeholderNFTs = [
   { _key: "1", title: "NFT #1", year: "2025", collection: "Collection A" },
   { _key: "2", title: "NFT #2", year: "2025", collection: "Collection A" },
@@ -17,8 +19,31 @@ const placeholderNFTs = [
   { _key: "4", title: "NFT #4", year: "2025", collection: "Collection B" },
 ]
 
-export function NFTSection({ nfts }: NFTSectionProps) {
+function ImageOverlay({ nft }: { nft: NFTItem | (typeof placeholderNFTs)[number] }) {
+  return (
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+      <div className="flex items-end justify-between">
+        <div className="text-left">
+          {nft.title && (
+            <h3 className="text-lg font-semibold text-white">{nft.title}</h3>
+          )}
+          {nft.year && (
+            <p className="text-sm text-white/70">{nft.year}</p>
+          )}
+        </div>
+        {nft.collection && (
+          <div className="text-right">
+            <p className="text-sm font-medium text-white/80">{nft.collection}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function NFTSection({ nfts, title, subtitle, landscapeItems }: NFTSectionProps) {
   const hasRealNFTs = nfts && nfts.length > 0
+  const hasLandscape = landscapeItems && landscapeItems.length > 0
   const displayItems = hasRealNFTs ? nfts : placeholderNFTs
 
   return (
@@ -30,9 +55,37 @@ export function NFTSection({ nfts }: NFTSectionProps) {
       <StarsBackground className="absolute inset-0 z-0" />
 
       <div className="relative z-10">
-        <h2 className="mb-12 text-center text-5xl font-bold tracking-tight text-white md:text-6xl">
-          NFTs
+        {/* Section heading */}
+        <h2 className="mb-3 text-center text-5xl font-bold tracking-tight text-white md:text-6xl">
+          {title || "NFTs"}
         </h2>
+        {subtitle && (
+          <p className="mb-12 text-center text-base text-neutral-400 md:text-lg">
+            {subtitle}
+          </p>
+        )}
+        {!subtitle && <div className="mb-12" />}
+
+        {/* Landscape paintings — full-width single column */}
+        {hasLandscape && (
+          <div className="mx-auto mb-10 max-w-5xl space-y-6">
+            {landscapeItems!.map((item) => (
+              <div
+                key={item._key}
+                className="group relative overflow-hidden rounded-xl transition-transform duration-300 hover:scale-[1.02]"
+              >
+                <img
+                  src={urlFor(item.image).width(1200).url()}
+                  alt={item.alt || item.title || "Painting"}
+                  className="h-auto w-full object-contain"
+                />
+                <ImageOverlay nft={item} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Portrait grid */}
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
           {displayItems.map((nft) => (
             <div
@@ -50,34 +103,14 @@ export function NFTSection({ nfts }: NFTSectionProps) {
                   <span className="text-6xl text-neutral-600/50">NFT</span>
                 </div>
               )}
-              {/* Overlay with title, year (left) and collection (right) */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                <div className="flex items-end justify-between">
-                  {/* Left side - Title and Year */}
-                  <div className="text-left">
-                    {nft.title && (
-                      <h3 className="text-lg font-semibold text-white">
-                        {nft.title}
-                      </h3>
-                    )}
-                    {nft.year && (
-                      <p className="text-sm text-white/70">{nft.year}</p>
-                    )}
-                  </div>
-                  {/* Right side - Collection */}
-                  {nft.collection && (
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-white/80">{nft.collection}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ImageOverlay nft={nft} />
             </div>
           ))}
         </div>
+
         {!hasRealNFTs && (
           <p className="mt-8 text-center text-neutral-400">
-            Add your NFT images in Sanity Studio
+            Add your images in Sanity Studio
           </p>
         )}
       </div>

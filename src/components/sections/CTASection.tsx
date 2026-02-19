@@ -43,6 +43,7 @@ export function CTASection({ buttonText, buttonUrl, encryptedText }: CTASectionP
             encryptedClassName="text-neutral-500"
             revealedClassName="text-white"
             revealDelayMs={50}
+            triggerOnHover
           />
         </p>
       </div>

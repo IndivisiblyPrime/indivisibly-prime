@@ -45,13 +45,11 @@ export function Footer({ marqueeItems }: FooterProps) {
           </p>
         </div>
         <div className="relative flex overflow-hidden">
-          {/* Marquee track */}
+          {/* Marquee track — 2 identical copies so translateX(-50%) loops seamlessly */}
           <div className="animate-marquee flex shrink-0 items-center gap-12 whitespace-nowrap">
             {items.map((item) => renderItem(item))}
             <span className="text-neutral-500">•</span>
-            {items.map((item) => renderItem(item, "dup1-"))}
-            <span className="text-neutral-500">•</span>
-            {items.map((item) => renderItem(item, "dup2-"))}
+            {items.map((item) => renderItem(item, "dup-"))}
             <span className="text-neutral-500">•</span>
           </div>
         </div>

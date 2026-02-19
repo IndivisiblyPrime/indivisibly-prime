@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { cn } from "@/lib/utils"
 
 interface EncryptedTextProps {
@@ -11,6 +11,8 @@ interface EncryptedTextProps {
   charset?: string
   encryptedClassName?: string
   revealedClassName?: string
+  /** When true, only starts decrypting on mouse hover. Resets when mouse leaves. */
+  triggerOnHover?: boolean
 }
 
 const DEFAULT_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"
@@ -23,9 +25,12 @@ export function EncryptedText({
   charset = DEFAULT_CHARSET,
   encryptedClassName = "text-neutral-500",
   revealedClassName = "text-white",
+  triggerOnHover = false,
 }: EncryptedTextProps) {
-  const [revealedCount, setRevealedCount] = useState(0)
+  const [revealedCount, setRevealedCount] = useState(triggerOnHover ? 0 : 0)
   const [displayText, setDisplayText] = useState("")
+  const [isActive, setIsActive] = useState(!triggerOnHover)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const getRandomChar = useCallback(() => {
     return charset[Math.floor(Math.random() * charset.length)]
@@ -33,7 +38,8 @@ export function EncryptedText({
 
   // Scramble unrevealed characters
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(() => {
       setDisplayText(
         text
           .split("")
@@ -46,11 +52,14 @@ export function EncryptedText({
       )
     }, flipDelayMs)
 
-    return () => clearInterval(interval)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [text, revealedCount, flipDelayMs, getRandomChar])
 
-  // Progressively reveal characters
+  // Progressively reveal characters (only when active)
   useEffect(() => {
+    if (!isActive) return
     if (revealedCount >= text.length) return
 
     const timeout = setTimeout(() => {
@@ -58,10 +67,25 @@ export function EncryptedText({
     }, revealDelayMs)
 
     return () => clearTimeout(timeout)
-  }, [revealedCount, text.length, revealDelayMs])
+  }, [revealedCount, text.length, revealDelayMs, isActive])
+
+  const handleMouseEnter = () => {
+    if (!triggerOnHover) return
+    setIsActive(true)
+  }
+
+  const handleMouseLeave = () => {
+    if (!triggerOnHover) return
+    setIsActive(false)
+    setRevealedCount(0)
+  }
 
   return (
-    <span className={cn("font-mono", className)}>
+    <span
+      className={cn("font-mono", className)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {displayText.split("").map((char, i) => (
         <span
           key={i}
