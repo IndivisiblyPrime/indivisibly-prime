@@ -129,11 +129,34 @@
 
 /* Marquee animation for footer */
 @keyframes marquee {
-  0% { transform: translateX(0); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
 .animate-marquee {
-  animation: marquee 20s linear infinite;
+  animation: marquee 25s linear infinite;
   will-change: transform;
+  display: inline-flex;
+  gap: 4rem;
+}
+
+/* Book title draw animation */
+@keyframes title-draw {
+  0%   { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+
+.animate-title-draw {
+  animation: title-draw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Panel underline draw */
+@keyframes line-draw {
+  0%   { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+.animate-line-draw {
+  animation: line-draw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left;
 }

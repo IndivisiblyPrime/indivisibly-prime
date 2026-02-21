@@ -4,12 +4,11 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { NavItem } from "@/lib/types"
 
-// Default nav items if none provided from Sanity
 const defaultNavItems: NavItem[] = [
   { _key: "1", label: "Home", target: "hero" },
-  { _key: "2", label: "Book", target: "book" },
-  { _key: "3", label: "NFTs", target: "nfts" },
-  { _key: "4", label: "About Me", target: "about" },
+  { _key: "2", label: "Book", target: "explore" },
+  { _key: "3", label: "NFTs", target: "explore" },
+  { _key: "4", label: "About Me", target: "explore" },
   { _key: "5", label: "Coming Soon", target: "coming-soon" },
 ]
 
@@ -43,7 +42,7 @@ export function Navbar({ navItems }: NavbarProps) {
       className={cn(
         "fixed left-0 right-0 top-0 z-50 transition-all duration-300",
         isScrolled
-          ? "bg-neutral-900/80 backdrop-blur-md"
+          ? "bg-white/95 shadow-sm backdrop-blur-sm"
           : "bg-transparent"
       )}
     >
@@ -54,7 +53,7 @@ export function Navbar({ navItems }: NavbarProps) {
               <a
                 href={`#${item.target}`}
                 onClick={(e) => handleClick(e, item.target)}
-                className="text-sm font-medium text-white/80 transition-colors hover:text-white"
+                className="text-sm font-medium text-black transition-colors hover:text-neutral-500"
               >
                 {item.label}
               </a>

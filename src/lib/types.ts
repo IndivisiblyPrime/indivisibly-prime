@@ -94,6 +94,7 @@ export interface HomepageSettings {
   // About
   aboutAccordion?: AccordionItem[];
   socialLinks?: SocialLink[];
+  instagramUrl?: string;
 
   // Footer
   footerMarqueeItems?: MarqueeItem[];

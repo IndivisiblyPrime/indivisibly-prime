@@ -367,6 +367,14 @@ export const homepageSettings = defineType({
       ],
     }),
 
+    defineField({
+      name: 'instagramUrl',
+      title: 'Instagram URL',
+      type: 'url',
+      group: 'about',
+      description: 'Direct Instagram profile URL (used as a fallback if not set in Social Links)',
+    }),
+
     // Social Links
     defineField({
       name: 'socialLinks',

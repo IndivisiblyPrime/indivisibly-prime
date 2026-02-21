@@ -6,10 +6,7 @@ import { urlFor } from "@/sanity/lib/image"
 import { HomepageSettings } from "@/lib/types"
 import { Navbar } from "@/components/Navbar"
 import { HeroSection } from "@/components/sections/HeroSection"
-import { BookSection } from "@/components/sections/BookSection"
-import { NFTSection } from "@/components/sections/NFTSection"
-import { CTASection } from "@/components/sections/CTASection"
-import { AboutSection } from "@/components/sections/AboutSection"
+import { ExploreSection } from "@/components/sections/ExploreSection"
 import { Footer } from "@/components/sections/Footer"
 
 const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
@@ -69,6 +66,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
     platform,
     url
   },
+  instagramUrl,
   footerMarqueeItems[]{
     _key,
     text,
@@ -108,27 +106,21 @@ export default async function Home() {
           heroVideo={settings?.heroVideo}
           heroVideoUrl={settings?.heroVideoUrl}
         />
-        <BookSection
-          title={settings?.bookTitle || "Book"}
-          description={settings?.bookDescription}
+        <ExploreSection
+          bookTitle={settings?.bookTitle}
+          bookDescription={settings?.bookDescription}
           bookImage={settings?.bookImage}
-          buttonText={settings?.bookButtonText}
-          buttonUrl={settings?.bookButtonUrl}
-        />
-        <NFTSection
-          nfts={settings?.nftGallery || []}
-          title={settings?.nftSectionTitle}
-          subtitle={settings?.nftSectionSubtitle}
-          landscapeItems={settings?.landscapeGallery}
-        />
-        <CTASection
-          buttonText={settings?.ctaButtonText}
-          buttonUrl={settings?.ctaButtonUrl}
+          bookButtonText={settings?.bookButtonText}
+          bookButtonUrl={settings?.bookButtonUrl}
+          nftSubtitle={settings?.nftSectionSubtitle}
+          nftGallery={settings?.nftGallery}
+          landscapeGallery={settings?.landscapeGallery}
+          ctaButtonText={settings?.ctaButtonText}
+          ctaButtonUrl={settings?.ctaButtonUrl}
           encryptedText={settings?.encryptedText}
-        />
-        <AboutSection
           accordionItems={settings?.aboutAccordion}
           socialLinks={settings?.socialLinks}
+          instagramUrl={settings?.instagramUrl}
         />
       </main>
       <Footer marqueeItems={settings?.footerMarqueeItems} />
