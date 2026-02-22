@@ -1,5 +1,6 @@
 "use client"
 
+import { useRef, useEffect } from "react"
 import { urlFor } from "@/sanity/lib/image"
 import { MarqueeItem } from "@/lib/types"
 
@@ -12,14 +13,52 @@ const defaultMarqueeItems: MarqueeItem[] = [
   { _key: "2", text: "Neti Neti App" },
 ]
 
+// Speed in pixels per second
+const SPEED = 40
+
 export function Footer({ marqueeItems }: FooterProps) {
   const rawItems =
-    marqueeItems?.filter((item): item is MarqueeItem => item !== null && item !== undefined) || []
+    marqueeItems?.filter(
+      (item): item is MarqueeItem => item !== null && item !== undefined
+    ) || []
   const items = rawItems.length > 0 ? rawItems : defaultMarqueeItems
 
-  // Render one item + separator
+  const trackRef = useRef<HTMLDivElement>(null)
+  const posRef = useRef(0)
+  const lastTimeRef = useRef<number | null>(null)
+  const rafRef = useRef<number>(0)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    const tick = (now: number) => {
+      if (lastTimeRef.current === null) lastTimeRef.current = now
+      const delta = (now - lastTimeRef.current) / 1000 // seconds
+      lastTimeRef.current = now
+
+      // Half-width = width of one content set (we render 2 identical sets)
+      const halfWidth = track.scrollWidth / 2
+
+      posRef.current -= SPEED * delta
+      // Seamless reset: when we've scrolled one full set, jump back
+      if (posRef.current <= -halfWidth) {
+        posRef.current += halfWidth
+      }
+
+      track.style.transform = `translateX(${posRef.current}px)`
+      rafRef.current = requestAnimationFrame(tick)
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+      lastTimeRef.current = null
+    }
+  }, [items])
+
   const renderItem = (item: MarqueeItem, key: string) => (
-    <div key={key} className="flex shrink-0 items-center gap-3 pr-16">
+    <div key={key} className="flex shrink-0 items-center gap-3">
       {item.icon?.asset && (
         <img
           src={urlFor(item.icon).width(32).height(32).url()}
@@ -28,7 +67,7 @@ export function Footer({ marqueeItems }: FooterProps) {
         />
       )}
       <span className="text-sm text-black">{item.text}</span>
-      <span className="pl-16 text-neutral-300">•</span>
+      <span className="mx-10 text-neutral-300">•</span>
     </div>
   )
 
@@ -37,10 +76,9 @@ export function Footer({ marqueeItems }: FooterProps) {
       <p className="mb-6 text-center text-xs uppercase tracking-widest text-neutral-400">
         Coming Soon
       </p>
-      {/* Ticker — flex w-max ensures the track is exactly content-wide;
-          two identical copies + translateX(-50%) = seamless infinite loop */}
-      <div className="relative overflow-hidden">
-        <div className="flex w-max animate-ticker">
+      {/* RAF-driven ticker — pixel-perfect, no CSS animation loop seam */}
+      <div className="overflow-hidden">
+        <div ref={trackRef} className="flex will-change-transform">
           {items.map((item) => renderItem(item, `a-${item._key}`))}
           {items.map((item) => renderItem(item, `b-${item._key}`))}
         </div>

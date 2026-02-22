@@ -186,31 +186,26 @@ function BookPanel({
 
   return (
     <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1fr]">
-      {/* Left column — title at top, description + button at bottom */}
-      <div className="flex flex-col justify-between">
-        {/* Title group */}
-        <div>
-          <h3
-            ref={titleRef}
-            className="font-cursive text-4xl leading-tight tracking-tight md:text-5xl"
-            style={{ clipPath: "inset(0 100% 0 0)" }}
-          >
-            {displayTitle}
-          </h3>
-          <div
-            ref={lineRef}
-            className="mt-2 h-px bg-black"
-            style={{ transform: "scaleX(0)", transformOrigin: "left" }}
-          />
-        </div>
-
-        {/* Description + button at bottom */}
-        <div>
-          {description && (
-            <p className="mb-8 text-sm leading-relaxed text-neutral-600 md:text-base">
-              {description}
-            </p>
-          )}
+      {/* Left column — title, description, button stacked top-to-bottom */}
+      <div className="flex flex-col">
+        <h3
+          ref={titleRef}
+          className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl"
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
+          {displayTitle}
+        </h3>
+        <div
+          ref={lineRef}
+          className="mt-2 h-px bg-black"
+          style={{ transform: "scaleX(0)", transformOrigin: "left" }}
+        />
+        {description && (
+          <p className="mt-6 text-sm leading-relaxed text-neutral-600 md:text-base">
+            {description}
+          </p>
+        )}
+        <div className="mt-8">
           {buttonUrl ? (
             <a
               href={buttonUrl}
@@ -271,22 +266,30 @@ function NFTPanel({
   const displayCtaText = ctaButtonText || "View Collection"
   const displayEncryptedText = encryptedText || "Welcome to the Matrix, Neo."
 
-  const renderImage = (item: NFTItem | undefined, fallback: string) => {
-    if (!item?.image) {
-      return (
-        <div className="flex min-h-32 w-full items-center justify-center bg-neutral-100">
-          <span className="text-xs text-neutral-400">{fallback}</span>
-        </div>
-      )
-    }
-    return (
-      <div className="relative overflow-hidden">
+  // Render one gallery image cell.
+  // isLandscape=true → object-contain with neutral bg (full image visible, no crop)
+  // isLandscape=false → object-cover (portrait fills the fixed-height cell, minimal crop)
+  const renderImage = (
+    item: NFTItem | undefined,
+    fallback: string,
+    isLandscape = false
+  ) => {
+    const cellClass = "relative h-[50vh] overflow-hidden"
+    const imgClass = isLandscape
+      ? "h-full w-full object-contain bg-neutral-50 transition-transform duration-500 hover:scale-105"
+      : "h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+
+    const content = !item?.image ? (
+      <div className="flex h-full w-full items-center justify-center bg-neutral-100">
+        <span className="text-xs text-neutral-400">{fallback}</span>
+      </div>
+    ) : (
+      <>
         <img
           src={urlFor(item.image).width(900).url()}
           alt={item.alt || item.title || ""}
-          className="w-full h-auto transition-transform duration-500 hover:scale-105"
+          className={imgClass}
         />
-        {/* Title / year overlay */}
         {(item.title || item.year) && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-3">
             {item.title && (
@@ -299,21 +302,38 @@ function NFTPanel({
             )}
           </div>
         )}
-      </div>
+      </>
     )
+
+    // Wrap in a link if ctaButtonUrl is provided
+    if (ctaButtonUrl && item?.image) {
+      return (
+        <a
+          href={ctaButtonUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cellClass}
+          style={{ display: "block" }}
+        >
+          {content}
+        </a>
+      )
+    }
+
+    return <div className={cellClass}>{content}</div>
   }
 
   return (
     <div>
       {subtitle && (
-        <p className="mb-6 text-base italic text-neutral-500">{subtitle}</p>
+        <p className="mb-6 text-lg italic text-neutral-500">{subtitle}</p>
       )}
 
-      {/* 3-image grid — natural aspect ratios, no fixed height */}
+      {/* 3-image grid — fixed 50vh row height; portrait=cover, landscape=contain */}
       <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-4">
-        {renderImage(portrait1, "Portrait 1")}
-        {renderImage(landscape1, "Landscape")}
-        {renderImage(portrait2, "Portrait 2")}
+        {renderImage(portrait1, "Portrait 1", false)}
+        {renderImage(landscape1, "Landscape", true)}
+        {renderImage(portrait2, "Portrait 2", false)}
       </div>
 
       {/* CTA row */}
@@ -631,7 +651,7 @@ export function ExploreSection({
       <hr className="border-black/20" />
 
       {PANELS.map((panel) => (
-        <div key={panel.id}>
+        <div key={panel.id} id={`panel-${panel.id}`}>
           <hr className="border-black" />
           <button
             onClick={() => toggle(panel.id)}

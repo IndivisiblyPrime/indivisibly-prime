@@ -33,15 +33,13 @@ export function Navbar({ navItems }: NavbarProps) {
     e.preventDefault()
 
     if (PANEL_TARGETS.has(target)) {
-      // Scroll to the explore section, then signal it to open the panel
-      const exploreEl = document.querySelector("#explore")
-      if (exploreEl) {
-        exploreEl.scrollIntoView({ behavior: "smooth" })
-      }
-      // Small delay so scroll starts before the panel opens
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent("explore-open-panel", { detail: target }))
-      }, 150)
+      // Dispatch first so the panel opens (and expands) before we scroll to it
+      window.dispatchEvent(new CustomEvent("explore-open-panel", { detail: target }))
+      // Wait one frame for the DOM to start expanding, then scroll to the panel header
+      requestAnimationFrame(() => {
+        const panelEl = document.querySelector(`#panel-${target}`)
+        if (panelEl) panelEl.scrollIntoView({ behavior: "smooth" })
+      })
     } else {
       const el = document.querySelector(`#${target}`)
       if (el) el.scrollIntoView({ behavior: "smooth" })
