@@ -1,16 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { ChevronRight, Linkedin, Instagram } from "lucide-react"
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { EncryptedText } from "@/components/ui/encrypted-text"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Linkedin, Instagram } from "lucide-react"
 import {
   AccordionItem as AccordionItemType,
   SocialLink,
@@ -20,10 +14,18 @@ import {
 // ─── Contact Form ──────────────────────────────────────────────────────────────
 
 function ContactForm() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" })
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  })
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
@@ -38,7 +40,7 @@ function ContactForm() {
       })
       if (!res.ok) throw new Error("Failed")
       setStatus("sent")
-      setForm({ name: "", email: "", subject: "", message: "" })
+      setForm({ name: "", email: "", phone: "", subject: "", message: "" })
     } catch {
       setStatus("error")
     }
@@ -46,7 +48,9 @@ function ContactForm() {
 
   if (status === "sent") {
     return (
-      <p className="text-sm text-green-700">Message sent! I&apos;ll get back to you soon.</p>
+      <p className="text-sm text-green-700">
+        Message sent! I&apos;ll get back to you soon.
+      </p>
     )
   }
 
@@ -54,7 +58,9 @@ function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">Name</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+            Name
+          </label>
           <input
             type="text"
             name="name"
@@ -66,7 +72,9 @@ function ContactForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">Email</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+            Email
+          </label>
           <input
             type="email"
             name="email"
@@ -79,7 +87,22 @@ function ContactForm() {
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">Subject</label>
+        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+          Phone <span className="normal-case text-neutral-400">(optional)</span>
+        </label>
+        <input
+          type="tel"
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          placeholder="+1 (555) 000-0000"
+        />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+          Subject
+        </label>
         <input
           type="text"
           name="subject"
@@ -91,7 +114,9 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">Message</label>
+        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+          Message
+        </label>
         <textarea
           name="message"
           required
@@ -103,12 +128,14 @@ function ContactForm() {
         />
       </div>
       {status === "error" && (
-        <p className="text-sm text-red-600">Something went wrong. Please try again.</p>
+        <p className="text-sm text-red-600">
+          Something went wrong. Please try again.
+        </p>
       )}
       <button
         type="submit"
         disabled={status === "sending"}
-        className="border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white disabled:opacity-50"
+        className="border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white disabled:opacity-50"
       >
         {status === "sending" ? "Sending…" : "Send Message"}
       </button>
@@ -128,7 +155,15 @@ interface BookPanelProps {
   isOpen: boolean
 }
 
-function BookPanel({ title, description, image, buttonText, buttonUrl, animKey, isOpen }: BookPanelProps) {
+function BookPanel({
+  title,
+  description,
+  image,
+  buttonText,
+  buttonUrl,
+  animKey,
+  isOpen,
+}: BookPanelProps) {
   const displayTitle = title || "Book"
   const displayButtonText = buttonText || "Buy / View More Details"
   const titleRef = useRef<HTMLHeadingElement>(null)
@@ -137,27 +172,27 @@ function BookPanel({ title, description, image, buttonText, buttonUrl, animKey, 
   useEffect(() => {
     if (!titleRef.current || !lineRef.current) return
     if (isOpen) {
-      // Remove then re-add class to force animation restart
       titleRef.current.classList.remove("animate-title-draw")
       lineRef.current.classList.remove("animate-line-draw")
-      void titleRef.current.offsetWidth // force reflow
+      void titleRef.current.offsetWidth // force reflow to restart animation
       titleRef.current.classList.add("animate-title-draw")
       lineRef.current.classList.add("animate-line-draw")
     } else {
       titleRef.current.classList.remove("animate-title-draw")
       lineRef.current.classList.remove("animate-line-draw")
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, animKey])
 
   return (
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_1fr]">
-      {/* Left column */}
+    <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1fr]">
+      {/* Left column — title at top, description + button at bottom */}
       <div className="flex flex-col justify-between">
+        {/* Title group */}
         <div>
           <h3
             ref={titleRef}
-            className="text-3xl font-semibold italic leading-tight tracking-tight md:text-4xl"
+            className="font-cursive text-4xl leading-tight tracking-tight md:text-5xl"
             style={{ clipPath: "inset(0 100% 0 0)" }}
           >
             {displayTitle}
@@ -167,40 +202,42 @@ function BookPanel({ title, description, image, buttonText, buttonUrl, animKey, 
             className="mt-2 h-px bg-black"
             style={{ transform: "scaleX(0)", transformOrigin: "left" }}
           />
+        </div>
+
+        {/* Description + button at bottom */}
+        <div>
           {description && (
-            <p className="mt-4 text-sm leading-relaxed text-neutral-600 md:text-base">
+            <p className="mb-8 text-sm leading-relaxed text-neutral-600 md:text-base">
               {description}
             </p>
           )}
-        </div>
-        {/* Button at bottom */}
-        <div className="mt-8">
           {buttonUrl ? (
             <a
               href={buttonUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white"
+              className="inline-block border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white"
             >
               {displayButtonText}
             </a>
           ) : (
-            <button className="border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white">
+            <button className="border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white">
               {displayButtonText}
             </button>
           )}
         </div>
       </div>
-      {/* Right column — book cover */}
-      <div>
+
+      {/* Right column — full image, natural aspect ratio */}
+      <div className="flex items-start justify-center">
         {image ? (
           <img
-            src={urlFor(image).width(800).url()}
+            src={urlFor(image).width(1200).url()}
             alt={displayTitle}
-            className="h-[85vh] w-full object-cover"
+            className="h-auto max-h-[55vh] w-auto max-w-full object-contain"
           />
         ) : (
-          <div className="flex h-[85vh] w-full items-center justify-center bg-neutral-100">
+          <div className="flex h-64 w-48 items-center justify-center bg-neutral-100">
             <span className="text-neutral-400">Book cover</span>
           </div>
         )}
@@ -220,47 +257,65 @@ interface NFTPanelProps {
   encryptedText?: string
 }
 
-function NFTPanel({ subtitle, nftGallery, landscapeGallery, ctaButtonText, ctaButtonUrl, encryptedText }: NFTPanelProps) {
+function NFTPanel({
+  subtitle,
+  nftGallery,
+  landscapeGallery,
+  ctaButtonText,
+  ctaButtonUrl,
+  encryptedText,
+}: NFTPanelProps) {
   const portrait1 = nftGallery?.[0]
   const landscape1 = landscapeGallery?.[0]
   const portrait2 = nftGallery?.[1]
   const displayCtaText = ctaButtonText || "View Collection"
   const displayEncryptedText = encryptedText || "Welcome to the Matrix, Neo."
 
-  const renderGalleryImage = (item: NFTItem | undefined, fallback: string) => {
+  const renderImage = (item: NFTItem | undefined, fallback: string) => {
     if (!item?.image) {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-neutral-100">
+        <div className="flex min-h-32 w-full items-center justify-center bg-neutral-100">
           <span className="text-xs text-neutral-400">{fallback}</span>
         </div>
       )
     }
     return (
-      <img
-        src={urlFor(item.image).width(800).url()}
-        alt={item.alt || item.title || ""}
-        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-      />
+      <div className="relative overflow-hidden">
+        <img
+          src={urlFor(item.image).width(900).url()}
+          alt={item.alt || item.title || ""}
+          className="w-full h-auto transition-transform duration-500 hover:scale-105"
+        />
+        {/* Title / year overlay */}
+        {(item.title || item.year) && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-3">
+            {item.title && (
+              <p className="text-sm font-medium leading-tight text-white drop-shadow">
+                {item.title}
+              </p>
+            )}
+            {item.year && (
+              <p className="text-xs text-white/70 drop-shadow">{item.year}</p>
+            )}
+          </div>
+        )}
+      </div>
     )
   }
 
   return (
     <div>
       {subtitle && (
-        <p className="mb-6 text-sm italic text-neutral-500">{subtitle}</p>
+        <p className="mb-6 text-base italic text-neutral-500">{subtitle}</p>
       )}
-      {/* 3-image grid: portrait | landscape | portrait */}
-      <div className="grid h-[60vh] grid-cols-[1fr_1.5fr_1fr] gap-4">
-        <div className="overflow-hidden">
-          {renderGalleryImage(portrait1, "Portrait 1")}
-        </div>
-        <div className="overflow-hidden">
-          {renderGalleryImage(landscape1, "Landscape")}
-        </div>
-        <div className="overflow-hidden">
-          {renderGalleryImage(portrait2, "Portrait 2")}
-        </div>
+
+      {/* 3-image grid — natural aspect ratios, no fixed height */}
+      <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-4">
+        {renderImage(portrait1, "Portrait 1")}
+        {renderImage(landscape1, "Landscape")}
+        {renderImage(portrait2, "Portrait 2")}
       </div>
+
       {/* CTA row */}
       <div className="mt-8">
         {ctaButtonUrl ? (
@@ -268,12 +323,12 @@ function NFTPanel({ subtitle, nftGallery, landscapeGallery, ctaButtonText, ctaBu
             href={ctaButtonUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white"
+            className="inline-block border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white"
           >
             {displayCtaText}
           </a>
         ) : (
-          <button className="border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white">
+          <button className="border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white">
             {displayCtaText}
           </button>
         )}
@@ -311,7 +366,7 @@ const defaultAccordionItems: AccordionItemType[] = [
     _key: "3",
     title: "Contact Me",
     content: "Get in touch.",
-    showSocialLinks: true,
+    showSocialLinks: false,
   },
 ]
 
@@ -320,16 +375,36 @@ interface AboutPanelProps {
   socialLinks?: SocialLink[]
   linkedinUrl?: string
   instagramUrl?: string
+  aboutIntroText?: string
 }
 
-function AboutPanel({ accordionItems, socialLinks, linkedinUrl, instagramUrl }: AboutPanelProps) {
-  const items = accordionItems && accordionItems.length > 0 ? accordionItems : defaultAccordionItems
+function AboutPanel({
+  accordionItems,
+  socialLinks,
+  linkedinUrl,
+  instagramUrl,
+  aboutIntroText,
+}: AboutPanelProps) {
+  const items =
+    accordionItems && accordionItems.length > 0
+      ? accordionItems
+      : defaultAccordionItems
+
+  // Custom multi-open accordion state — same pattern as outer panels
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set())
+  const toggleItem = (key: string) => {
+    setOpenItems((prev) => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   return (
     <div>
       {/* Social icons row */}
       {(linkedinUrl || instagramUrl) && (
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-3">
           {linkedinUrl && (
             <a
               href={linkedinUrl}
@@ -354,79 +429,105 @@ function AboutPanel({ accordionItems, socialLinks, linkedinUrl, instagramUrl }: 
           )}
         </div>
       )}
-      {/* Minimal accordion */}
-      <Accordion type="single" collapsible className="w-full">
-        {items.map((item) => (
-          <AccordionItem
-            key={item._key}
-            value={item._key}
-            className="border-b border-neutral-200 last:border-b-0"
-          >
-            <AccordionTrigger className="py-4 text-left text-base font-medium text-black [&:hover]:no-underline">
-              {item.title}
-            </AccordionTrigger>
-            <AccordionContent className="pb-4 text-sm text-neutral-700">
-              {(!item.itemType || item.itemType === "text") && (
-                <>
-                  <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
-                  {item.showSocialLinks && socialLinks && socialLinks.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {socialLinks.map((link) => (
-                        <a
-                          key={link._key}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs capitalize underline underline-offset-2 hover:text-black"
-                        >
-                          {link.platform}
-                        </a>
-                      ))}
+
+      {/* Intro text below social icons */}
+      {aboutIntroText && (
+        <p className="mb-6 max-w-xl text-sm leading-relaxed text-neutral-600">
+          {aboutIntroText}
+        </p>
+      )}
+
+      {/* Custom multi-open accordion with left-side arrows */}
+      <div className="w-full">
+        {items.map((item) => {
+          const isItemOpen = openItems.has(item._key)
+          return (
+            <div key={item._key} className="border-b border-neutral-200 last:border-b-0">
+              <button
+                onClick={() => toggleItem(item._key)}
+                className="flex w-full items-center gap-3 py-4 text-left"
+              >
+                <ChevronRight
+                  className={`h-4 w-4 shrink-0 text-neutral-500 transition-transform duration-200 ${
+                    isItemOpen ? "rotate-90" : ""
+                  }`}
+                />
+                <span className="text-base font-medium text-black">{item.title}</span>
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isItemOpen ? "max-h-[300vh] opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                <div className="pb-5 pl-7 text-sm text-neutral-700">
+                  {(!item.itemType || item.itemType === "text") && (
+                    <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
+                  )}
+
+                  {item.itemType === "experience" && item.experienceEntries && (
+                    <div>
+                      {item.experienceEntries.map((entry, idx) => {
+                        const isLast = idx === item.experienceEntries!.length - 1
+                        return (
+                          <div key={entry._key} className="flex gap-5">
+                            {/* Left: logo + connecting line */}
+                            <div className="flex flex-col items-center">
+                              {entry.logo ? (
+                                <img
+                                  src={urlFor(entry.logo).width(80).height(80).url()}
+                                  alt={entry.company ?? ""}
+                                  className="h-16 w-16 shrink-0 rounded-md object-cover"
+                                />
+                              ) : (
+                                <div className="h-16 w-16 shrink-0 rounded-md bg-neutral-200" />
+                              )}
+                              {/* Connector line to next entry */}
+                              {!isLast && (
+                                <div className="mt-1 w-px flex-1 bg-black/20 mb-1" />
+                              )}
+                            </div>
+
+                            {/* Right: content */}
+                            <div className={`flex-1 ${isLast ? "pb-0" : "pb-8"}`}>
+                              <p className="text-base font-semibold text-black">
+                                {entry.jobTitle}
+                              </p>
+                              {entry.company && (
+                                <p className="text-sm font-medium text-neutral-600">
+                                  {entry.company}
+                                </p>
+                              )}
+                              {entry.dateRange && (
+                                <p className="text-xs text-neutral-400">{entry.dateRange}</p>
+                              )}
+                              {entry.bullets && entry.bullets.length > 0 && (
+                                <ul className="mt-2 space-y-1">
+                                  {entry.bullets.map((bullet, i) => (
+                                    <li
+                                      key={i}
+                                      className="flex items-start gap-2 text-sm leading-relaxed"
+                                    >
+                                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-black" />
+                                      {bullet}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
-                </>
-              )}
-              {item.itemType === "experience" && item.experienceEntries && (
-                <div className="space-y-6">
-                  {item.experienceEntries.map((entry) => (
-                    <div key={entry._key} className="flex gap-4">
-                      {entry.logo && (
-                        <div className="shrink-0">
-                          <img
-                            src={urlFor(entry.logo).width(80).height(80).url()}
-                            alt={entry.company ?? ""}
-                            className="h-16 w-16 rounded-md object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <p className="text-base font-semibold text-black">{entry.jobTitle}</p>
-                        {entry.company && (
-                          <p className="text-sm text-neutral-600">{entry.company}</p>
-                        )}
-                        {entry.dateRange && (
-                          <p className="text-xs text-neutral-400">{entry.dateRange}</p>
-                        )}
-                        {entry.bullets && entry.bullets.length > 0 && (
-                          <ul className="mt-2 space-y-1">
-                            {entry.bullets.map((bullet, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm leading-relaxed">
-                                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-black" />
-                                {bullet}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+
+                  {item.itemType === "contact" && <ContactForm />}
                 </div>
-              )}
-              {item.itemType === "contact" && <ContactForm />}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -448,6 +549,7 @@ interface ExploreSectionProps {
   accordionItems?: AccordionItemType[]
   socialLinks?: SocialLink[]
   instagramUrl?: string
+  aboutIntroText?: string
 }
 
 const PANELS = [
@@ -471,9 +573,36 @@ export function ExploreSection({
   accordionItems,
   socialLinks,
   instagramUrl,
+  aboutIntroText,
 }: ExploreSectionProps) {
   const [open, setOpen] = useState<Set<string>>(new Set())
   const [bookAnimKey, setBookAnimKey] = useState(0)
+
+  // Open a specific panel (used by Navbar custom event)
+  const openPanel = (id: string) => {
+    setOpen((prev) => {
+      if (prev.has(id)) return prev // already open, no-op
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+    if (id === "book") {
+      setBookAnimKey((k) => k + 1)
+    }
+  }
+
+  // Listen for nav clicks that should open a panel
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const panelId = (e as CustomEvent<string>).detail
+      if (PANELS.some((p) => p.id === panelId)) {
+        openPanel(panelId)
+      }
+    }
+    window.addEventListener("explore-open-panel", handler)
+    return () => window.removeEventListener("explore-open-panel", handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const toggle = (id: string) => {
     const willOpen = !open.has(id)
@@ -482,11 +611,7 @@ export function ExploreSection({
     }
     setOpen((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
+      next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
   }
@@ -512,7 +637,7 @@ export function ExploreSection({
             onClick={() => toggle(panel.id)}
             className="flex w-full items-center gap-3 py-5 text-left"
           >
-            {/* Filled triangle indicator */}
+            {/* Filled triangle — rotates 90° when open */}
             <span
               className="shrink-0 transition-transform duration-300"
               style={{
@@ -520,13 +645,15 @@ export function ExploreSection({
                 transform: isOpen(panel.id) ? "rotate(90deg)" : "rotate(0deg)",
                 width: 0,
                 height: 0,
-                borderTop: "5px solid transparent",
-                borderBottom: "5px solid transparent",
-                borderLeft: "10px solid black",
+                borderTop: "6px solid transparent",
+                borderBottom: "6px solid transparent",
+                borderLeft: "12px solid black",
               }}
             />
-            <span className="text-xl font-medium">{panel.title}</span>
+            {/* Panel title — 2 sizes up from text-xl */}
+            <span className="text-3xl font-medium">{panel.title}</span>
           </button>
+
           {/* Collapsible content */}
           <div
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
@@ -561,6 +688,7 @@ export function ExploreSection({
                   socialLinks={socialLinks}
                   linkedinUrl={linkedinUrl}
                   instagramUrl={resolvedInstagramUrl}
+                  aboutIntroText={aboutIntroText}
                 />
               )}
             </div>

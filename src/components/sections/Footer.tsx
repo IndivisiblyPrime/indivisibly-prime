@@ -13,12 +13,14 @@ const defaultMarqueeItems: MarqueeItem[] = [
 ]
 
 export function Footer({ marqueeItems }: FooterProps) {
-  const rawItems = marqueeItems?.filter((item): item is MarqueeItem => item !== null && item !== undefined) || []
+  const rawItems =
+    marqueeItems?.filter((item): item is MarqueeItem => item !== null && item !== undefined) || []
   const items = rawItems.length > 0 ? rawItems : defaultMarqueeItems
 
-  const renderItem = (item: MarqueeItem, keyPrefix: string = "") => (
-    <div key={`${keyPrefix}${item._key}`} className="flex items-center gap-3">
-      {item.icon && item.icon.asset && (
+  // Render one item + separator
+  const renderItem = (item: MarqueeItem, key: string) => (
+    <div key={key} className="flex shrink-0 items-center gap-3 pr-16">
+      {item.icon?.asset && (
         <img
           src={urlFor(item.icon).width(32).height(32).url()}
           alt=""
@@ -26,6 +28,7 @@ export function Footer({ marqueeItems }: FooterProps) {
         />
       )}
       <span className="text-sm text-black">{item.text}</span>
+      <span className="pl-16 text-neutral-300">•</span>
     </div>
   )
 
@@ -34,12 +37,12 @@ export function Footer({ marqueeItems }: FooterProps) {
       <p className="mb-6 text-center text-xs uppercase tracking-widest text-neutral-400">
         Coming Soon
       </p>
-      <div className="overflow-hidden whitespace-nowrap">
-        <div className="animate-marquee inline-flex gap-16">
-          {items.map((item) => renderItem(item))}
-          <span className="text-neutral-400">•</span>
-          {items.map((item) => renderItem(item, "dup-"))}
-          <span className="text-neutral-400">•</span>
+      {/* Ticker — flex w-max ensures the track is exactly content-wide;
+          two identical copies + translateX(-50%) = seamless infinite loop */}
+      <div className="relative overflow-hidden">
+        <div className="flex w-max animate-ticker">
+          {items.map((item) => renderItem(item, `a-${item._key}`))}
+          {items.map((item) => renderItem(item, `b-${item._key}`))}
         </div>
       </div>
     </footer>

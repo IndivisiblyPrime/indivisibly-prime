@@ -294,8 +294,7 @@ export const homepageSettings = defineType({
               type: 'boolean',
               description: 'Display social links below the content',
               initialValue: false,
-              hidden: ({ parent }) =>
-                parent?.itemType === 'experience' || parent?.itemType === 'contact',
+              hidden: true,
             }),
             defineField({
               name: 'experienceEntries',
@@ -373,6 +372,14 @@ export const homepageSettings = defineType({
       type: 'url',
       group: 'about',
       description: 'Direct Instagram profile URL (used as a fallback if not set in Social Links)',
+    }),
+    defineField({
+      name: 'aboutIntroText',
+      title: 'About Me Introduction Text',
+      type: 'text',
+      group: 'about',
+      rows: 3,
+      description: 'Short text shown below the social media icons in the About panel',
     }),
 
     // Social Links

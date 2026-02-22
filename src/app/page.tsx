@@ -67,6 +67,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
     url
   },
   instagramUrl,
+  aboutIntroText,
   footerMarqueeItems[]{
     _key,
     text,
@@ -121,6 +122,7 @@ export default async function Home() {
           accordionItems={settings?.aboutAccordion}
           socialLinks={settings?.socialLinks}
           instagramUrl={settings?.instagramUrl}
+          aboutIntroText={settings?.aboutIntroText}
         />
       </main>
       <Footer marqueeItems={settings?.footerMarqueeItems} />

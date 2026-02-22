@@ -127,17 +127,20 @@
   }
 }
 
-/* Marquee animation for footer */
-@keyframes marquee {
+/* Footer ticker — 2-copy seamless loop */
+@keyframes ticker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
-.animate-marquee {
-  animation: marquee 25s linear infinite;
+.animate-ticker {
+  animation: ticker 30s linear infinite;
   will-change: transform;
-  display: inline-flex;
-  gap: 4rem;
+}
+
+/* Cursive font utility */
+.font-cursive {
+  font-family: var(--font-dancing-script), cursive;
 }
 
 /* Book title draw animation */

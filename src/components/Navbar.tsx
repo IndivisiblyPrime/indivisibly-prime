@@ -4,11 +4,14 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { NavItem } from "@/lib/types"
 
+// These targets map to panels inside ExploreSection
+const PANEL_TARGETS = new Set(["book", "nfts", "about"])
+
 const defaultNavItems: NavItem[] = [
   { _key: "1", label: "Home", target: "hero" },
-  { _key: "2", label: "Book", target: "explore" },
-  { _key: "3", label: "NFTs", target: "explore" },
-  { _key: "4", label: "About Me", target: "explore" },
+  { _key: "2", label: "Book", target: "book" },
+  { _key: "3", label: "NFTs", target: "nfts" },
+  { _key: "4", label: "About Me", target: "about" },
   { _key: "5", label: "Coming Soon", target: "coming-soon" },
 ]
 
@@ -21,19 +24,27 @@ export function Navbar({ navItems }: NavbarProps) {
   const items = navItems && navItems.length > 0 ? navItems : defaultNavItems
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 50)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
     e.preventDefault()
-    const element = document.querySelector(`#${target}`)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
+
+    if (PANEL_TARGETS.has(target)) {
+      // Scroll to the explore section, then signal it to open the panel
+      const exploreEl = document.querySelector("#explore")
+      if (exploreEl) {
+        exploreEl.scrollIntoView({ behavior: "smooth" })
+      }
+      // Small delay so scroll starts before the panel opens
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("explore-open-panel", { detail: target }))
+      }, 150)
+    } else {
+      const el = document.querySelector(`#${target}`)
+      if (el) el.scrollIntoView({ behavior: "smooth" })
     }
   }
 
@@ -41,9 +52,7 @@ export function Navbar({ navItems }: NavbarProps) {
     <nav
       className={cn(
         "fixed left-0 right-0 top-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-white/95 shadow-sm backdrop-blur-sm"
-          : "bg-transparent"
+        isScrolled ? "bg-white/95 shadow-sm backdrop-blur-sm" : "bg-transparent"
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-4">
