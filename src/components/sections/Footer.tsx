@@ -34,19 +34,22 @@ export function Footer({ marqueeItems }: FooterProps) {
 
     const tick = (now: number) => {
       if (lastTimeRef.current === null) lastTimeRef.current = now
-      const delta = (now - lastTimeRef.current) / 1000 // seconds
+      // Clamp delta to 50 ms so a backgrounded/paused tab can't cause a huge jump
+      const delta = Math.min((now - lastTimeRef.current) / 1000, 0.05)
       lastTimeRef.current = now
 
       // Half-width = width of one content set (we render 2 identical sets)
       const halfWidth = track.scrollWidth / 2
 
-      posRef.current -= SPEED * delta
-      // Seamless reset: when we've scrolled one full set, jump back
-      if (posRef.current <= -halfWidth) {
-        posRef.current += halfWidth
+      if (halfWidth > 0) {
+        posRef.current -= SPEED * delta
+        // Use while (not if) so any overshot amount is fully corrected each frame
+        while (posRef.current <= -halfWidth) {
+          posRef.current += halfWidth
+        }
+        track.style.transform = `translateX(${posRef.current}px)`
       }
 
-      track.style.transform = `translateX(${posRef.current}px)`
       rafRef.current = requestAnimationFrame(tick)
     }
 

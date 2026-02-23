@@ -9,6 +9,7 @@ import {
   AccordionItem as AccordionItemType,
   SocialLink,
   NFTItem,
+  LogoFreeformEntry,
 } from "@/lib/types"
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
@@ -266,29 +267,20 @@ function NFTPanel({
   const displayCtaText = ctaButtonText || "View Collection"
   const displayEncryptedText = encryptedText || "Welcome to the Matrix, Neo."
 
-  // Render one gallery image cell.
-  // isLandscape=true → object-contain with neutral bg (full image visible, no crop)
-  // isLandscape=false → object-cover (portrait fills the fixed-height cell, minimal crop)
-  const renderImage = (
-    item: NFTItem | undefined,
-    fallback: string,
-    isLandscape = false
-  ) => {
-    const cellClass = "relative h-[50vh] overflow-hidden"
-    const imgClass = isLandscape
-      ? "h-full w-full object-contain bg-neutral-50 transition-transform duration-500 hover:scale-105"
-      : "h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-
-    const content = !item?.image ? (
-      <div className="flex h-full w-full items-center justify-center bg-neutral-100">
+  // Renders one image at its natural aspect ratio (no cropping).
+  // On desktop: constrained by max-h-[50vh], bottom-aligned via grid items-end.
+  // On mobile: full width, stacked.
+  const renderImage = (item: NFTItem | undefined, fallback: string) => {
+    const inner = !item?.image ? (
+      <div className="flex h-48 w-full items-center justify-center bg-neutral-100">
         <span className="text-xs text-neutral-400">{fallback}</span>
       </div>
     ) : (
-      <>
+      <div className="relative inline-block">
         <img
           src={urlFor(item.image).width(900).url()}
           alt={item.alt || item.title || ""}
-          className={imgClass}
+          className="block h-auto w-auto max-h-[50vh] max-w-full object-contain transition-transform duration-500 hover:scale-105"
         />
         {(item.title || item.year) && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-3">
@@ -302,25 +294,23 @@ function NFTPanel({
             )}
           </div>
         )}
-      </>
+      </div>
     )
 
-    // Wrap in a link if ctaButtonUrl is provided
     if (ctaButtonUrl && item?.image) {
       return (
         <a
           href={ctaButtonUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={cellClass}
-          style={{ display: "block" }}
+          className="block"
         >
-          {content}
+          {inner}
         </a>
       )
     }
 
-    return <div className={cellClass}>{content}</div>
+    return <div>{inner}</div>
   }
 
   return (
@@ -329,11 +319,11 @@ function NFTPanel({
         <p className="mb-6 text-lg italic text-neutral-500">{subtitle}</p>
       )}
 
-      {/* 3-image grid — fixed 50vh row height; portrait=cover, landscape=contain */}
-      <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-4">
-        {renderImage(portrait1, "Portrait 1", false)}
-        {renderImage(landscape1, "Landscape", true)}
-        {renderImage(portrait2, "Portrait 2", false)}
+      {/* Mobile: single column stack. Desktop: 3-col, bottom-aligned natural ratios */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-4">
+        {renderImage(portrait1, "Portrait 1")}
+        {renderImage(landscape1, "Landscape")}
+        {renderImage(portrait2, "Portrait 2")}
       </div>
 
       {/* CTA row */}
@@ -502,7 +492,6 @@ function AboutPanel({
                               ) : (
                                 <div className="h-16 w-16 shrink-0 rounded-md bg-neutral-200" />
                               )}
-                              {/* Connector line to next entry */}
                               {!isLast && (
                                 <div className="mt-1 w-px flex-1 bg-black/20 mb-1" />
                               )}
@@ -521,23 +510,56 @@ function AboutPanel({
                               {entry.dateRange && (
                                 <p className="text-xs text-neutral-400">{entry.dateRange}</p>
                               )}
-                              {entry.bullets && entry.bullets.length > 0 && (
-                                <ul className="mt-2 space-y-1">
-                                  {entry.bullets.map((bullet, i) => (
-                                    <li
-                                      key={i}
-                                      className="flex items-start gap-2 text-sm leading-relaxed"
-                                    >
-                                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-black" />
-                                      {bullet}
-                                    </li>
-                                  ))}
-                                </ul>
+                              {entry.description && (
+                                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
+                                  {entry.description}
+                                </p>
                               )}
                             </div>
                           </div>
                         )
                       })}
+                    </div>
+                  )}
+
+                  {item.itemType === "logoFreeform" && item.logoFreeformEntries && (
+                    <div className="space-y-6">
+                      {item.logoFreeformEntries.map((entry: LogoFreeformEntry) => (
+                        <div key={entry._key} className="flex gap-5">
+                          {/* Left: logo only, no connecting line */}
+                          <div className="shrink-0">
+                            {entry.logo ? (
+                              <img
+                                src={urlFor(entry.logo).width(80).height(80).url()}
+                                alt={entry.subtitle ?? entry.title}
+                                className="h-16 w-16 rounded-md object-cover"
+                              />
+                            ) : (
+                              <div className="h-16 w-16 rounded-md bg-neutral-200" />
+                            )}
+                          </div>
+
+                          {/* Right: content */}
+                          <div className="flex-1">
+                            <p className="text-base font-semibold text-black">
+                              {entry.title}
+                            </p>
+                            {entry.subtitle && (
+                              <p className="text-sm font-medium text-neutral-600">
+                                {entry.subtitle}
+                              </p>
+                            )}
+                            {entry.dateRange && (
+                              <p className="text-xs text-neutral-400">{entry.dateRange}</p>
+                            )}
+                            {entry.description && (
+                              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
+                                {entry.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
 

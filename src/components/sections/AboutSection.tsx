@@ -242,15 +242,10 @@ export function AboutSection({ accordionItems, socialLinks }: AboutSectionProps)
                           {entry.dateRange && (
                             <p className="text-sm text-neutral-400">{entry.dateRange}</p>
                           )}
-                          {entry.bullets && entry.bullets.length > 0 && (
-                            <ul className="mt-2 space-y-1">
-                              {entry.bullets.map((bullet, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm leading-relaxed">
-                                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
-                                  {bullet}
-                                </li>
-                              ))}
-                            </ul>
+                          {entry.description && (
+                            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-300">
+                              {entry.description}
+                            </p>
                           )}
                         </div>
                       </div>

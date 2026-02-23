@@ -91,14 +91,20 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - Book cover image: `h-[85vh] object-cover`
 
 ### NFT Panel
-- `grid-cols-[1fr_1.5fr_1fr]` at 60vh — `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
+- `grid-cols-1` on mobile (stacked), `grid-cols-[1fr_1.5fr_1fr]` on `sm:` desktop with `items-end` (bottom-aligned)
+- Images use natural aspect ratios (`w-auto h-auto max-h-[50vh] object-contain`) — no cropping, no fixed row height
+- `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
 - CTA button (outlined) + `<EncryptedText triggerOnHover>` below
 - Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
 
 ### About Panel
 - LinkedIn + Instagram icon buttons (44px black squares) sourced from `socialLinks[]` (falls back to `instagramUrl` field)
 - Radix accordion restyled minimal (no dark bg, no numbered circles)
-- Supports three accordion item types: `text`, `experience` (job cards with logo/title/bullets), `contact` (inline form POSTing to `/api/contact`)
+- Supports four accordion item types:
+  - `text` — plain text (whitespace-pre-wrap)
+  - `experience` — job cards with logo/title/company/dateRange/description + vertical timeline line connecting entries
+  - `logoFreeform` — same card structure as experience but **no** vertical connecting line; logo is optional
+  - `contact` — inline form POSTing to `/api/contact`
 
 ## Design System
 
@@ -121,7 +127,7 @@ The schema is organized into groups:
 | Book | `bookTitle`, `bookDescription`, `bookImage`, `bookButtonText`, `bookButtonUrl` |
 | NFT Gallery | `nftSectionTitle`, `nftSectionSubtitle`, `nftGallery[]` (portrait images), `landscapeGallery[]` (landscape images) |
 | CTA | `ctaButtonText`, `ctaButtonUrl`, `encryptedText` |
-| About | `aboutAccordion[]`, `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field) |
+| About | `aboutAccordion[]` (itemType: text/experience/logoFreeform/contact), `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field) |
 | Footer | `footerMarqueeItems[]` (text, optional icon) |
 
 ### NFT grid image slots
@@ -131,7 +137,10 @@ The schema is organized into groups:
 
 ## TypeScript Types (src/lib/types.ts)
 
-Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry`, `SocialLink`, `MarqueeItem`, `NavItem`
+Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry`, `LogoFreeformEntry`, `SocialLink`, `MarqueeItem`, `NavItem`
+
+`ExperienceEntry.description` — freeform text (replaces the old `bullets: string[]` array)
+`LogoFreeformEntry` — logo/title/subtitle/dateRange/description; rendered without timeline line
 
 `HomepageSettings.instagramUrl` — optional standalone Instagram URL (fallback if not in `socialLinks[]`)
 
@@ -139,7 +148,7 @@ Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry
 
 | Class | Keyframes | Use |
 |-------|-----------|-----|
-| `animate-marquee` | translateX(0→-50%) 25s | Footer scrolling text |
+| `animate-ticker` | translateX(0→-50%) 30s | Footer scrolling text (RAF-driven, delta clamped to 50ms, while-loop reset) |
 | `animate-title-draw` | clip-path inset reveal 1.4s | Book panel title |
 | `animate-line-draw` | scaleX(0→1) 1.4s | Book panel underline |
 
@@ -164,3 +173,6 @@ NEXT_PUBLIC_SANITY_DATASET=<dataset-name>
 - Main branch: `main`
 - Remote: `https://github.com/IndivisiblyPrime/indivisibly-prime.git`
 - Push to main triggers Vercel deployment
+
+## Final Task
+- Always update this file "Claude.md" with any edits

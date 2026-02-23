@@ -21,7 +21,16 @@ export interface ExperienceEntry {
   jobTitle: string;
   dateRange?: string;
   company?: string;
-  bullets?: string[];
+  description?: string;
+}
+
+export interface LogoFreeformEntry {
+  _key: string;
+  logo?: SanityImageSource;
+  title: string;
+  dateRange?: string;
+  subtitle?: string;
+  description?: string;
 }
 
 export interface AccordionItem {
@@ -29,8 +38,9 @@ export interface AccordionItem {
   title: string;
   content?: string;
   showSocialLinks?: boolean;
-  itemType?: "text" | "experience" | "contact";
+  itemType?: "text" | "experience" | "logoFreeform" | "contact";
   experienceEntries?: ExperienceEntry[];
+  logoFreeformEntries?: LogoFreeformEntry[];
 }
 
 export interface SocialLink {

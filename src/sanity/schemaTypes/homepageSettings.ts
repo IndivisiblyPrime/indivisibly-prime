@@ -272,7 +272,8 @@ export const homepageSettings = defineType({
               options: {
                 list: [
                   { title: 'Text (plain content)', value: 'text' },
-                  { title: 'Experience (job cards)', value: 'experience' },
+                  { title: 'Experience (job cards with timeline)', value: 'experience' },
+                  { title: 'Logo + Freeform (cards without timeline)', value: 'logoFreeform' },
                   { title: 'Contact Form', value: 'contact' },
                 ],
                 layout: 'radio',
@@ -285,7 +286,9 @@ export const homepageSettings = defineType({
               type: 'text',
               rows: 4,
               hidden: ({ parent }) =>
-                parent?.itemType === 'experience' || parent?.itemType === 'contact',
+                parent?.itemType === 'experience' ||
+                parent?.itemType === 'logoFreeform' ||
+                parent?.itemType === 'contact',
               description: 'Text content shown when expanded (for "Text" type only).',
             }),
             defineField({
@@ -334,15 +337,66 @@ export const homepageSettings = defineType({
                       type: 'string',
                     }),
                     defineField({
-                      name: 'bullets',
-                      title: 'Bullet Points',
-                      type: 'array',
-                      description: 'Each item becomes one bullet point.',
-                      of: [defineArrayMember({ type: 'string' })],
+                      name: 'description',
+                      title: 'Description',
+                      type: 'text',
+                      rows: 4,
+                      description: 'Freeform text shown below the job title. Use newlines however you like.',
                     }),
                   ],
                   preview: {
                     select: { title: 'jobTitle', subtitle: 'company' },
+                  },
+                }),
+              ],
+            }),
+            defineField({
+              name: 'logoFreeformEntries',
+              title: 'Logo + Freeform Entries',
+              type: 'array',
+              hidden: ({ parent }) => parent?.itemType !== 'logoFreeform',
+              description: 'Each entry shows an optional logo next to freeform text. No timeline line.',
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'logoFreeformEntry',
+                  title: 'Entry',
+                  fields: [
+                    defineField({
+                      name: 'logo',
+                      title: 'Logo (optional)',
+                      type: 'image',
+                      description: 'Optional square logo/icon',
+                      options: { hotspot: true },
+                    }),
+                    defineField({
+                      name: 'title',
+                      title: 'Title',
+                      type: 'string',
+                      validation: (rule) => rule.required(),
+                    }),
+                    defineField({
+                      name: 'dateRange',
+                      title: 'Date Range',
+                      type: 'string',
+                      description: 'e.g. "2020 – present"',
+                    }),
+                    defineField({
+                      name: 'subtitle',
+                      title: 'Subtitle',
+                      type: 'string',
+                      description: 'Optional subtitle line below the title',
+                    }),
+                    defineField({
+                      name: 'description',
+                      title: 'Description',
+                      type: 'text',
+                      rows: 4,
+                      description: 'Freeform text — write however you like.',
+                    }),
+                  ],
+                  preview: {
+                    select: { title: 'title', subtitle: 'subtitle' },
                   },
                 }),
               ],
@@ -352,7 +406,8 @@ export const homepageSettings = defineType({
             select: { title: 'title', itemType: 'itemType' },
             prepare({ title, itemType }) {
               const labels: Record<string, string> = {
-                experience: 'Experience cards',
+                experience: 'Experience cards (timeline)',
+                logoFreeform: 'Logo + Freeform cards',
                 contact: 'Contact form',
                 text: '',
               }
