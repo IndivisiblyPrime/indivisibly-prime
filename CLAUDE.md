@@ -93,6 +93,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 ### NFT Panel
 - `grid-cols-1` on mobile (stacked), `grid-cols-[1fr_1.5fr_1fr]` on `sm:` desktop with `items-end` (bottom-aligned)
 - Images use natural aspect ratios (`w-auto h-auto max-h-[50vh] object-contain`) — no cropping, no fixed row height
+- Each grid cell wraps its image in `<div className="flex justify-center">` to centre the image in its column — **do not remove these wrappers** or the landscape image will hug the right portrait column on wide viewports
 - `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
 - CTA button (outlined) + `<EncryptedText triggerOnHover>` below
 - Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
@@ -158,6 +159,15 @@ Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry
 NEXT_PUBLIC_SANITY_PROJECT_ID=<project-id>
 NEXT_PUBLIC_SANITY_DATASET=<dataset-name>
 ```
+
+## GROQ Query (page.tsx) — critical notes
+
+The `HOMEPAGE_QUERY` in `src/app/page.tsx` must explicitly project every field used by the components. Omitting a field from the query means it will always be `undefined` in the component even if data exists in Sanity.
+
+Known pitfalls (already fixed — do not regress):
+- `aboutAccordion[].logoFreeformEntries[]` **must** be projected — it was previously missing entirely, causing the logoFreeform accordion type to render blank
+- `aboutAccordion[].experienceEntries[]` must project `description` (freeform text field) — the old name `bullets` no longer exists in the schema
+- Full required sub-projections: `experienceEntries[]{_key, logo, jobTitle, dateRange, company, description}` and `logoFreeformEntries[]{_key, logo, title, dateRange, subtitle, description}`
 
 ## Common Tasks
 
