@@ -321,9 +321,9 @@ function NFTPanel({
 
       {/* Mobile: single column stack. Desktop: 3-col, bottom-aligned natural ratios */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-4">
-        {renderImage(portrait1, "Portrait 1")}
-        {renderImage(landscape1, "Landscape")}
-        {renderImage(portrait2, "Portrait 2")}
+        <div className="flex justify-center">{renderImage(portrait1, "Portrait 1")}</div>
+        <div className="flex justify-center">{renderImage(landscape1, "Landscape")}</div>
+        <div className="flex justify-center">{renderImage(portrait2, "Portrait 2")}</div>
       </div>
 
       {/* CTA row */}

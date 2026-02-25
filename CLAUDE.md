@@ -148,7 +148,7 @@ Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry
 
 | Class | Keyframes | Use |
 |-------|-----------|-----|
-| `animate-ticker` | translateX(0→-50%) 30s | Footer scrolling text (RAF-driven, delta clamped to 50ms, while-loop reset) |
+| `animate-ticker` | translateX(0→-50%) 30s | Footer scrolling text (CSS animation on a 2-copy flex row — do NOT use RAF, images won't be loaded on first frame causing a blank gap) |
 | `animate-title-draw` | clip-path inset reveal 1.4s | Book panel title |
 | `animate-line-draw` | scaleX(0→1) 1.4s | Book panel underline |
 

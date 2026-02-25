@@ -58,7 +58,15 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
       jobTitle,
       dateRange,
       company,
-      bullets
+      description
+    },
+    logoFreeformEntries[]{
+      _key,
+      logo,
+      title,
+      dateRange,
+      subtitle,
+      description
     }
   },
   socialLinks[]{
