@@ -224,14 +224,24 @@ function BookPanel({
         </div>
       </div>
 
-      {/* Right column — full image, natural aspect ratio */}
+      {/* Right column — full image, clickable + hover scale matching NFT images */}
       <div className="flex items-start justify-center">
         {image ? (
-          <img
-            src={urlFor(image).width(1200).url()}
-            alt={displayTitle}
-            className="h-auto max-h-[55vh] w-auto max-w-full object-contain"
-          />
+          buttonUrl ? (
+            <a href={buttonUrl} target="_blank" rel="noopener noreferrer">
+              <img
+                src={urlFor(image).width(1200).url()}
+                alt={displayTitle}
+                className="h-auto max-h-[55vh] w-auto max-w-full object-contain transition-transform duration-500 hover:scale-105"
+              />
+            </a>
+          ) : (
+            <img
+              src={urlFor(image).width(1200).url()}
+              alt={displayTitle}
+              className="h-auto max-h-[55vh] w-auto max-w-full object-contain transition-transform duration-500 hover:scale-105"
+            />
+          )
         ) : (
           <div className="flex h-64 w-48 items-center justify-center bg-neutral-100">
             <span className="text-neutral-400">Book cover</span>
@@ -412,9 +422,9 @@ function AboutPanel({
 
   return (
     <div>
-      {/* Social icons row */}
+      {/* Social icons row — pl-7 aligns with accordion item text (chevron 16px + gap-3 12px) */}
       {(linkedinUrl || instagramUrl) && (
-        <div className="mb-4 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-3 pl-7">
           {linkedinUrl && (
             <a
               href={linkedinUrl}
@@ -442,7 +452,7 @@ function AboutPanel({
 
       {/* Intro text below social icons */}
       {aboutIntroText && (
-        <p className="mb-6 max-w-xl text-sm leading-relaxed text-neutral-600">
+        <p className="mb-6 max-w-xl pl-7 text-sm leading-relaxed text-neutral-600">
           {aboutIntroText}
         </p>
       )}
