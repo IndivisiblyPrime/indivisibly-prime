@@ -88,7 +88,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 ### Book Panel
 - Two-column grid (`grid-cols-[1fr_1fr]`)
 - Title uses `clip-path` draw animation (`animate-title-draw`) + underline draw (`animate-line-draw`) — triggered via `useEffect` + forced reflow when `isOpen` changes
-- Book cover image: `h-[85vh] object-cover`
+- Book cover image: `max-h-[55vh] object-contain`, wrapped in `<a href={bookButtonUrl}>` when a URL is set — same hover scale animation (`transition-transform duration-500 hover:scale-105`) as NFT images
 
 ### NFT Panel
 - `grid-cols-1` on mobile (stacked), `grid-cols-[1fr_1.5fr_1fr]` on `sm:` desktop with `items-end` (bottom-aligned)
@@ -100,6 +100,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 
 ### About Panel
 - LinkedIn + Instagram icon buttons (44px black squares) sourced from `socialLinks[]` (falls back to `instagramUrl` field)
+- Social icons row and intro text use `pl-7` to align with accordion item text (chevron 16px + gap-3 12px = 28px) — keep this consistent if adding new elements above the accordion
 - Radix accordion restyled minimal (no dark bg, no numbered circles)
 - Supports four accordion item types:
   - `text` — plain text (whitespace-pre-wrap)
