@@ -50,7 +50,7 @@ export function Navbar({ navItems }: NavbarProps) {
     <nav
       className={cn(
         "fixed left-0 right-0 top-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-white/95 backdrop-blur-sm" : "bg-transparent"
+        isScrolled ? "bg-white/95 shadow-sm backdrop-blur-sm" : "bg-transparent"
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-4">

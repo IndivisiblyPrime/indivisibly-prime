@@ -97,7 +97,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - Images use natural aspect ratios (`w-auto h-auto max-h-[50vh] object-contain`) — no cropping, no fixed row height
 - Each grid cell wraps its image in `<div className="flex justify-center">` to centre the image in its column — **do not remove these wrappers** or the landscape image will hug the right portrait column on wide viewports
 - `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
-- No gradient overlay on images (overlay and title/year text were removed)
+- Images have a `bg-gradient-to-t from-black/60` overlay at the bottom showing title + year in white text
 - CTA button (outlined) + `<EncryptedText triggerOnHover>` below
 - Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
 
@@ -123,7 +123,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - **Typography**: Geist Sans; "Explore" heading 80–120px; section titles 3xl–4xl italic
 - **Animations**: `title-draw` (clip-path reveal LTR), `line-draw` (scaleX underline), `marquee` (25s infinite)
 - **Buttons**: Outlined `border border-black px-6 py-2`, invert on hover (`hover:bg-black hover:text-white`)
-- **Navbar**: Black text at all times; `bg-white/95 backdrop-blur-sm` when scrolled past 50px (no drop shadow)
+- **Navbar**: Black text at all times; `bg-white/95 backdrop-blur-sm shadow-sm` when scrolled past 50px
 - **Responsive**: Mobile-first, grids collapse to single column at `md:` breakpoint
 
 ## Sanity Schema (homepageSettings)

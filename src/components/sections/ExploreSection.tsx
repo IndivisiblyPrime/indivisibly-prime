@@ -292,6 +292,18 @@ function NFTPanel({
           alt={item.alt || item.title || ""}
           className="block h-auto w-auto max-h-[50vh] max-w-full object-contain transition-transform duration-500 hover:scale-105"
         />
+        {(item.title || item.year) && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-3">
+            {item.title && (
+              <p className="text-sm font-medium leading-tight text-white drop-shadow">
+                {item.title}
+              </p>
+            )}
+            {item.year && (
+              <p className="text-xs text-white/70 drop-shadow">{item.year}</p>
+            )}
+          </div>
+        )}
       </div>
     )
 
