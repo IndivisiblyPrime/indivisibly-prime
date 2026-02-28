@@ -68,11 +68,13 @@ src/
 Navbar (fixed, transparent → white on scroll)
   └── HeroSection        (full-screen video/image)
   └── ExploreSection     (white bg, accordion — the main content area)
-        ├── Book panel   (two-col: animated title + description + button | tall book cover image)
-        ├── NFTs panel   (3-col portrait/landscape/portrait grid + CTA + encrypted text)
-        └── About Me panel (LinkedIn/Instagram icons + Radix accordion with bio/experience/contact)
-  └── Footer             (minimal B&W marquee, id="coming-soon")
+        ├── Book panel         (two-col: animated title + description + button | tall book cover image)
+        ├── NFTs panel         (3-col portrait/landscape/portrait grid + CTA + encrypted text)
+        ├── Coming Soon panel  (responsive grid of logo+freeform cards, editable from Studio)
+        └── About Me panel     (LinkedIn/Instagram icons in header row + Radix accordion with bio/experience/contact)
 ```
+
+Footer (marquee) has been removed.
 
 Old section order (pre-revamp): Hero → BookSection → NFTSection → CTASection → AboutSection → Footer.
 The four old sections are replaced by `ExploreSection`. Do not delete the old files — they may be referenced elsewhere or revived later.
@@ -82,7 +84,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 **File**: `src/components/sections/ExploreSection.tsx`
 
 - Top-level state: `open: Set<string>` (allows multiple panels open simultaneously), `bookAnimKey: number` (increments on each book panel open to retrigger title animation)
-- Three panels defined as `PANELS = [{id, title}]`
+- Four panels defined as `PANELS = [{id, title}]`: book → nfts → comingsoon → about
 - Panel expand/collapse uses `max-h-0` → `max-h-[500vh]` + `opacity` CSS transition
 
 ### Book Panel
@@ -95,12 +97,19 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - Images use natural aspect ratios (`w-auto h-auto max-h-[50vh] object-contain`) — no cropping, no fixed row height
 - Each grid cell wraps its image in `<div className="flex justify-center">` to centre the image in its column — **do not remove these wrappers** or the landscape image will hug the right portrait column on wide viewports
 - `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
+- No gradient overlay on images (overlay and title/year text were removed)
 - CTA button (outlined) + `<EncryptedText triggerOnHover>` below
 - Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
 
+### Coming Soon Panel
+- `ComingSoonPanel` component renders a responsive grid of logo+freeform cards (same card structure as `logoFreeform` in AboutPanel — logo, title, subtitle, dateRange, description)
+- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`, gap-6
+- Empty state: "Add items in Sanity Studio."
+- Data sourced from `comingSoonItems[]` in `homepageSettings` (Sanity group: `comingSoon`)
+
 ### About Panel
-- LinkedIn + Instagram icon buttons (44px black squares) sourced from `socialLinks[]` (falls back to `instagramUrl` field)
-- Social icons row and intro text use `pl-7` to align with accordion item text (chevron 16px + gap-3 12px = 28px) — keep this consistent if adding new elements above the accordion
+- LinkedIn + Instagram icon buttons (44px black squares) are now in the **panel header row**, to the right of the "About Me" title — sourced from `socialLinks[]` (falls back to `instagramUrl` field)
+- The panel body starts directly with intro text (no social icons inside the body anymore)
 - Radix accordion restyled minimal (no dark bg, no numbered circles)
 - Supports four accordion item types:
   - `text` — plain text (whitespace-pre-wrap)
@@ -114,7 +123,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - **Typography**: Geist Sans; "Explore" heading 80–120px; section titles 3xl–4xl italic
 - **Animations**: `title-draw` (clip-path reveal LTR), `line-draw` (scaleX underline), `marquee` (25s infinite)
 - **Buttons**: Outlined `border border-black px-6 py-2`, invert on hover (`hover:bg-black hover:text-white`)
-- **Navbar**: Black text at all times; `bg-white/95 backdrop-blur-sm shadow-sm` when scrolled past 50px
+- **Navbar**: Black text at all times; `bg-white/95 backdrop-blur-sm` when scrolled past 50px (no drop shadow)
 - **Responsive**: Mobile-first, grids collapse to single column at `md:` breakpoint
 
 ## Sanity Schema (homepageSettings)
@@ -130,7 +139,8 @@ The schema is organized into groups:
 | NFT Gallery | `nftSectionTitle`, `nftSectionSubtitle`, `nftGallery[]` (portrait images), `landscapeGallery[]` (landscape images) |
 | CTA | `ctaButtonText`, `ctaButtonUrl`, `encryptedText` |
 | About | `aboutAccordion[]` (itemType: text/experience/logoFreeform/contact), `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field) |
-| Footer | `footerMarqueeItems[]` (text, optional icon) |
+| Coming Soon | `comingSoonItems[]` (logo, title, subtitle, dateRange, description) |
+| Footer | `footerMarqueeItems[]` (text, optional icon) — schema field kept but footer removed from page; data cleared |
 
 ### NFT grid image slots
 - `nftGallery[0]` → left portrait column
@@ -169,6 +179,8 @@ Known pitfalls (already fixed — do not regress):
 - `aboutAccordion[].logoFreeformEntries[]` **must** be projected — it was previously missing entirely, causing the logoFreeform accordion type to render blank
 - `aboutAccordion[].experienceEntries[]` must project `description` (freeform text field) — the old name `bullets` no longer exists in the schema
 - Full required sub-projections: `experienceEntries[]{_key, logo, jobTitle, dateRange, company, description}` and `logoFreeformEntries[]{_key, logo, title, dateRange, subtitle, description}`
+- `comingSoonItems[]` must be projected with: `{_key, logo, title, dateRange, subtitle, description}`
+- `footerMarqueeItems` has been **removed** from the GROQ query (Footer component removed from page)
 
 ## Common Tasks
 

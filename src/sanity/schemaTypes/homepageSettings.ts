@@ -14,6 +14,7 @@ export const homepageSettings = defineType({
     { name: 'nft', title: 'NFT Gallery' },
     { name: 'cta', title: 'CTA Section' },
     { name: 'about', title: 'About Me' },
+    { name: 'comingSoon', title: 'Coming Soon' },
     { name: 'footer', title: 'Footer' },
   ],
   fields: [
@@ -64,7 +65,8 @@ export const homepageSettings = defineType({
                   { title: 'Book', value: 'book' },
                   { title: 'NFTs', value: 'nfts' },
                   { title: 'About Me', value: 'about' },
-                  { title: 'Coming Soon (Footer)', value: 'coming-soon' },
+                  { title: 'Coming Soon (Panel)', value: 'comingsoon' },
+                  { title: 'Coming Soon (Footer, legacy)', value: 'coming-soon' },
                 ],
               },
               validation: (rule) => rule.required(),
@@ -477,6 +479,59 @@ export const homepageSettings = defineType({
           ],
           preview: {
             select: { title: 'platform', subtitle: 'url' },
+          },
+        }),
+      ],
+    }),
+
+    // ─── Coming Soon Section ──────────────────────────────────────────────────
+    defineField({
+      name: 'comingSoonItems',
+      title: 'Coming Soon Items',
+      type: 'array',
+      group: 'comingSoon',
+      description: 'Logo + freeform cards shown in the Coming Soon accordion panel',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'comingSoonEntry',
+          title: 'Entry',
+          fields: [
+            defineField({
+              name: 'logo',
+              title: 'Logo (optional)',
+              type: 'image',
+              description: 'Optional square logo/icon',
+              options: { hotspot: true },
+            }),
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: 'dateRange',
+              title: 'Date Range',
+              type: 'string',
+              description: 'e.g. "2020 – present"',
+            }),
+            defineField({
+              name: 'subtitle',
+              title: 'Subtitle',
+              type: 'string',
+              description: 'Optional subtitle line below the title',
+            }),
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+              rows: 4,
+              description: 'Freeform text — write however you like.',
+            }),
+          ],
+          preview: {
+            select: { title: 'title', subtitle: 'subtitle' },
           },
         }),
       ],

@@ -292,18 +292,6 @@ function NFTPanel({
           alt={item.alt || item.title || ""}
           className="block h-auto w-auto max-h-[50vh] max-w-full object-contain transition-transform duration-500 hover:scale-105"
         />
-        {(item.title || item.year) && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-3">
-            {item.title && (
-              <p className="text-sm font-medium leading-tight text-white drop-shadow">
-                {item.title}
-              </p>
-            )}
-            {item.year && (
-              <p className="text-xs text-white/70 drop-shadow">{item.year}</p>
-            )}
-          </div>
-        )}
       </div>
     )
 
@@ -422,35 +410,7 @@ function AboutPanel({
 
   return (
     <div>
-      {/* Social icons row — pl-7 aligns with accordion item text (chevron 16px + gap-3 12px) */}
-      {(linkedinUrl || instagramUrl) && (
-        <div className="mb-4 flex items-center gap-3 pl-7">
-          {linkedinUrl && (
-            <a
-              href={linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="flex h-11 w-11 items-center justify-center rounded-md bg-black text-white transition-opacity hover:opacity-70"
-            >
-              <Linkedin className="h-5 w-5" />
-            </a>
-          )}
-          {instagramUrl && (
-            <a
-              href={instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="flex h-11 w-11 items-center justify-center rounded-md bg-black text-white transition-opacity hover:opacity-70"
-            >
-              <Instagram className="h-5 w-5" />
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* Intro text below social icons */}
+      {/* Intro text */}
       {aboutIntroText && (
         <p className="mb-6 max-w-xl pl-7 text-sm leading-relaxed text-neutral-600">
           {aboutIntroText}
@@ -584,6 +544,54 @@ function AboutPanel({
   )
 }
 
+// ─── Coming Soon Panel ────────────────────────────────────────────────────────
+
+interface ComingSoonPanelProps {
+  items?: LogoFreeformEntry[]
+}
+
+function ComingSoonPanel({ items }: ComingSoonPanelProps) {
+  if (!items || items.length === 0) {
+    return (
+      <p className="text-sm text-neutral-400">Add items in Sanity Studio.</p>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {items.map((entry) => (
+        <div key={entry._key} className="flex gap-5">
+          <div className="shrink-0">
+            {entry.logo ? (
+              <img
+                src={urlFor(entry.logo).width(80).height(80).url()}
+                alt={entry.subtitle ?? entry.title}
+                className="h-16 w-16 rounded-md object-cover"
+              />
+            ) : (
+              <div className="h-16 w-16 rounded-md bg-neutral-200" />
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-semibold text-black">{entry.title}</p>
+            {entry.subtitle && (
+              <p className="text-sm font-medium text-neutral-600">{entry.subtitle}</p>
+            )}
+            {entry.dateRange && (
+              <p className="text-xs text-neutral-400">{entry.dateRange}</p>
+            )}
+            {entry.description && (
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
+                {entry.description}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Main ExploreSection ──────────────────────────────────────────────────────
 
 interface ExploreSectionProps {
@@ -602,11 +610,13 @@ interface ExploreSectionProps {
   socialLinks?: SocialLink[]
   instagramUrl?: string
   aboutIntroText?: string
+  comingSoonItems?: LogoFreeformEntry[]
 }
 
 const PANELS = [
   { id: "book", title: "Book" },
   { id: "nfts", title: "NFTs" },
+  { id: "comingsoon", title: "Coming Soon" },
   { id: "about", title: "About Me" },
 ]
 
@@ -626,6 +636,7 @@ export function ExploreSection({
   socialLinks,
   instagramUrl,
   aboutIntroText,
+  comingSoonItems,
 }: ExploreSectionProps) {
   const [open, setOpen] = useState<Set<string>>(new Set())
   const [bookAnimKey, setBookAnimKey] = useState(0)
@@ -685,26 +696,55 @@ export function ExploreSection({
       {PANELS.map((panel) => (
         <div key={panel.id} id={`panel-${panel.id}`}>
           <hr className="border-black" />
-          <button
-            onClick={() => toggle(panel.id)}
-            className="flex w-full items-center gap-3 py-5 text-left"
-          >
-            {/* Filled triangle — rotates 90° when open */}
-            <span
-              className="shrink-0 transition-transform duration-300"
-              style={{
-                display: "inline-block",
-                transform: isOpen(panel.id) ? "rotate(90deg)" : "rotate(0deg)",
-                width: 0,
-                height: 0,
-                borderTop: "6px solid transparent",
-                borderBottom: "6px solid transparent",
-                borderLeft: "12px solid black",
-              }}
-            />
-            {/* Panel title — 2 sizes up from text-xl */}
-            <span className="text-3xl font-medium">{panel.title}</span>
-          </button>
+          <div className="flex w-full items-center py-5">
+            <button
+              onClick={() => toggle(panel.id)}
+              className="flex flex-1 items-center gap-3 text-left"
+            >
+              {/* Filled triangle — rotates 90° when open */}
+              <span
+                className="shrink-0 transition-transform duration-300"
+                style={{
+                  display: "inline-block",
+                  transform: isOpen(panel.id) ? "rotate(90deg)" : "rotate(0deg)",
+                  width: 0,
+                  height: 0,
+                  borderTop: "6px solid transparent",
+                  borderBottom: "6px solid transparent",
+                  borderLeft: "12px solid black",
+                }}
+              />
+              {/* Panel title — 2 sizes up from text-xl */}
+              <span className="text-3xl font-medium">{panel.title}</span>
+            </button>
+            {/* Social icons — shown only in About Me header */}
+            {panel.id === "about" && (linkedinUrl || resolvedInstagramUrl) && (
+              <div className="flex items-center gap-3">
+                {linkedinUrl && (
+                  <a
+                    href={linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    className="flex h-11 w-11 items-center justify-center rounded-md bg-black text-white transition-opacity hover:opacity-70"
+                  >
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                )}
+                {resolvedInstagramUrl && (
+                  <a
+                    href={resolvedInstagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="flex h-11 w-11 items-center justify-center rounded-md bg-black text-white transition-opacity hover:opacity-70"
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Collapsible content */}
           <div
@@ -733,6 +773,9 @@ export function ExploreSection({
                   ctaButtonUrl={ctaButtonUrl}
                   encryptedText={encryptedText}
                 />
+              )}
+              {panel.id === "comingsoon" && (
+                <ComingSoonPanel items={comingSoonItems} />
               )}
               {panel.id === "about" && (
                 <AboutPanel

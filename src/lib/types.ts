@@ -107,6 +107,9 @@ export interface HomepageSettings {
   instagramUrl?: string;
   aboutIntroText?: string;
 
+  // Coming Soon
+  comingSoonItems?: LogoFreeformEntry[];
+
   // Footer
   footerMarqueeItems?: MarqueeItem[];
 }

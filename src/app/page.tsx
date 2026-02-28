@@ -7,7 +7,6 @@ import { HomepageSettings } from "@/lib/types"
 import { Navbar } from "@/components/Navbar"
 import { HeroSection } from "@/components/sections/HeroSection"
 import { ExploreSection } from "@/components/sections/ExploreSection"
-import { Footer } from "@/components/sections/Footer"
 
 const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
@@ -76,10 +75,13 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
   },
   instagramUrl,
   aboutIntroText,
-  footerMarqueeItems[]{
+  comingSoonItems[]{
     _key,
-    text,
-    icon
+    logo,
+    title,
+    dateRange,
+    subtitle,
+    description
   }
 }`
 
@@ -131,9 +133,9 @@ export default async function Home() {
           socialLinks={settings?.socialLinks}
           instagramUrl={settings?.instagramUrl}
           aboutIntroText={settings?.aboutIntroText}
+          comingSoonItems={settings?.comingSoonItems}
         />
       </main>
-      <Footer marqueeItems={settings?.footerMarqueeItems} />
     </>
   )
 }
