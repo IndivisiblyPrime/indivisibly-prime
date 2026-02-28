@@ -286,11 +286,11 @@ function NFTPanel({
         <span className="text-xs text-neutral-400">{fallback}</span>
       </div>
     ) : (
-      <div className="relative inline-block">
+      <div className="relative inline-block transition-transform duration-500 hover:scale-105">
         <img
           src={urlFor(item.image).width(900).url()}
           alt={item.alt || item.title || ""}
-          className="block h-auto w-auto max-h-[50vh] max-w-full object-contain transition-transform duration-500 hover:scale-105"
+          className="block h-auto w-auto max-h-[50vh] max-w-full object-contain"
         />
         {(item.title || item.year) && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-3">
