@@ -98,6 +98,7 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - Each grid cell wraps its image in `<div className="flex justify-center">` to centre the image in its column — **do not remove these wrappers** or the landscape image will hug the right portrait column on wide viewports
 - `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
 - Images have a `bg-gradient-to-t from-black/60` overlay at the bottom showing title + year in white text
+- The `hover:scale-105` transition is on the outer `div.relative.inline-block` wrapper (not the `<img>`) so the gradient overlay scales with the image on hover — do not move it back to the `<img>` or the overlay will detach and show a black box below
 - CTA button (outlined) + `<EncryptedText triggerOnHover>` below
 - Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
 
