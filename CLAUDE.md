@@ -108,8 +108,9 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - Data sourced from `comingSoonItems[]` in `homepageSettings` (Sanity group: `comingSoon`)
 
 ### About Panel
-- LinkedIn + Instagram icon buttons (44px black squares) are now in the **panel header row**, to the right of the "About Me" title — sourced from `socialLinks[]` (falls back to `instagramUrl` field)
-- The panel body starts directly with intro text (no social icons inside the body anymore)
+- LinkedIn + Instagram icon buttons (44px black squares) are in the **panel header row**, directly after the "About Me" title with `ml-8` spacing — sourced from `socialLinks[]` (falls back to `instagramUrl` field)
+- The about panel button does NOT use `flex-1` (unlike other panels) so the icons sit adjacent to the title rather than being pushed to the far right
+- The panel body starts directly with intro text (no social icons inside the body)
 - Radix accordion restyled minimal (no dark bg, no numbered circles)
 - Supports four accordion item types:
   - `text` — plain text (whitespace-pre-wrap)

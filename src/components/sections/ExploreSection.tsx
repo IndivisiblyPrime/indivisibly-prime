@@ -711,7 +711,7 @@ export function ExploreSection({
           <div className="flex w-full items-center py-5">
             <button
               onClick={() => toggle(panel.id)}
-              className="flex flex-1 items-center gap-3 text-left"
+              className={`flex items-center gap-3 text-left${panel.id === "about" ? "" : " flex-1"}`}
             >
               {/* Filled triangle — rotates 90° when open */}
               <span
@@ -729,9 +729,9 @@ export function ExploreSection({
               {/* Panel title — 2 sizes up from text-xl */}
               <span className="text-3xl font-medium">{panel.title}</span>
             </button>
-            {/* Social icons — shown only in About Me header */}
+            {/* Social icons — shown only in About Me header, with spacing after title */}
             {panel.id === "about" && (linkedinUrl || resolvedInstagramUrl) && (
-              <div className="flex items-center gap-3">
+              <div className="ml-8 flex items-center gap-3">
                 {linkedinUrl && (
                   <a
                     href={linkedinUrl}
