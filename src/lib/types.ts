@@ -13,6 +13,7 @@ export interface NFTItem {
   alt?: string;
   year?: string;
   collection?: string;
+  url?: string;
 }
 
 export interface ExperienceEntry {

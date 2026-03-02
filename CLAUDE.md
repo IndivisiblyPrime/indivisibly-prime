@@ -149,6 +149,8 @@ The schema is organized into groups:
 - `landscapeGallery[0]` → centre landscape column
 - `nftGallery[1]` → right portrait column
 
+Each gallery item (both `nftGallery` and `landscapeGallery`) has an optional `url` field. Clicking an image opens `item.url` if set, otherwise falls back to `ctaButtonUrl`.
+
 ## TypeScript Types (src/lib/types.ts)
 
 Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry`, `LogoFreeformEntry`, `SocialLink`, `MarqueeItem`, `NavItem`

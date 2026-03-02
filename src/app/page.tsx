@@ -32,7 +32,8 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
     image,
     alt,
     year,
-    collection
+    collection,
+    url
   },
   nftGallery[]{
     _key,
@@ -40,7 +41,8 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
     image,
     alt,
     year,
-    collection
+    collection,
+    url
   },
   ctaButtonText,
   ctaButtonUrl,

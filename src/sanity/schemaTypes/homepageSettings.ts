@@ -184,6 +184,12 @@ export const homepageSettings = defineType({
             defineField({ name: 'alt', title: 'Alt Text', type: 'string' }),
             defineField({ name: 'year', title: 'Year', type: 'string', initialValue: '2025' }),
             defineField({ name: 'collection', title: 'Collection / Portfolio Name', type: 'string' }),
+            defineField({
+              name: 'url',
+              title: 'Link URL',
+              type: 'url',
+              description: 'Optional — clicking this image opens this URL. Falls back to the CTA Button URL if left blank.',
+            }),
           ],
           preview: {
             select: { title: 'title', subtitle: 'collection', media: 'image' },
@@ -214,6 +220,12 @@ export const homepageSettings = defineType({
             defineField({ name: 'alt', title: 'Alt Text', type: 'string', description: 'Alternative text for accessibility' }),
             defineField({ name: 'year', title: 'Year', type: 'string', description: 'Year of the NFT (bottom left, below title)', initialValue: '2025' }),
             defineField({ name: 'collection', title: 'Collection / Portfolio Name', type: 'string', description: 'Collection name (bottom right)' }),
+            defineField({
+              name: 'url',
+              title: 'Link URL',
+              type: 'url',
+              description: 'Optional — clicking this image opens this URL. Falls back to the CTA Button URL if left blank.',
+            }),
           ],
           preview: {
             select: { title: 'title', subtitle: 'collection', media: 'image' },

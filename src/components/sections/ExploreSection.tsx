@@ -307,10 +307,11 @@ function NFTPanel({
       </div>
     )
 
-    if (ctaButtonUrl && item?.image) {
+    const linkUrl = item?.url || ctaButtonUrl
+    if (linkUrl && item?.image) {
       return (
         <a
-          href={ctaButtonUrl}
+          href={linkUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="block"
