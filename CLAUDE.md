@@ -103,10 +103,13 @@ The four old sections are replaced by `ExploreSection`. Do not delete the old fi
 - Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
 
 ### Coming Soon Panel
-- `ComingSoonPanel` component renders a responsive grid of logo+freeform cards (same card structure as `logoFreeform` in AboutPanel — logo, title, subtitle, dateRange, description)
+- `ComingSoonPanel` renders a mailing list signup form + responsive grid of project cards
+- **Email form**: POST to `/api/subscribe` → Resend notification email to site owner. Tagline text below the form is editable via `comingSoonTagline` (Sanity group: `comingSoon`)
+- **Cards** (typed as `ComingSoonEntry`): logo, title, subtitle, dateRange, description, optional `url`, optional `exploreMoreUrl`
+  - `url`: if set, the title becomes a clickable `<a>` link (underline on hover). No cursor change if blank.
+  - `exploreMoreUrl`: if set, renders a small outlined "Explore More" button below the description
 - Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`, gap-6
-- Empty state: "Add items in Sanity Studio."
-- Data sourced from `comingSoonItems[]` in `homepageSettings` (Sanity group: `comingSoon`)
+- Data: `comingSoonItems[]` + `comingSoonTagline` from `homepageSettings` (Sanity group: `comingSoon`)
 
 ### About Panel
 - LinkedIn + Instagram icon buttons (44px black squares) are in the **panel header row**, directly after the "About Me" title with `ml-8` spacing — sourced from `socialLinks[]` (falls back to `instagramUrl` field)
@@ -141,7 +144,7 @@ The schema is organized into groups:
 | NFT Gallery | `nftSectionTitle`, `nftSectionSubtitle`, `nftGallery[]` (portrait images), `landscapeGallery[]` (landscape images) |
 | CTA | `ctaButtonText`, `ctaButtonUrl`, `encryptedText` |
 | About | `aboutAccordion[]` (itemType: text/experience/logoFreeform/contact), `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field) |
-| Coming Soon | `comingSoonItems[]` (logo, title, subtitle, dateRange, description) |
+| Coming Soon | `comingSoonTagline` (string), `comingSoonItems[]` (logo, title, subtitle, dateRange, description, url, exploreMoreUrl) |
 | Footer | `footerMarqueeItems[]` (text, optional icon) — schema field kept but footer removed from page; data cleared |
 
 ### NFT grid image slots
@@ -183,7 +186,8 @@ Known pitfalls (already fixed — do not regress):
 - `aboutAccordion[].logoFreeformEntries[]` **must** be projected — it was previously missing entirely, causing the logoFreeform accordion type to render blank
 - `aboutAccordion[].experienceEntries[]` must project `description` (freeform text field) — the old name `bullets` no longer exists in the schema
 - Full required sub-projections: `experienceEntries[]{_key, logo, jobTitle, dateRange, company, description}` and `logoFreeformEntries[]{_key, logo, title, dateRange, subtitle, description}`
-- `comingSoonItems[]` must be projected with: `{_key, logo, title, dateRange, subtitle, description}`
+- `comingSoonItems[]` must be projected with: `{_key, logo, title, dateRange, subtitle, description, url, exploreMoreUrl}`
+- `comingSoonTagline` must be projected (top-level string field)
 - `footerMarqueeItems` has been **removed** from the GROQ query (Footer component removed from page)
 
 ## Common Tasks

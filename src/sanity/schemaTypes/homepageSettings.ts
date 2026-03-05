@@ -498,6 +498,14 @@ export const homepageSettings = defineType({
 
     // ─── Coming Soon Section ──────────────────────────────────────────────────
     defineField({
+      name: 'comingSoonTagline',
+      title: 'Mailing List Tagline',
+      type: 'string',
+      group: 'comingSoon',
+      description: 'Small text shown below the email signup field (e.g. "No spam, updates only")',
+      initialValue: 'No spam, updates only.',
+    }),
+    defineField({
       name: 'comingSoonItems',
       title: 'Coming Soon Items',
       type: 'array',
@@ -540,6 +548,18 @@ export const homepageSettings = defineType({
               type: 'text',
               rows: 4,
               description: 'Freeform text — write however you like.',
+            }),
+            defineField({
+              name: 'url',
+              title: 'Project URL',
+              type: 'url',
+              description: 'Optional — makes the card title clickable (cursor changes to pointer). Leave blank for no link.',
+            }),
+            defineField({
+              name: 'exploreMoreUrl',
+              title: '"Explore More" Button URL',
+              type: 'url',
+              description: 'Optional — shows an "Explore More" button below the description that links here.',
             }),
           ],
           preview: {

@@ -10,6 +10,7 @@ import {
   SocialLink,
   NFTItem,
   LogoFreeformEntry,
+  ComingSoonEntry,
 } from "@/lib/types"
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
@@ -559,48 +560,126 @@ function AboutPanel({
 
 // ─── Coming Soon Panel ────────────────────────────────────────────────────────
 
-interface ComingSoonPanelProps {
-  items?: LogoFreeformEntry[]
-}
+function MailingListForm({ tagline }: { tagline?: string }) {
+  const [email, setEmail] = useState("")
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
 
-function ComingSoonPanel({ items }: ComingSoonPanelProps) {
-  if (!items || items.length === 0) {
-    return (
-      <p className="text-sm text-neutral-400">Add items in Sanity Studio.</p>
-    )
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus("sending")
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error("Failed")
+      setStatus("sent")
+      setEmail("")
+    } catch {
+      setStatus("error")
+    }
+  }
+
+  if (status === "sent") {
+    return <p className="text-sm text-green-700">You&apos;re on the list!</p>
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {items.map((entry) => (
-        <div key={entry._key} className="flex gap-5">
-          <div className="shrink-0">
-            {entry.logo ? (
-              <img
-                src={urlFor(entry.logo).width(80).height(80).url()}
-                alt={entry.subtitle ?? entry.title}
-                className="h-16 w-16 rounded-md object-cover"
-              />
-            ) : (
-              <div className="h-16 w-16 rounded-md bg-neutral-200" />
-            )}
-          </div>
-          <div className="flex-1">
-            <p className="text-base font-semibold text-black">{entry.title}</p>
-            {entry.subtitle && (
-              <p className="text-sm font-medium text-neutral-600">{entry.subtitle}</p>
-            )}
-            {entry.dateRange && (
-              <p className="text-xs text-neutral-400">{entry.dateRange}</p>
-            )}
-            {entry.description && (
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
-                {entry.description}
-              </p>
-            )}
-          </div>
+    <div className="mb-10">
+      <form onSubmit={handleSubmit} className="flex max-w-md gap-3">
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          className="flex-1 border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="border border-black px-5 py-2 text-sm transition-colors hover:bg-black hover:text-white disabled:opacity-50"
+        >
+          {status === "sending" ? "…" : "Subscribe"}
+        </button>
+      </form>
+      {tagline && (
+        <p className="mt-2 text-xs text-neutral-400">{tagline}</p>
+      )}
+      {status === "error" && (
+        <p className="mt-2 text-xs text-red-600">Something went wrong. Please try again.</p>
+      )}
+    </div>
+  )
+}
+
+interface ComingSoonPanelProps {
+  items?: ComingSoonEntry[]
+  tagline?: string
+}
+
+function ComingSoonPanel({ items, tagline }: ComingSoonPanelProps) {
+  return (
+    <div>
+      <MailingListForm tagline={tagline} />
+
+      {(!items || items.length === 0) ? (
+        <p className="text-sm text-neutral-400">Add items in Sanity Studio.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {items.map((entry) => (
+            <div key={entry._key} className="flex gap-5">
+              <div className="shrink-0">
+                {entry.logo ? (
+                  <img
+                    src={urlFor(entry.logo).width(80).height(80).url()}
+                    alt={entry.subtitle ?? entry.title}
+                    className="h-16 w-16 rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-md bg-neutral-200" />
+                )}
+              </div>
+              <div className="flex-1">
+                {entry.url ? (
+                  <a
+                    href={entry.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base font-semibold text-black hover:underline"
+                  >
+                    {entry.title}
+                  </a>
+                ) : (
+                  <p className="text-base font-semibold text-black">{entry.title}</p>
+                )}
+                {entry.subtitle && (
+                  <p className="text-sm font-medium text-neutral-600">{entry.subtitle}</p>
+                )}
+                {entry.dateRange && (
+                  <p className="text-xs text-neutral-400">{entry.dateRange}</p>
+                )}
+                {entry.description && (
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
+                    {entry.description}
+                  </p>
+                )}
+                {entry.exploreMoreUrl && (
+                  <a
+                    href={entry.exploreMoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block border border-black px-4 py-1.5 text-xs transition-colors hover:bg-black hover:text-white"
+                  >
+                    Explore More
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   )
 }
@@ -623,7 +702,8 @@ interface ExploreSectionProps {
   socialLinks?: SocialLink[]
   instagramUrl?: string
   aboutIntroText?: string
-  comingSoonItems?: LogoFreeformEntry[]
+  comingSoonItems?: ComingSoonEntry[]
+  comingSoonTagline?: string
 }
 
 const PANELS = [
@@ -650,6 +730,7 @@ export function ExploreSection({
   instagramUrl,
   aboutIntroText,
   comingSoonItems,
+  comingSoonTagline,
 }: ExploreSectionProps) {
   const [open, setOpen] = useState<Set<string>>(new Set())
   const [bookAnimKey, setBookAnimKey] = useState(0)
@@ -788,7 +869,7 @@ export function ExploreSection({
                 />
               )}
               {panel.id === "comingsoon" && (
-                <ComingSoonPanel items={comingSoonItems} />
+                <ComingSoonPanel items={comingSoonItems} tagline={comingSoonTagline} />
               )}
               {panel.id === "about" && (
                 <AboutPanel

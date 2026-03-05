@@ -34,6 +34,17 @@ export interface LogoFreeformEntry {
   description?: string;
 }
 
+export interface ComingSoonEntry {
+  _key: string;
+  logo?: SanityImageSource;
+  title: string;
+  dateRange?: string;
+  subtitle?: string;
+  description?: string;
+  url?: string;
+  exploreMoreUrl?: string;
+}
+
 export interface AccordionItem {
   _key: string;
   title: string;
@@ -109,7 +120,8 @@ export interface HomepageSettings {
   aboutIntroText?: string;
 
   // Coming Soon
-  comingSoonItems?: LogoFreeformEntry[];
+  comingSoonItems?: ComingSoonEntry[];
+  comingSoonTagline?: string;
 
   // Footer
   footerMarqueeItems?: MarqueeItem[];

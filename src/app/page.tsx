@@ -77,13 +77,16 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
   },
   instagramUrl,
   aboutIntroText,
+  comingSoonTagline,
   comingSoonItems[]{
     _key,
     logo,
     title,
     dateRange,
     subtitle,
-    description
+    description,
+    url,
+    exploreMoreUrl
   }
 }`
 
@@ -136,6 +139,7 @@ export default async function Home() {
           instagramUrl={settings?.instagramUrl}
           aboutIntroText={settings?.aboutIntroText}
           comingSoonItems={settings?.comingSoonItems}
+          comingSoonTagline={settings?.comingSoonTagline}
         />
       </main>
     </>
