@@ -35,8 +35,8 @@ src/
 │   ├── Navbar.tsx                  # Fixed navbar: transparent at top, white/blur when scrolled
 │   ├── sections/
 │   │   ├── HeroSection.tsx         # Full-screen hero with video/image background
-│   │   ├── ExploreSection.tsx      # Main content area — 3-panel accordion (Book, NFTs, About Me)
-│   │   ├── Footer.tsx              # Minimal B&W scrolling marquee
+│   │   ├── ExploreSection.tsx      # Main content area — 4-panel accordion (Book, NFTs, Coming Soon, About Me)
+│   │   ├── Footer.tsx              # (legacy — unused, keep in place; footer removed from page.tsx)
 │   │   ├── BookSection.tsx         # (legacy — unused, keep in place)
 │   │   ├── NFTSection.tsx          # (legacy — unused, keep in place)
 │   │   ├── CTASection.tsx          # (legacy — unused, keep in place)
@@ -156,10 +156,11 @@ Each gallery item (both `nftGallery` and `landscapeGallery`) has an optional `ur
 
 ## TypeScript Types (src/lib/types.ts)
 
-Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry`, `LogoFreeformEntry`, `SocialLink`, `MarqueeItem`, `NavItem`
+Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry`, `LogoFreeformEntry`, `ComingSoonEntry`, `SocialLink`, `MarqueeItem`, `NavItem`
 
 `ExperienceEntry.description` — freeform text (replaces the old `bullets: string[]` array)
-`LogoFreeformEntry` — logo/title/subtitle/dateRange/description; rendered without timeline line
+`LogoFreeformEntry` — logo/title/subtitle/dateRange/description; rendered without timeline line (used in About panel)
+`ComingSoonEntry` — extends LogoFreeformEntry shape with `url` (project link) and `exploreMoreUrl` (button link); used only in Coming Soon panel
 
 `HomepageSettings.instagramUrl` — optional standalone Instagram URL (fallback if not in `socialLinks[]`)
 
@@ -167,7 +168,7 @@ Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry
 
 | Class | Keyframes | Use |
 |-------|-----------|-----|
-| `animate-ticker` | translateX(0→-50%) 30s | Footer scrolling text (CSS animation on a 2-copy flex row — do NOT use RAF, images won't be loaded on first frame causing a blank gap) |
+| `animate-ticker` | translateX(0→-50%) 30s | (unused — was footer scrolling text; footer removed) |
 | `animate-title-draw` | clip-path inset reveal 1.4s | Book panel title |
 | `animate-line-draw` | scaleX(0→1) 1.4s | Book panel underline |
 
@@ -176,6 +177,11 @@ Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID=<project-id>
 NEXT_PUBLIC_SANITY_DATASET=<dataset-name>
+
+# Required for /api/contact and /api/subscribe (Resend email service)
+RESEND_API_KEY=<resend-api-key>
+CONTACT_EMAIL=<destination-email>          # where contact/subscribe emails are sent
+CONTACT_FROM_EMAIL=<sender-email>          # "from" address (defaults to onboarding@resend.dev)
 ```
 
 ## GROQ Query (page.tsx) — critical notes
@@ -189,6 +195,14 @@ Known pitfalls (already fixed — do not regress):
 - `comingSoonItems[]` must be projected with: `{_key, logo, title, dateRange, subtitle, description, url, exploreMoreUrl}`
 - `comingSoonTagline` must be projected (top-level string field)
 - `footerMarqueeItems` has been **removed** from the GROQ query (Footer component removed from page)
+
+## API Routes
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/contact` | POST | Contact form — sends email via Resend |
+| `/api/subscribe` | POST | Mailing list signup — sends notification email via Resend |
+| `/api/revalidate` | POST | ISR cache revalidation |
 
 ## Common Tasks
 
