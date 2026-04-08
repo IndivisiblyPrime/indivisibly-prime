@@ -11,7 +11,19 @@ import {
   NFTItem,
   LogoFreeformEntry,
   ComingSoonEntry,
+  SanityFileAsset,
 } from "@/lib/types"
+
+// ─── Sanity file → CDN URL ─────────────────────────────────────────────────────
+
+function sanityFileUrl(asset: SanityFileAsset | undefined): string | undefined {
+  if (!asset?.asset?._ref) return undefined
+  const ref = asset.asset._ref
+  const parts = ref.split("-")
+  const ext = parts[parts.length - 1]
+  const id = parts.slice(1, parts.length - 1).join("-")
+  return `https://cdn.sanity.io/files/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/${id}.${ext}`
+}
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
 
@@ -170,25 +182,48 @@ function BookPanel({
   const displayButtonText = buttonText || "Buy / View More Details"
   const titleRef = useRef<HTMLHeadingElement>(null)
   const lineRef = useRef<HTMLDivElement>(null)
+  const descRef = useRef<HTMLParagraphElement>(null)
+  const buttonRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!titleRef.current || !lineRef.current) return
     if (isOpen) {
+      // Title + line
       titleRef.current.classList.remove("animate-title-draw")
       lineRef.current.classList.remove("animate-line-draw")
-      void titleRef.current.offsetWidth // force reflow to restart animation
+      void titleRef.current.offsetWidth // force reflow
       titleRef.current.classList.add("animate-title-draw")
       lineRef.current.classList.add("animate-line-draw")
+
+      // Description + button (delayed)
+      if (descRef.current) {
+        descRef.current.classList.remove("animate-title-draw-delayed")
+        void descRef.current.offsetWidth
+        descRef.current.classList.add("animate-title-draw-delayed")
+      }
+      if (buttonRef.current) {
+        buttonRef.current.classList.remove("animate-title-draw-delayed")
+        void buttonRef.current.offsetWidth
+        buttonRef.current.classList.add("animate-title-draw-delayed")
+      }
     } else {
       titleRef.current.classList.remove("animate-title-draw")
       lineRef.current.classList.remove("animate-line-draw")
+      if (descRef.current) {
+        descRef.current.classList.remove("animate-title-draw-delayed")
+        descRef.current.style.clipPath = "inset(0 100% 0 0)"
+      }
+      if (buttonRef.current) {
+        buttonRef.current.classList.remove("animate-title-draw-delayed")
+        buttonRef.current.style.clipPath = "inset(0 100% 0 0)"
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, animKey])
 
   return (
     <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1fr]">
-      {/* Left column — title, description, button stacked top-to-bottom */}
+      {/* Left column */}
       <div className="flex flex-col">
         <h3
           ref={titleRef}
@@ -202,12 +237,18 @@ function BookPanel({
           className="mt-2 h-px bg-black"
           style={{ transform: "scaleX(0)", transformOrigin: "left" }}
         />
-        {description && (
-          <p className="mt-6 text-sm leading-relaxed text-neutral-600 md:text-base">
-            {description}
-          </p>
-        )}
-        <div className="mt-8">
+        <p
+          ref={descRef}
+          className="mt-6 text-sm leading-relaxed text-neutral-600 md:text-base"
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
+          {description || ""}
+        </p>
+        <div
+          ref={buttonRef}
+          className="mt-8"
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
           {buttonUrl ? (
             <a
               href={buttonUrl}
@@ -225,7 +266,7 @@ function BookPanel({
         </div>
       </div>
 
-      {/* Right column — full image, clickable + hover scale matching NFT images */}
+      {/* Right column */}
       <div className="flex items-start justify-center">
         {image ? (
           buttonUrl ? (
@@ -246,6 +287,141 @@ function BookPanel({
         ) : (
           <div className="flex h-64 w-48 items-center justify-center bg-neutral-100">
             <span className="text-neutral-400">Book cover</span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── App Panel ────────────────────────────────────────────────────────────────
+
+interface AppPanelProps {
+  title?: string
+  subtitle?: string
+  image?: SanityImageSource
+  buttonText?: string
+  buttonUrl?: string
+  animKey: number
+  isOpen: boolean
+}
+
+function AppPanel({
+  title,
+  subtitle,
+  image,
+  buttonText,
+  buttonUrl,
+  animKey,
+  isOpen,
+}: AppPanelProps) {
+  const displayTitle = title || "App"
+  const displayButtonText = buttonText || "Download / View More"
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const lineRef = useRef<HTMLDivElement>(null)
+  const descRef = useRef<HTMLParagraphElement>(null)
+  const buttonRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!titleRef.current || !lineRef.current) return
+    if (isOpen) {
+      titleRef.current.classList.remove("animate-title-draw")
+      lineRef.current.classList.remove("animate-line-draw")
+      void titleRef.current.offsetWidth
+      titleRef.current.classList.add("animate-title-draw")
+      lineRef.current.classList.add("animate-line-draw")
+
+      if (descRef.current) {
+        descRef.current.classList.remove("animate-title-draw-delayed")
+        void descRef.current.offsetWidth
+        descRef.current.classList.add("animate-title-draw-delayed")
+      }
+      if (buttonRef.current) {
+        buttonRef.current.classList.remove("animate-title-draw-delayed")
+        void buttonRef.current.offsetWidth
+        buttonRef.current.classList.add("animate-title-draw-delayed")
+      }
+    } else {
+      titleRef.current.classList.remove("animate-title-draw")
+      lineRef.current.classList.remove("animate-line-draw")
+      if (descRef.current) {
+        descRef.current.classList.remove("animate-title-draw-delayed")
+        descRef.current.style.clipPath = "inset(0 100% 0 0)"
+      }
+      if (buttonRef.current) {
+        buttonRef.current.classList.remove("animate-title-draw-delayed")
+        buttonRef.current.style.clipPath = "inset(0 100% 0 0)"
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, animKey])
+
+  return (
+    <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1fr]">
+      {/* Left column */}
+      <div className="flex flex-col">
+        <h3
+          ref={titleRef}
+          className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl"
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
+          {displayTitle}
+        </h3>
+        <div
+          ref={lineRef}
+          className="mt-2 h-px bg-black"
+          style={{ transform: "scaleX(0)", transformOrigin: "left" }}
+        />
+        <p
+          ref={descRef}
+          className="mt-6 text-sm leading-relaxed text-neutral-600 md:text-base"
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
+          {subtitle || ""}
+        </p>
+        <div
+          ref={buttonRef}
+          className="mt-8"
+          style={{ clipPath: "inset(0 100% 0 0)" }}
+        >
+          {buttonUrl ? (
+            <a
+              href={buttonUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white"
+            >
+              {displayButtonText}
+            </a>
+          ) : (
+            <button className="border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white">
+              {displayButtonText}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Right column — iPhone portrait proportions */}
+      <div className="flex items-start justify-center">
+        {image ? (
+          buttonUrl ? (
+            <a href={buttonUrl} target="_blank" rel="noopener noreferrer">
+              <img
+                src={urlFor(image).width(600).url()}
+                alt={displayTitle}
+                className="h-auto max-h-[65vh] w-auto max-w-[280px] object-contain transition-transform duration-500 hover:scale-105"
+              />
+            </a>
+          ) : (
+            <img
+              src={urlFor(image).width(600).url()}
+              alt={displayTitle}
+              className="h-auto max-h-[65vh] w-auto max-w-[280px] object-contain transition-transform duration-500 hover:scale-105"
+            />
+          )
+        ) : (
+          <div className="flex h-[480px] w-[240px] items-center justify-center rounded-2xl bg-neutral-100">
+            <span className="text-neutral-400">App screenshot</span>
           </div>
         )}
       </div>
@@ -278,9 +454,6 @@ function NFTPanel({
   const displayCtaText = ctaButtonText || "View Collection"
   const displayEncryptedText = encryptedText || "Welcome to the Matrix, Neo."
 
-  // Renders one image at its natural aspect ratio (no cropping).
-  // On desktop: constrained by max-h-[50vh], bottom-aligned via grid items-end.
-  // On mobile: full width, stacked.
   const renderImage = (item: NFTItem | undefined, fallback: string) => {
     const inner = !item?.image ? (
       <div className="flex h-48 w-full items-center justify-center bg-neutral-100">
@@ -311,12 +484,7 @@ function NFTPanel({
     const linkUrl = item?.url || ctaButtonUrl
     if (linkUrl && item?.image) {
       return (
-        <a
-          href={linkUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
+        <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="block">
           {inner}
         </a>
       )
@@ -331,14 +499,12 @@ function NFTPanel({
         <p className="mb-6 text-lg italic text-neutral-500">{subtitle}</p>
       )}
 
-      {/* Mobile: single column stack. Desktop: 3-col, bottom-aligned natural ratios */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-4">
         <div className="flex justify-center">{renderImage(portrait1, "Portrait 1")}</div>
         <div className="flex justify-center">{renderImage(landscape1, "Landscape")}</div>
         <div className="flex justify-center">{renderImage(portrait2, "Portrait 2")}</div>
       </div>
 
-      {/* CTA row */}
       <div className="mt-8">
         {ctaButtonUrl ? (
           <a
@@ -369,193 +535,131 @@ function NFTPanel({
   )
 }
 
-// ─── About Panel ──────────────────────────────────────────────────────────────
-
-const defaultAccordionItems: AccordionItemType[] = [
-  {
-    _key: "1",
-    title: "About Me",
-    content: "Welcome to my personal website. Add your bio in Sanity Studio.",
-    showSocialLinks: false,
-  },
-  {
-    _key: "2",
-    title: "Career Highlights",
-    content: "Add your career highlights in Sanity Studio.",
-    showSocialLinks: false,
-  },
-  {
-    _key: "3",
-    title: "Contact Me",
-    content: "Get in touch.",
-    showSocialLinks: false,
-  },
-]
+// ─── About Panel (no accordion — content always visible) ──────────────────────
 
 interface AboutPanelProps {
   accordionItems?: AccordionItemType[]
-  socialLinks?: SocialLink[]
-  linkedinUrl?: string
-  instagramUrl?: string
   aboutIntroText?: string
 }
 
-function AboutPanel({
-  accordionItems,
-  socialLinks,
-  linkedinUrl,
-  instagramUrl,
-  aboutIntroText,
-}: AboutPanelProps) {
-  const items =
-    accordionItems && accordionItems.length > 0
-      ? accordionItems
-      : defaultAccordionItems
-
-  // Custom multi-open accordion state — same pattern as outer panels
-  const [openItems, setOpenItems] = useState<Set<string>>(new Set())
-  const toggleItem = (key: string) => {
-    setOpenItems((prev) => {
-      const next = new Set(prev)
-      next.has(key) ? next.delete(key) : next.add(key)
-      return next
-    })
-  }
+function AboutPanel({ accordionItems, aboutIntroText }: AboutPanelProps) {
+  const experienceItem = accordionItems?.find((i) => i.itemType === "experience")
+  const talentsItem = accordionItems?.find((i) => i.itemType === "logoFreeform")
 
   return (
     <div>
-      {/* Intro text */}
       {aboutIntroText && (
-        <p className="mb-6 max-w-xl pl-7 text-sm leading-relaxed text-neutral-600">
+        <p className="mb-8 max-w-xl text-sm leading-relaxed text-neutral-600">
           {aboutIntroText}
         </p>
       )}
 
-      {/* Custom multi-open accordion with left-side arrows */}
-      <div className="w-full">
-        {items.map((item) => {
-          const isItemOpen = openItems.has(item._key)
-          return (
-            <div key={item._key} className="border-b border-neutral-200 last:border-b-0">
-              <button
-                onClick={() => toggleItem(item._key)}
-                className="flex w-full items-center gap-3 py-4 text-left"
-              >
-                <ChevronRight
-                  className={`h-4 w-4 shrink-0 text-neutral-500 transition-transform duration-200 ${
-                    isItemOpen ? "rotate-90" : ""
-                  }`}
-                />
-                <span className="text-base font-medium text-black">{item.title}</span>
-              </button>
-
-              <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isItemOpen ? "max-h-[300vh] opacity-100" : "max-h-0 opacity-0"
-                }`}
-              >
-                <div className="pb-5 pl-7 text-sm text-neutral-700">
-                  {(!item.itemType || item.itemType === "text") && (
-                    <p className="whitespace-pre-wrap leading-relaxed">{item.content}</p>
-                  )}
-
-                  {item.itemType === "experience" && item.experienceEntries && (
-                    <div>
-                      {item.experienceEntries.map((entry, idx) => {
-                        const isLast = idx === item.experienceEntries!.length - 1
-                        return (
-                          <div key={entry._key} className="flex gap-5">
-                            {/* Left: logo + connecting line */}
-                            <div className="flex flex-col items-center">
-                              {entry.logo ? (
-                                <img
-                                  src={urlFor(entry.logo).width(80).height(80).url()}
-                                  alt={entry.company ?? ""}
-                                  className="h-16 w-16 shrink-0 rounded-md object-cover"
-                                />
-                              ) : (
-                                <div className="h-16 w-16 shrink-0 rounded-md bg-neutral-200" />
-                              )}
-                              {!isLast && (
-                                <div className="mt-1 w-px flex-1 bg-black/20 mb-1" />
-                              )}
-                            </div>
-
-                            {/* Right: content */}
-                            <div className={`flex-1 ${isLast ? "pb-0" : "pb-8"}`}>
-                              <p className="text-base font-semibold text-black">
-                                {entry.jobTitle}
-                              </p>
-                              {entry.company && (
-                                <p className="text-sm font-medium text-neutral-600">
-                                  {entry.company}
-                                </p>
-                              )}
-                              {entry.dateRange && (
-                                <p className="text-xs text-neutral-400">{entry.dateRange}</p>
-                              )}
-                              {entry.description && (
-                                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
-                                  {entry.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
+      {/* Career Experience */}
+      {experienceItem && (
+        <div>
+          <h4 className="mb-5 text-xl font-semibold text-black">
+            {experienceItem.title || "Career Experience"}
+          </h4>
+          {experienceItem.experienceEntries && experienceItem.experienceEntries.length > 0 && (
+            <div>
+              {experienceItem.experienceEntries.map((entry, idx) => {
+                const isLast = idx === experienceItem.experienceEntries!.length - 1
+                return (
+                  <div key={entry._key} className="flex gap-5">
+                    <div className="flex flex-col items-center">
+                      {entry.logo ? (
+                        <img
+                          src={urlFor(entry.logo).width(80).height(80).url()}
+                          alt={entry.company ?? ""}
+                          className="h-16 w-16 shrink-0 rounded-md object-cover"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 shrink-0 rounded-md bg-neutral-200" />
+                      )}
+                      {!isLast && (
+                        <div className="mt-1 w-px flex-1 bg-black/20 mb-1" />
+                      )}
                     </div>
-                  )}
-
-                  {item.itemType === "logoFreeform" && item.logoFreeformEntries && (
-                    <div className="space-y-6">
-                      {item.logoFreeformEntries.map((entry: LogoFreeformEntry) => (
-                        <div key={entry._key} className="flex gap-5">
-                          {/* Left: logo only, no connecting line */}
-                          <div className="shrink-0">
-                            {entry.logo ? (
-                              <img
-                                src={urlFor(entry.logo).width(80).height(80).url()}
-                                alt={entry.subtitle ?? entry.title}
-                                className="h-16 w-16 rounded-md object-cover"
-                              />
-                            ) : (
-                              <div className="h-16 w-16 rounded-md bg-neutral-200" />
-                            )}
-                          </div>
-
-                          {/* Right: content */}
-                          <div className="flex-1">
-                            <p className="text-base font-semibold text-black">
-                              {entry.title}
-                            </p>
-                            {entry.subtitle && (
-                              <p className="text-sm font-medium text-neutral-600">
-                                {entry.subtitle}
-                              </p>
-                            )}
-                            {entry.dateRange && (
-                              <p className="text-xs text-neutral-400">{entry.dateRange}</p>
-                            )}
-                            {entry.description && (
-                              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
-                                {entry.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                    <div className={`flex-1 text-sm ${isLast ? "pb-0" : "pb-8"}`}>
+                      <p className="text-base font-semibold text-black">{entry.jobTitle}</p>
+                      {entry.company && (
+                        <p className="text-sm font-medium text-neutral-600">{entry.company}</p>
+                      )}
+                      {entry.dateRange && (
+                        <p className="text-xs text-neutral-400">{entry.dateRange}</p>
+                      )}
+                      {entry.description && (
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
+                          {entry.description}
+                        </p>
+                      )}
                     </div>
-                  )}
-
-                  {item.itemType === "contact" && <ContactForm />}
-                </div>
-              </div>
+                  </div>
+                )
+              })}
             </div>
-          )
-        })}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* Divider between sections */}
+      {experienceItem && talentsItem && (
+        <hr className="my-8 border-neutral-200" />
+      )}
+
+      {/* Other Talents & Interests */}
+      {talentsItem && (
+        <div>
+          <h4 className="mb-5 text-xl font-semibold text-black">
+            {talentsItem.title || "Other Talents & Interests"}
+          </h4>
+          {talentsItem.logoFreeformEntries && talentsItem.logoFreeformEntries.length > 0 && (
+            <div className="space-y-6">
+              {talentsItem.logoFreeformEntries.map((entry: LogoFreeformEntry) => (
+                <div key={entry._key} className="flex gap-5">
+                  <div className="shrink-0">
+                    {entry.logo ? (
+                      <img
+                        src={urlFor(entry.logo).width(80).height(80).url()}
+                        alt={entry.subtitle ?? entry.title}
+                        className="h-16 w-16 rounded-md object-cover"
+                      />
+                    ) : (
+                      <div className="h-16 w-16 rounded-md bg-neutral-200" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-black">{entry.title}</p>
+                    {entry.subtitle && (
+                      <p className="text-sm font-medium text-neutral-600">{entry.subtitle}</p>
+                    )}
+                    {entry.dateRange && (
+                      <p className="text-xs text-neutral-400">{entry.dateRange}</p>
+                    )}
+                    {entry.description && (
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
+                        {entry.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!experienceItem && !talentsItem && (
+        <p className="text-sm text-neutral-400">Add content in Sanity Studio.</p>
+      )}
     </div>
   )
+}
+
+// ─── Contact Me Panel ─────────────────────────────────────────────────────────
+
+function ContactMePanel() {
+  return <ContactForm />
 }
 
 // ─── Coming Soon Panel ────────────────────────────────────────────────────────
@@ -604,9 +708,7 @@ function MailingListForm({ tagline }: { tagline?: string }) {
           {status === "sending" ? "…" : "Subscribe"}
         </button>
       </form>
-      {tagline && (
-        <p className="mt-2 text-xs text-neutral-400">{tagline}</p>
-      )}
+      {tagline && <p className="mt-2 text-xs text-neutral-400">{tagline}</p>}
       {status === "error" && (
         <p className="mt-2 text-xs text-red-600">Something went wrong. Please try again.</p>
       )}
@@ -692,6 +794,12 @@ interface ExploreSectionProps {
   bookImage?: SanityImageSource
   bookButtonText?: string
   bookButtonUrl?: string
+  appTitle?: string
+  appSubtitle?: string
+  appButtonText?: string
+  appButtonUrl?: string
+  appImage?: SanityImageSource
+  appGongSound?: SanityFileAsset
   nftSubtitle?: string
   nftGallery?: NFTItem[]
   landscapeGallery?: NFTItem[]
@@ -707,10 +815,12 @@ interface ExploreSectionProps {
 }
 
 const PANELS = [
-  { id: "book", title: "Book" },
-  { id: "nfts", title: "NFTs" },
-  { id: "comingsoon", title: "Coming Soon" },
-  { id: "about", title: "About Me" },
+  { id: "book",        title: "1. Book" },
+  { id: "app",         title: "2. App" },
+  { id: "nfts",        title: "3. NFTs" },
+  { id: "comingsoon",  title: "Coming Soon" },
+  { id: "about",       title: "About Me" },
+  { id: "contact",     title: "Contact Me" },
 ]
 
 export function ExploreSection({
@@ -719,6 +829,12 @@ export function ExploreSection({
   bookImage,
   bookButtonText,
   bookButtonUrl,
+  appTitle,
+  appSubtitle,
+  appButtonText,
+  appButtonUrl,
+  appImage,
+  appGongSound,
   nftSubtitle,
   nftGallery,
   landscapeGallery,
@@ -734,21 +850,21 @@ export function ExploreSection({
 }: ExploreSectionProps) {
   const [open, setOpen] = useState<Set<string>>(new Set())
   const [bookAnimKey, setBookAnimKey] = useState(0)
+  const [appAnimKey, setAppAnimKey] = useState(0)
 
-  // Open a specific panel (used by Navbar custom event)
+  const gongSoundUrl = sanityFileUrl(appGongSound)
+
   const openPanel = (id: string) => {
     setOpen((prev) => {
-      if (prev.has(id)) return prev // already open, no-op
+      if (prev.has(id)) return prev
       const next = new Set(prev)
       next.add(id)
       return next
     })
-    if (id === "book") {
-      setBookAnimKey((k) => k + 1)
-    }
+    if (id === "book") setBookAnimKey((k) => k + 1)
+    if (id === "app") setAppAnimKey((k) => k + 1)
   }
 
-  // Listen for nav clicks that should open a panel
   useEffect(() => {
     const handler = (e: Event) => {
       const panelId = (e as CustomEvent<string>).detail
@@ -763,8 +879,13 @@ export function ExploreSection({
 
   const toggle = (id: string) => {
     const willOpen = !open.has(id)
-    if (id === "book" && willOpen) {
-      setBookAnimKey((k) => k + 1)
+    if (id === "book" && willOpen) setBookAnimKey((k) => k + 1)
+    if (id === "app" && willOpen) {
+      setAppAnimKey((k) => k + 1)
+      if (gongSoundUrl) {
+        const audio = new Audio(gongSoundUrl)
+        audio.play().catch(() => {/* autoplay blocked — silently ignore */})
+      }
     }
     setOpen((prev) => {
       const next = new Set(prev)
@@ -781,7 +902,6 @@ export function ExploreSection({
 
   return (
     <section id="explore" className="w-full bg-white px-8 py-16 md:px-16">
-      {/* Explore heading */}
       <h2 className="mb-4 text-[80px] font-bold leading-none tracking-tight md:text-[120px]">
         Explore
       </h2>
@@ -793,9 +913,10 @@ export function ExploreSection({
           <div className="flex w-full items-center py-5">
             <button
               onClick={() => toggle(panel.id)}
-              className={`flex items-center gap-3 text-left${panel.id === "about" ? "" : " flex-1"}`}
+              className={`flex items-center gap-3 text-left${
+                panel.id === "about" || panel.id === "contact" ? "" : " flex-1"
+              }`}
             >
-              {/* Filled triangle — rotates 90° when open */}
               <span
                 className="shrink-0 transition-transform duration-300"
                 style={{
@@ -808,11 +929,11 @@ export function ExploreSection({
                   borderLeft: "12px solid black",
                 }}
               />
-              {/* Panel title — 2 sizes up from text-xl */}
               <span className="text-3xl font-medium">{panel.title}</span>
             </button>
-            {/* Social icons — shown only in About Me header, with spacing after title */}
-            {panel.id === "about" && (linkedinUrl || resolvedInstagramUrl) && (
+
+            {/* Social icons — shown only in Contact Me header */}
+            {panel.id === "contact" && (linkedinUrl || resolvedInstagramUrl) && (
               <div className="ml-8 flex items-center gap-3">
                 {linkedinUrl && (
                   <a
@@ -858,6 +979,17 @@ export function ExploreSection({
                   isOpen={isOpen("book")}
                 />
               )}
+              {panel.id === "app" && (
+                <AppPanel
+                  title={appTitle}
+                  subtitle={appSubtitle}
+                  image={appImage}
+                  buttonText={appButtonText}
+                  buttonUrl={appButtonUrl}
+                  animKey={appAnimKey}
+                  isOpen={isOpen("app")}
+                />
+              )}
               {panel.id === "nfts" && (
                 <NFTPanel
                   subtitle={nftSubtitle}
@@ -874,12 +1006,10 @@ export function ExploreSection({
               {panel.id === "about" && (
                 <AboutPanel
                   accordionItems={accordionItems}
-                  socialLinks={socialLinks}
-                  linkedinUrl={linkedinUrl}
-                  instagramUrl={resolvedInstagramUrl}
                   aboutIntroText={aboutIntroText}
                 />
               )}
+              {panel.id === "contact" && <ContactMePanel />}
             </div>
           </div>
         </div>

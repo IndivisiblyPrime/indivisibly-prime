@@ -11,6 +11,7 @@ export const homepageSettings = defineType({
     { name: 'navigation', title: 'Navigation' },
     { name: 'hero', title: 'Hero Section' },
     { name: 'book', title: 'Book Section' },
+    { name: 'app', title: 'App Section' },
     { name: 'nft', title: 'NFT Gallery' },
     { name: 'cta', title: 'CTA Section' },
     { name: 'about', title: 'About Me' },
@@ -62,9 +63,11 @@ export const homepageSettings = defineType({
               options: {
                 list: [
                   { title: 'Home (Hero)', value: 'hero' },
-                  { title: 'Book', value: 'book' },
-                  { title: 'NFTs', value: 'nfts' },
+                  { title: '1. Book', value: 'book' },
+                  { title: '2. App', value: 'app' },
+                  { title: '3. NFTs', value: 'nfts' },
                   { title: 'About Me', value: 'about' },
+                  { title: 'Contact Me', value: 'contact' },
                   { title: 'Coming Soon (Panel)', value: 'comingsoon' },
                   { title: 'Coming Soon (Footer, legacy)', value: 'coming-soon' },
                 ],
@@ -102,6 +105,30 @@ export const homepageSettings = defineType({
       type: 'url',
       group: 'hero',
       description: 'External video URL (e.g., from a CDN). Used if no uploaded video.',
+    }),
+    defineField({
+      name: 'heroIntroVideo',
+      title: 'Intro Video (plays once before loop)',
+      type: 'file',
+      group: 'hero',
+      description: 'Short clip (e.g. 10s) that plays once when the page loads, then switches to the looping background video.',
+      options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'heroBoredomVideo',
+      title: '"Bored?" Video',
+      type: 'file',
+      group: 'hero',
+      description: 'Video that plays when the visitor clicks the "Bored?" button (~45–60s clip).',
+      options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'heroBoredomButtonText',
+      title: '"Bored?" Button Text',
+      type: 'string',
+      group: 'hero',
+      description: 'Label on the button shown in the bottom-right of the hero.',
+      initialValue: 'Bored?',
     }),
 
     // ─── Book Section ────────────────────────────────────────────────────────
@@ -143,6 +170,54 @@ export const homepageSettings = defineType({
       type: 'url',
       group: 'book',
       description: 'Link for the book button (optional)',
+    }),
+
+    // ─── App Section ─────────────────────────────────────────────────────────
+    defineField({
+      name: 'appTitle',
+      title: 'App Section Title',
+      type: 'string',
+      group: 'app',
+      description: 'Title shown in the "2. App" panel (e.g. "My App Name")',
+    }),
+    defineField({
+      name: 'appSubtitle',
+      title: 'App Section Description',
+      type: 'text',
+      group: 'app',
+      description: 'Description / subtitle shown below the title',
+      rows: 4,
+    }),
+    defineField({
+      name: 'appButtonText',
+      title: 'App Button Text',
+      type: 'string',
+      group: 'app',
+      description: 'Text for the app download/details button',
+      initialValue: 'Download / View More',
+    }),
+    defineField({
+      name: 'appButtonUrl',
+      title: 'App Button URL',
+      type: 'url',
+      group: 'app',
+      description: 'Link for the app button (optional)',
+    }),
+    defineField({
+      name: 'appImage',
+      title: 'App Screenshot / Icon',
+      type: 'image',
+      group: 'app',
+      description: 'Portrait-orientation screenshot (iPhone-sized) or app icon.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'appGongSound',
+      title: 'Gong Sound',
+      type: 'file',
+      group: 'app',
+      description: 'Audio file (MP3/WAV) that plays when the "2. App" panel is opened.',
+      options: { accept: 'audio/*' },
     }),
 
     // ─── NFT Gallery Section ─────────────────────────────────────────────────

@@ -19,11 +19,20 @@ const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
   heroImage,
   heroVideo,
   heroVideoUrl,
+  heroIntroVideo,
+  heroBoredomVideo,
+  heroBoredomButtonText,
   bookTitle,
   bookDescription,
   bookImage,
   bookButtonText,
   bookButtonUrl,
+  appTitle,
+  appSubtitle,
+  appButtonText,
+  appButtonUrl,
+  appImage,
+  appGongSound,
   nftSectionTitle,
   nftSectionSubtitle,
   landscapeGallery[]{
@@ -121,6 +130,9 @@ export default async function Home() {
           heroImage={settings?.heroImage}
           heroVideo={settings?.heroVideo}
           heroVideoUrl={settings?.heroVideoUrl}
+          heroIntroVideo={settings?.heroIntroVideo}
+          heroBoredomVideo={settings?.heroBoredomVideo}
+          heroBoredomButtonText={settings?.heroBoredomButtonText}
         />
         <ExploreSection
           bookTitle={settings?.bookTitle}
@@ -128,6 +140,12 @@ export default async function Home() {
           bookImage={settings?.bookImage}
           bookButtonText={settings?.bookButtonText}
           bookButtonUrl={settings?.bookButtonUrl}
+          appTitle={settings?.appTitle}
+          appSubtitle={settings?.appSubtitle}
+          appButtonText={settings?.appButtonText}
+          appButtonUrl={settings?.appButtonUrl}
+          appImage={settings?.appImage}
+          appGongSound={settings?.appGongSound}
           nftSubtitle={settings?.nftSectionSubtitle}
           nftGallery={settings?.nftGallery}
           landscapeGallery={settings?.landscapeGallery}

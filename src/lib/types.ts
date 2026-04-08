@@ -94,6 +94,9 @@ export interface HomepageSettings {
   heroImage?: SanityImageSource;
   heroVideo?: SanityFileAsset;
   heroVideoUrl?: string;
+  heroIntroVideo?: SanityFileAsset;
+  heroBoredomVideo?: SanityFileAsset;
+  heroBoredomButtonText?: string;
 
   // Book
   bookTitle?: string;
@@ -101,6 +104,14 @@ export interface HomepageSettings {
   bookImage?: SanityImageSource;
   bookButtonText?: string;
   bookButtonUrl?: string;
+
+  // App
+  appTitle?: string;
+  appSubtitle?: string;
+  appButtonText?: string;
+  appButtonUrl?: string;
+  appImage?: SanityImageSource;
+  appGongSound?: SanityFileAsset;
 
   // NFT
   nftSectionTitle?: string;

@@ -163,3 +163,18 @@
   animation: line-draw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   transform-origin: left;
 }
+
+/* Delayed title-draw — for Book/App description + button (starts after title finishes) */
+.animate-title-draw-delayed {
+  animation: title-draw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards 1.4s;
+}
+
+/* Scroll hint flash */
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.animate-flash {
+  animation: flash 1.2s ease-in-out infinite;
+}
