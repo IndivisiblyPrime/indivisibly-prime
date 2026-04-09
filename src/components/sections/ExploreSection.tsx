@@ -81,7 +81,7 @@ function ContactForm() {
             required
             value={form.name}
             onChange={handleChange}
-            className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
             placeholder="Your name"
           />
         </div>
@@ -95,7 +95,7 @@ function ContactForm() {
             required
             value={form.email}
             onChange={handleChange}
-            className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
             placeholder="your@email.com"
           />
         </div>
@@ -109,7 +109,7 @@ function ContactForm() {
           name="phone"
           value={form.phone}
           onChange={handleChange}
-          className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
           placeholder="+1 (555) 000-0000"
         />
       </div>
@@ -123,7 +123,7 @@ function ContactForm() {
           required
           value={form.subject}
           onChange={handleChange}
-          className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
           placeholder="Subject"
         />
       </div>
@@ -137,7 +137,7 @@ function ContactForm() {
           rows={4}
           value={form.message}
           onChange={handleChange}
-          className="w-full resize-none border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full resize-none rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
           placeholder="Your message..."
         />
       </div>
@@ -908,7 +908,9 @@ export function ExploreSection({
       <hr className="border-black/20" />
 
       {PANELS.map((panel) => (
-        <div key={panel.id} id={`panel-${panel.id}`}>
+        <div key={panel.id}>
+          {panel.id === "about" && <div className="h-[480px]" />}
+        <div id={`panel-${panel.id}`}>
           <hr className="border-black" />
           <div className="flex w-full items-center py-5">
             <button
@@ -1012,6 +1014,7 @@ export function ExploreSection({
               {panel.id === "contact" && <ContactMePanel />}
             </div>
           </div>
+        </div>
         </div>
       ))}
       <hr className="border-black" />

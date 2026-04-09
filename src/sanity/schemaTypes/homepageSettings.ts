@@ -16,7 +16,6 @@ export const homepageSettings = defineType({
     { name: 'cta', title: 'CTA Section' },
     { name: 'about', title: 'About Me' },
     { name: 'comingSoon', title: 'Coming Soon' },
-    { name: 'footer', title: 'Footer' },
   ],
   fields: [
     // ─── Site Settings ───────────────────────────────────────────────────────
@@ -363,7 +362,6 @@ export const homepageSettings = defineType({
                   { title: 'Text (plain content)', value: 'text' },
                   { title: 'Experience (job cards with timeline)', value: 'experience' },
                   { title: 'Logo + Freeform (cards without timeline)', value: 'logoFreeform' },
-                  { title: 'Contact Form', value: 'contact' },
                 ],
                 layout: 'radio',
               },
@@ -376,8 +374,7 @@ export const homepageSettings = defineType({
               rows: 4,
               hidden: ({ parent }) =>
                 parent?.itemType === 'experience' ||
-                parent?.itemType === 'logoFreeform' ||
-                parent?.itemType === 'contact',
+                parent?.itemType === 'logoFreeform',
               description: 'Text content shown when expanded (for "Text" type only).',
             }),
             defineField({
@@ -497,7 +494,6 @@ export const homepageSettings = defineType({
               const labels: Record<string, string> = {
                 experience: 'Experience cards (timeline)',
                 logoFreeform: 'Logo + Freeform cards',
-                contact: 'Contact form',
                 text: '',
               }
               return {
@@ -644,39 +640,6 @@ export const homepageSettings = defineType({
       ],
     }),
 
-    // ─── Footer Marquee Items ─────────────────────────────────────────────────
-    defineField({
-      name: 'footerMarqueeItems',
-      title: 'Footer Marquee Items',
-      type: 'array',
-      group: 'footer',
-      description: 'Items for the scrolling footer marquee with optional icons',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'marqueeItem',
-          title: 'Marquee Item',
-          fields: [
-            defineField({
-              name: 'text',
-              title: 'Text',
-              type: 'string',
-              validation: (rule) => rule.required(),
-            }),
-            defineField({
-              name: 'icon',
-              title: 'Icon',
-              type: 'image',
-              description: 'Optional icon to display alongside the text',
-              options: { hotspot: true },
-            }),
-          ],
-          preview: {
-            select: { title: 'text', media: 'icon' },
-          },
-        }),
-      ],
-    }),
   ],
   preview: {
     prepare() {

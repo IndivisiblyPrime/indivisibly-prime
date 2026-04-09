@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { NavItem } from "@/lib/types"
 
 // These targets map to panels inside ExploreSection
-const PANEL_TARGETS = new Set(["book", "nfts", "about", "comingsoon"])
+const PANEL_TARGETS = new Set(["book", "app", "nfts", "about", "comingsoon", "contact"])
 
 const defaultNavItems: NavItem[] = [
   { _key: "1", label: "Home", target: "hero" },

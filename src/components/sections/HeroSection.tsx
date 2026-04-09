@@ -41,8 +41,9 @@ export function HeroSection({
   )
   const [boredomMode, setBoredomMode] = useState(false)
   const [showScrollHint, setShowScrollHint] = useState(false)
+  const boredomActivatedRef = useRef(false)
 
-  // Scroll hint: show after 20s if user hasn't scrolled ~480px (≈5 inches)
+  // Scroll hint: show after 20s if user hasn't scrolled ~480px and hasn't hit Bored
   useEffect(() => {
     let dismissed = false
     const SCROLL_THRESHOLD = 480
@@ -56,7 +57,7 @@ export function HeroSection({
     window.addEventListener("scroll", onScroll, { passive: true })
 
     const timer = setTimeout(() => {
-      if (!dismissed && window.scrollY < SCROLL_THRESHOLD) {
+      if (!dismissed && !boredomActivatedRef.current && window.scrollY < SCROLL_THRESHOLD) {
         setShowScrollHint(true)
       }
     }, 20000)
@@ -66,6 +67,11 @@ export function HeroSection({
       window.removeEventListener("scroll", onScroll)
     }
   }, [])
+
+  // Hide scroll hint when boredom mode is activated
+  useEffect(() => {
+    if (boredomMode) setShowScrollHint(false)
+  }, [boredomMode])
 
   // Determine which video src to show
   const activeVideoSrc = (() => {
@@ -112,7 +118,6 @@ export function HeroSection({
                 <source src={activeVideoSrc} type="video/mp4" />
               </video>
             )}
-            <div className="absolute inset-0 bg-neutral-900/40" />
           </>
         ) : heroImage ? (
           <>
@@ -121,7 +126,6 @@ export function HeroSection({
               alt=""
               className="h-full w-full rotate-180 object-cover"
             />
-            <div className="absolute inset-0 bg-neutral-900/40" />
           </>
         ) : (
           <div className="h-full w-full bg-gradient-to-b from-neutral-800 via-neutral-900 to-neutral-900" />
@@ -137,20 +141,21 @@ export function HeroSection({
 
       {/* Scroll hint */}
       {showScrollHint && (
-        <p className="animate-flash absolute bottom-1/4 left-1/2 z-20 -translate-x-1/2 text-sm text-white/80 pointer-events-none select-none">
+        <p className="animate-flash absolute bottom-16 left-1/2 z-50 -translate-x-1/2 text-xl text-white/90 pointer-events-none select-none">
           (scroll down please)
         </p>
       )}
 
-      {/* "Bored?" button — bottom right */}
-      {boredomVideoUrl && (
-        <button
-          onClick={() => setBoredomMode((m) => !m)}
-          className="absolute bottom-6 right-8 z-20 border border-white px-5 py-2 text-sm text-white transition-colors hover:bg-white hover:text-black"
-        >
-          {boredomMode ? "Back" : (heroBoredomButtonText || "Bored?")}
-        </button>
-      )}
+      {/* "Bored?" button — always shown bottom right */}
+      <button
+        onClick={() => {
+          boredomActivatedRef.current = true
+          setBoredomMode((m) => !m)
+        }}
+        className="absolute bottom-6 right-8 z-50 border border-white px-5 py-2 text-sm text-white transition-colors hover:bg-white hover:text-black"
+      >
+        {boredomMode ? "Back" : (heroBoredomButtonText || "Bored?")}
+      </button>
     </section>
   )
 }
