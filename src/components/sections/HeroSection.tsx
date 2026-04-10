@@ -134,14 +134,14 @@ export function HeroSection({
 
       {/* Hero title */}
       <div className="relative z-10 px-4 text-center">
-        <h1 className="text-7xl font-bold uppercase tracking-tight text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] md:text-8xl lg:text-9xl">
+        <h1 className="text-7xl font-bold uppercase tracking-tight text-white [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000] md:text-8xl lg:text-9xl">
           Jack Harvey
         </h1>
       </div>
 
       {/* Scroll hint */}
       {showScrollHint && (
-        <p className="animate-flash absolute bottom-16 left-1/2 z-50 -translate-x-1/2 text-xl text-white/90 pointer-events-none select-none">
+        <p className="animate-flash absolute bottom-16 left-1/2 z-50 -translate-x-1/2 text-xl text-white pointer-events-none select-none [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000]">
           (scroll down please)
         </p>
       )}

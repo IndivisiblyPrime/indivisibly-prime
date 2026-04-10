@@ -81,7 +81,7 @@ function ContactForm() {
             required
             value={form.name}
             onChange={handleChange}
-            className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
+            className="w-full rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:outline-none"
             placeholder="Your name"
           />
         </div>
@@ -95,7 +95,7 @@ function ContactForm() {
             required
             value={form.email}
             onChange={handleChange}
-            className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
+            className="w-full rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:outline-none"
             placeholder="your@email.com"
           />
         </div>
@@ -109,7 +109,7 @@ function ContactForm() {
           name="phone"
           value={form.phone}
           onChange={handleChange}
-          className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
+          className="w-full rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:outline-none"
           placeholder="+1 (555) 000-0000"
         />
       </div>
@@ -123,7 +123,7 @@ function ContactForm() {
           required
           value={form.subject}
           onChange={handleChange}
-          className="w-full rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
+          className="w-full rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:outline-none"
           placeholder="Subject"
         />
       </div>
@@ -137,7 +137,7 @@ function ContactForm() {
           rows={4}
           value={form.message}
           onChange={handleChange}
-          className="w-full resize-none rounded bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none"
+          className="w-full resize-none rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:outline-none"
           placeholder="Your message..."
         />
       </div>
@@ -149,7 +149,7 @@ function ContactForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white disabled:opacity-50"
+        className="border border-neutral-400 px-8 py-3 text-base transition-colors hover:bg-neutral-800 hover:text-white disabled:opacity-50"
       >
         {status === "sending" ? "Sending…" : "Send Message"}
       </button>
@@ -557,7 +557,7 @@ function AboutPanel({ accordionItems, aboutIntroText }: AboutPanelProps) {
       {/* Career Experience */}
       {experienceItem && (
         <div>
-          <h4 className="mb-5 text-xl font-semibold text-black">
+          <h4 className="mb-5 text-2xl font-semibold text-black">
             {experienceItem.title || "Career Experience"}
           </h4>
           {experienceItem.experienceEntries && experienceItem.experienceEntries.length > 0 && (
@@ -610,7 +610,7 @@ function AboutPanel({ accordionItems, aboutIntroText }: AboutPanelProps) {
       {/* Other Talents & Interests */}
       {talentsItem && (
         <div>
-          <h4 className="mb-5 text-xl font-semibold text-black">
+          <h4 className="mb-5 text-2xl font-semibold text-black">
             {talentsItem.title || "Other Talents & Interests"}
           </h4>
           {talentsItem.logoFreeformEntries && talentsItem.logoFreeformEntries.length > 0 && (
@@ -909,7 +909,6 @@ export function ExploreSection({
 
       {PANELS.map((panel) => (
         <div key={panel.id}>
-          {panel.id === "about" && <div className="h-[480px]" />}
         <div id={`panel-${panel.id}`}>
           <hr className="border-black" />
           <div className="flex w-full items-center py-5">
