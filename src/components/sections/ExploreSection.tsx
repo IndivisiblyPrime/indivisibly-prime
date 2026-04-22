@@ -815,8 +815,8 @@ interface ExploreSectionProps {
 }
 
 const PANELS = [
-  { id: "book",        title: "1. Book" },
-  { id: "app",         title: "2. App" },
+  { id: "app",         title: "1. App" },
+  { id: "book",        title: "2. Book" },
   { id: "nfts",        title: "3. NFTs" },
   { id: "comingsoon",  title: "Coming Soon" },
   { id: "about",       title: "About Me" },
@@ -1017,6 +1017,19 @@ export function ExploreSection({
         </div>
       ))}
       <hr className="border-black" />
+
+      {/* Bored button — bottom-left, scrolls back to hero and triggers boredom video */}
+      <div className="mt-8">
+        <button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("hero-boredom-activate"))
+            window.scrollTo({ top: 0, behavior: "smooth" })
+          }}
+          className="border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white"
+        >
+          Bored?
+        </button>
+      </div>
     </section>
   )
 }

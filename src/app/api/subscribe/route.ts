@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
   }
 
   const apiKey = process.env.RESEND_API_KEY
-  const to = process.env.CONTACT_EMAIL
+  const to = "indivisiblyprime@gmail.com"
   const from = process.env.CONTACT_FROM_EMAIL ?? "onboarding@resend.dev"
 
-  if (!apiKey || !to) {
+  if (!apiKey) {
     return NextResponse.json(
       { error: "Email service not configured" },
       { status: 500 }

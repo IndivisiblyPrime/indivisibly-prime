@@ -73,6 +73,16 @@ export function HeroSection({
     if (boredomMode) setShowScrollHint(false)
   }, [boredomMode])
 
+  // Listen for boredom activation from ExploreSection button
+  useEffect(() => {
+    const handler = () => {
+      boredomActivatedRef.current = true
+      setBoredomMode(true)
+    }
+    window.addEventListener("hero-boredom-activate", handler)
+    return () => window.removeEventListener("hero-boredom-activate", handler)
+  }, [])
+
   // Determine which video src to show
   const activeVideoSrc = (() => {
     if (boredomMode && boredomVideoUrl) return boredomVideoUrl
@@ -146,16 +156,6 @@ export function HeroSection({
         </p>
       )}
 
-      {/* "Bored?" button — always shown bottom right */}
-      <button
-        onClick={() => {
-          boredomActivatedRef.current = true
-          setBoredomMode((m) => !m)
-        }}
-        className="absolute bottom-6 right-8 z-50 border border-white px-5 py-2 text-sm text-white transition-colors hover:bg-white hover:text-black"
-      >
-        {boredomMode ? "Back" : (heroBoredomButtonText || "Bored?")}
-      </button>
     </section>
   )
 }
