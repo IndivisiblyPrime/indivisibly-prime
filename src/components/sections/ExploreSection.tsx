@@ -652,14 +652,19 @@ function AboutPanel({ accordionItems, aboutIntroText }: AboutPanelProps) {
       {!experienceItem && !talentsItem && (
         <p className="text-sm text-neutral-400">Add content in Sanity Studio.</p>
       )}
+
+      {/* Divider before folded-in Contact Me */}
+      {(experienceItem || talentsItem) && (
+        <hr className="my-8 border-neutral-200" />
+      )}
+
+      {/* Contact Me (folded into About Me) */}
+      <div>
+        <h4 className="mb-5 text-2xl font-semibold text-black">Contact Me</h4>
+        <ContactForm />
+      </div>
     </div>
   )
-}
-
-// ─── Contact Me Panel ─────────────────────────────────────────────────────────
-
-function ContactMePanel() {
-  return <ContactForm />
 }
 
 // ─── Coming Soon Panel ────────────────────────────────────────────────────────
@@ -686,11 +691,17 @@ function MailingListForm({ tagline }: { tagline?: string }) {
   }
 
   if (status === "sent") {
-    return <p className="text-sm text-green-700">You&apos;re on the list!</p>
+    return (
+      <div>
+        <h4 className="mb-3 text-2xl font-semibold text-black">Join the mailing list</h4>
+        <p className="text-sm text-green-700">You&apos;re on the list!</p>
+      </div>
+    )
   }
 
   return (
-    <div className="mb-10">
+    <div>
+      <h4 className="mb-3 text-2xl font-semibold text-black">Join the mailing list</h4>
       <form onSubmit={handleSubmit} className="flex max-w-md gap-3">
         <input
           type="email"
@@ -708,7 +719,7 @@ function MailingListForm({ tagline }: { tagline?: string }) {
           {status === "sending" ? "…" : "Subscribe"}
         </button>
       </form>
-      {tagline && <p className="mt-2 text-xs text-neutral-400">{tagline}</p>}
+      {tagline && <p className="mt-2 text-xs text-neutral-400">({tagline})</p>}
       {status === "error" && (
         <p className="mt-2 text-xs text-red-600">Something went wrong. Please try again.</p>
       )}
@@ -724,8 +735,6 @@ interface ComingSoonPanelProps {
 function ComingSoonPanel({ items, tagline }: ComingSoonPanelProps) {
   return (
     <div>
-      <MailingListForm tagline={tagline} />
-
       {(!items || items.length === 0) ? (
         <p className="text-sm text-neutral-400">Add items in Sanity Studio.</p>
       ) : (
@@ -782,6 +791,10 @@ function ComingSoonPanel({ items, tagline }: ComingSoonPanelProps) {
           ))}
         </div>
       )}
+
+      <div className="mt-10">
+        <MailingListForm tagline={tagline} />
+      </div>
     </div>
   )
 }
@@ -820,7 +833,6 @@ const PANELS = [
   { id: "nfts",        title: "3. NFTs" },
   { id: "comingsoon",  title: "Coming Soon" },
   { id: "about",       title: "About Me" },
-  { id: "contact",     title: "Contact Me" },
 ]
 
 export function ExploreSection({
@@ -915,7 +927,7 @@ export function ExploreSection({
             <button
               onClick={() => toggle(panel.id)}
               className={`flex items-center gap-3 text-left${
-                panel.id === "about" || panel.id === "contact" ? "" : " flex-1"
+                panel.id === "about" ? "" : " flex-1"
               }`}
             >
               <span
@@ -933,8 +945,8 @@ export function ExploreSection({
               <span className="text-3xl font-medium">{panel.title}</span>
             </button>
 
-            {/* Social icons — shown only in Contact Me header */}
-            {panel.id === "contact" && (linkedinUrl || resolvedInstagramUrl) && (
+            {/* Social icons — shown only in About Me header */}
+            {panel.id === "about" && (linkedinUrl || resolvedInstagramUrl) && (
               <div className="ml-8 flex items-center gap-3">
                 {linkedinUrl && (
                   <a
@@ -1010,26 +1022,12 @@ export function ExploreSection({
                   aboutIntroText={aboutIntroText}
                 />
               )}
-              {panel.id === "contact" && <ContactMePanel />}
             </div>
           </div>
         </div>
         </div>
       ))}
       <hr className="border-black" />
-
-      {/* Bored button — bottom-left, scrolls back to hero and triggers boredom video */}
-      <div className="mt-8">
-        <button
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent("hero-boredom-activate"))
-            window.scrollTo({ top: 0, behavior: "smooth" })
-          }}
-          className="border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white"
-        >
-          Bored?
-        </button>
-      </div>
     </section>
   )
 }

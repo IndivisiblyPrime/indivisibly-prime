@@ -573,8 +573,8 @@ export const homepageSettings = defineType({
       title: 'Mailing List Tagline',
       type: 'string',
       group: 'comingSoon',
-      description: 'Small text shown below the email signup field (e.g. "No spam, updates only")',
-      initialValue: 'No spam, updates only.',
+      description: 'Small parenthetical text shown below the "Join the mailing list" signup form (e.g. "Zero spam, updates only")',
+      initialValue: 'Zero spam and only a singular email when a new project has launched',
     }),
     defineField({
       name: 'comingSoonItems',

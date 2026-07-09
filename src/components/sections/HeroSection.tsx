@@ -68,16 +68,12 @@ export function HeroSection({
     }
   }, [])
 
-  // Hide scroll hint when boredom mode is activated
-  useEffect(() => {
-    if (boredomMode) setShowScrollHint(false)
-  }, [boredomMode])
-
   // Listen for boredom activation from ExploreSection button
   useEffect(() => {
     const handler = () => {
       boredomActivatedRef.current = true
       setBoredomMode(true)
+      setShowScrollHint(false)
     }
     window.addEventListener("hero-boredom-activate", handler)
     return () => window.removeEventListener("hero-boredom-activate", handler)
