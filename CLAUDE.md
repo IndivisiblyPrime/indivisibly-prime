@@ -6,6 +6,42 @@ This file provides guidance to Claude Code when working with this repository.
 
 **Indivisibly Prime** - Jack Harvey's personal website built with Next.js + Sanity CMS.
 
+## Homepage — "The Desk" (`/`, Sanity-driven)
+
+**The Desk is now the live homepage.** It is fully **Sanity-driven** (was a hardcoded prototype). The previous homepage is preserved verbatim at **`/classic`**; `/desk` is a thin alias of `/`. Revert path: the git tag **`pre-desk-redesign`** and branch **`backup/classic-homepage`** (both at the pre-redesign commit), or just point `src/app/page.tsx` back at `Navbar`+`HeroSection`+`ExploreSection` (all still present, used by `/classic`).
+
+- **Data flow**: `src/app/page.tsx` (ISR 60s) fetches via the shared `getHomepageSettings()` / `HOMEPAGE_QUERY` in **`src/sanity/lib/homepage.ts`** (a superset query reused by `/`, `/desk`, `/classic`) → passes `settings: HomepageSettings` into `<DeskExperience>`. `urlFor` builds image URLs client-side.
+- **Components** live in **`src/components/desk/`**:
+  - `DeskExperience.tsx` — `"use client"` orchestrator. State: `active` (open card), `coverGone`, `pulseApp`. Renders `EntryCover`, then `DeskStageWeb` (`hidden md:block`) **or** `DeskStagePhone` (`md:hidden`, scrollable), and the `Modal` card. `sessionStorage["desk-cover-seen"]` skips the cover on repeat visits.
+  - `EntryCover.tsx` — Stillpoint-style warm-dark scrim (`rgba(16,11,6,…)` gradient + blur) showing only `entryTitle` ("Jack Harvey", Cormorant serif) + `entrySubtitle` ("enter") + a scroll cue. Lifts away (fade + rise + scale) on first **wheel/scroll/touch/key or click**, then never returns this session.
+  - `DeskStageWeb.tsx` — desktop desk (`public/desk.png`, `width:min(100vw,177.68vh)`, `aspect-ratio 1672/941`). `HOTSPOTS` array (% coords) in `data.ts`. **Hover spotlight**: the hovered rect brightens + white ring while everything else dims via `box-shadow: 0 0 0 100vmax rgba(0,0,0,0.28)` ("singles it out"). Labels `1 App / 2 Book / 3 NFTs / About Me` stay above the dim. **App attract pulse** (`.desk-pulse`) runs on the App object until first interaction.
+  - `DeskStagePhone.tsx` — phone version: 4 full-width **scene images stacked vertically** (`public/desk-phone-{app,book,nft,about}.png`, derived from `desk.png`), each with a white frame + label + "Tap to open". Scroll down, tap to open the card. **Swap in real phone photos** by replacing those 4 files.
+  - `Modal.tsx` — responsive card shell: fluid `width:min(96vw, 46rem|60rem)`, `max-h-[90dvh] overflow-y-auto`; ✕ / Esc / backdrop close; desk visible behind `bg-black/55`.
+  - `cards/` — `AppCard` (carousel over `appImages` + Download & Website buttons), `BookCard` (single button), `NftCard` (mirrors ExploreSection: portrait/landscape/portrait from `nftGallery`/`landscapeGallery`, per-item URL + hover-scale, "All NFT Galleries" + the cryptic `EncryptedText`), `AboutCard` (socials + ✉️ at the **top**; ✉️ toggles inline `ContactForm`; Experience with company **logos in the left slot** + date as the grey line; Interests **text-only**), plus `ContactForm.tsx` and `shared.tsx` (`Eyebrow`, `ActionButton`).
+- **Fallbacks**: every card falls back to the `public/crops/*` images + sensible copy when its Sanity fields are empty, so the site looks complete before Studio is filled (see `FALLBACK` in `data.ts`).
+- **Hardcoded assets (NOT in Studio, per Jack)**: `public/desk.png` (desktop bg) + `public/desk-phone-*.png` (phone scenes) + `public/crops/*` (card/scene fallbacks). Regenerate crops/scenes with PIL from `desk.png`.
+- **New CSS** (`globals.css`, `desk-*` namespace): `desk-pulse` (App attract), `desk-rise` (cover entrance), `desk-scroll-cue`.
+- **`/api/contact`** now includes the optional `phone` field in the email body.
+
+## Personal Operating System Route (`/os`) — experimental redesign
+
+A second **non-destructive alternate homepage** exploring the "Personal Operating System" concept (**JH.OS / INDIVISIBLE OS**): the site is a fictional desktop OS with a dune wallpaper, a top menu bar, draggable app windows, and a magnifying dock. Lives at `/os`; does not touch `/` or `/desk`.
+
+- **Route**: `src/app/os/page.tsx` (thin server component + metadata) → renders `src/components/os/Desktop.tsx` (`"use client"`, the window manager).
+- **Not Sanity-driven** — all copy/data is hardcoded in `src/components/os/content.ts` (mirrors the live Sanity content: book, app, NFTs, career/experience, interests, socials, coming-soon). Edit content there.
+- **Four apps** (`AppId = bonsai | wisdom | alexandria | jack`), each a genuinely-functional mini-app:
+  - `Bonsai.app` (`apps/BonsaiApp.tsx`) — working meditation timer: warm-up → session countdown, animated SVG ring, synthesized WebAudio chime (no audio asset), Timer/History/Guides/Settings tabs (Guides shows `public/crops/phone_screen.png`).
+  - `Wisdom.pdf` (`apps/WisdomPdf.tsx`) — book reader: toolbar (grid/read view, page nav "n / 128", A/A font size, bookmark), ~7 flippable pages (cover `public/crops/book_cover.png` → title → foreword → sample chapters → journal `public/crops/journal_left.png` → buy CTA → thegreatestwisdomofzen.com).
+  - `Alexandria.gallery` (`apps/AlexandriaGallery.tsx`) — image browser: sidebar + featured artwork + clickable thumbnails + prev/next pager over the 3 NFTs (`public/crops/nft3_girl.png`, `nft2_wave.png`, `nft1_pillars.png`), "All NFT Galleries" → OpenSea.
+  - `Jack.txt` (`apps/JackTerminal.tsx`) — **live interactive terminal** (dark window): prints the profile, then accepts typed commands (`help, about, experience, interests, projects, contact, neofetch, ls, cat, date, echo, clear, open <app>`; `open`/`bonsai`/`gallery`/`book` actually launch other windows via the `onOpenApp` callback). Up/Down arrows recall command history.
+- **Window manager** (`Desktop.tsx`): per-app `{open, min, rect, z, prev}` state; focus raises z-index; close/minimize/zoom(maximize) via traffic-light buttons in `Window.tsx`; pointer-drag by the titlebar (clamped on-screen). On wide screens all four windows auto-open in a cascade echoing the mockup; at `≤1024px` windows become fullscreen + non-draggable and nothing auto-opens (tap an icon to open).
+- **Chrome**: `MenuBar.tsx` (brand + System/Focus/Create/Archive/Connect dropdowns wired to open apps / external links; right-side status icons + **live clock**), `Dock.tsx` (magnifying app icons with running-dots + Search/Settings/Trash; Search opens a Spotlight overlay, also `⌘/Ctrl-K`), a short **boot splash** (ensō draw-in + "INDIVISIBLE OS", click to skip), and a toast.
+- **Wallpaper**: `Wallpaper.tsx` — pure SVG/CSS desert-dune scene (no external asset). Note `public/desk.png` is the `/desk` concept's flat-lay photo and is **not** used here; swap for a real photo by editing this one component.
+- **Fonts/CSS**: adds `Cormorant_Garamond` (`--font-cormorant`, surfaced via the `.os-serif` class) in `layout.tsx`; OS keyframes/utilities are appended to `globals.css` under the "INDIVISIBLE OS" banner (`os-window-in`, `os-cursor`, `os-draw`, `os-scroll`, `os-rise`, …).
+- **Icons**: `icons.tsx` — `Enso` brush-circle mark (brand/boot/Bonsai icon), `TxtDoc` glyph, and `AppIcon` tiles (used by desktop icons + dock).
+- **To view**: `npm run dev` → http://localhost:3000/os (this session served the prod build via `next start -p 3005` because a parallel dev server held the `.next/dev` lock).
+- **To promote to homepage**: render `<Desktop/>` from `src/app/page.tsx` (or swap routes). `/`, `/desk`, and all legacy sections stay intact.
+
 ## Commands
 
 - `npm run dev` - Dev server at http://localhost:3000
@@ -63,7 +99,9 @@ src/
     └── utils.ts                    # cn() utility from shadcn
 ```
 
-## Page Layout (current)
+## Page Layout — the `/classic` backup
+
+> The homepage `/` is now **the Desk** (see "Homepage — The Desk" above). The layout below and the ExploreSection/HeroSection sections that follow now describe **`/classic`** (`src/app/classic/page.tsx`), the preserved previous homepage.
 
 ```
 Navbar (fixed, transparent → white on scroll)
@@ -160,13 +198,14 @@ The schema is organized into groups:
 | Group | Fields |
 |-------|--------|
 | Site | `siteTitle`, `siteFavicon` |
+| Entry Cover | `entryTitle` (default "Jack Harvey"), `entrySubtitle` (default "enter") — the intro cover on the Desk homepage |
 | Navigation | `navItems[]` (label + target section ID) |
 | Hero | `heroImage`, `heroVideo` (file), `heroVideoUrl` (external), `heroIntroVideo` (file — plays once before loop), `heroBoredomVideo` (file — unused, no trigger since "Bored?" button removed), `heroBoredomButtonText` (string, unused) |
-| Book | `bookTitle`, `bookDescription`, `bookImage`, `bookButtonText`, `bookButtonUrl` |
-| App Section | `appTitle`, `appSubtitle`, `appButtonText`, `appButtonUrl`, `appImage` (portrait/iPhone-sized), `appGongSound` (audio file) |
+| Book | `bookTitle`, `bookSubtitle` (e.g. "A Complete Guide"), `bookDescription`, `bookImage`, `bookButtonText`, `bookButtonUrl` |
+| App Section | `appTitle`, `appTagline`, `appSubtitle` (description), `appButtonText`/`appButtonUrl` (Download), `appWebsiteButtonText`/`appWebsiteButtonUrl` (Website), `appImages[]` (Desk-card carousel; falls back to single `appImage`), `appImage`, `appGongSound` (audio file) |
 | NFT Gallery | `nftSectionTitle`, `nftSectionSubtitle`, `nftGallery[]` (portrait images), `landscapeGallery[]` (landscape images) |
 | CTA | `ctaButtonText`, `ctaButtonUrl`, `encryptedText` |
-| About | `aboutAccordion[]` (itemType: text/experience/logoFreeform — `contact` type removed from Studio; Contact Me is now a hardcoded form folded into the About Me panel), `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field) |
+| About | `aboutTagline` (under name, default "Builder · Investor · Lifelong Meditator"), `aboutAccordion[]` (itemType: text/experience/logoFreeform — `contact` type removed from Studio; Contact Me is now a hardcoded form folded into the About Me panel), `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field), `aboutIntroText` (Desk About-card description) |
 | Coming Soon | `comingSoonTagline` (string), `comingSoonItems[]` (logo, title, subtitle, dateRange, description, url, exploreMoreUrl) |
 | Footer | (removed — `footerMarqueeItems` field deleted from schema and Studio) |
 

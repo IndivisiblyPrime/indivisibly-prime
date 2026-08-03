@@ -87,6 +87,10 @@ export interface HomepageSettings {
   siteTitle?: string;
   siteFavicon?: SanityImageSource;
 
+  // Entry cover
+  entryTitle?: string;
+  entrySubtitle?: string;
+
   // Navigation
   navItems?: NavItem[];
 
@@ -100,6 +104,7 @@ export interface HomepageSettings {
 
   // Book
   bookTitle?: string;
+  bookSubtitle?: string;
   bookDescription?: string;
   bookImage?: SanityImageSource;
   bookButtonText?: string;
@@ -107,10 +112,14 @@ export interface HomepageSettings {
 
   // App
   appTitle?: string;
+  appTagline?: string;
   appSubtitle?: string;
   appButtonText?: string;
   appButtonUrl?: string;
+  appWebsiteButtonText?: string;
+  appWebsiteButtonUrl?: string;
   appImage?: SanityImageSource;
+  appImages?: SanityImageSource[];
   appGongSound?: SanityFileAsset;
 
   // NFT
@@ -126,6 +135,8 @@ export interface HomepageSettings {
 
   // About
   aboutAccordion?: AccordionItem[];
+  aboutTagline?: string;
+  aboutImage?: SanityImageSource;
   socialLinks?: SocialLink[];
   instagramUrl?: string;
   aboutIntroText?: string;

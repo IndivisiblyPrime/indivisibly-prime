@@ -178,3 +178,93 @@
 .animate-flash {
   animation: flash 1.2s ease-in-out infinite;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   INDIVISIBLE OS  (/os route)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.os-serif {
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+}
+
+/* Prevent text selection while dragging windows / on chrome */
+.os-noselect {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Window entrance */
+@keyframes os-window-in {
+  0%   { opacity: 0; transform: scale(0.96) translateY(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.os-window-in {
+  animation: os-window-in 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Generic fade/rise */
+@keyframes os-rise {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.os-rise { animation: os-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Terminal cursor blink */
+@keyframes os-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.os-cursor { animation: os-blink 1.05s step-end infinite; }
+
+/* Boot splash: draw the ensō */
+@keyframes os-draw {
+  0%   { stroke-dashoffset: 640; opacity: 0.2; }
+  60%  { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.os-draw { stroke-dasharray: 640; animation: os-draw 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+
+@keyframes os-fade-out { to { opacity: 0; visibility: hidden; } }
+.os-boot-hide { animation: os-fade-out 0.6s ease forwards; }
+
+/* Subtle desktop-icon / hint float */
+@keyframes os-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.os-float { animation: os-float 3.2s ease-in-out infinite; }
+
+/* Thin, unobtrusive scrollbars inside windows */
+.os-scroll { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.22) transparent; }
+.os-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.os-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 8px; }
+.os-scroll::-webkit-scrollbar-track { background: transparent; }
+.os-scroll-dark { scrollbar-color: rgba(255,255,255,0.22) transparent; }
+.os-scroll-dark::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); }
+
+/* Dock magnification handled with transforms in JS/Tailwind */
+.os-dock-item { transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* ============================================================
+   THE DESK  (/ homepage — interactive desk experience)
+   ============================================================ */
+
+/* App-object attract pulse — draws the eye to "1 · App" first, after the
+   entry cover lifts, until the visitor hovers/opens any object. */
+@keyframes desk-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.35), 0 0 20px rgba(255,238,210,0.15); }
+  50%      { box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 58px rgba(255,238,210,0.55); }
+}
+.desk-pulse { animation: desk-pulse 1.7s ease-in-out infinite; }
+
+/* Entry-cover content entrance */
+@keyframes desk-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.desk-rise { animation: desk-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* Animated scroll-cue line on the entry cover */
+@keyframes desk-scroll-cue {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.4; }
+  50%      { transform: scaleY(1);    opacity: 0.9; }
+}
+.desk-scroll-cue { transform-origin: top; animation: desk-scroll-cue 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-pulse, .desk-rise, .desk-scroll-cue { animation: none; }
+}

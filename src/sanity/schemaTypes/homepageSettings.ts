@@ -8,6 +8,7 @@ export const homepageSettings = defineType({
   icon: HomeIcon,
   groups: [
     { name: 'site', title: 'Site Settings' },
+    { name: 'entry', title: 'Entry Cover' },
     { name: 'navigation', title: 'Navigation' },
     { name: 'hero', title: 'Hero Section' },
     { name: 'book', title: 'Book Section' },
@@ -34,6 +35,24 @@ export const homepageSettings = defineType({
       group: 'site',
       description: 'Icon shown in the browser tab. Use a square image (e.g. 32×32 or 64×64 px).',
       options: { hotspot: false },
+    }),
+
+    // ─── Entry Cover ─────────────────────────────────────────────────────────
+    defineField({
+      name: 'entryTitle',
+      title: 'Entry Cover — Title',
+      type: 'string',
+      group: 'entry',
+      description: 'Large name shown on the intro cover that greets visitors (also used as the About card name).',
+      initialValue: 'Jack Harvey',
+    }),
+    defineField({
+      name: 'entrySubtitle',
+      title: 'Entry Cover — Subtitle',
+      type: 'string',
+      group: 'entry',
+      description: 'Short line under the name on the intro cover (e.g. "enter"). The cover fades away on first scroll or click.',
+      initialValue: 'enter',
     }),
 
     // ─── Navigation Items ────────────────────────────────────────────────────
@@ -140,6 +159,14 @@ export const homepageSettings = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'bookSubtitle',
+      title: 'Book Subtitle',
+      type: 'string',
+      group: 'book',
+      description: 'Small line under the title in the card (e.g. "A Complete Guide").',
+      initialValue: 'A Complete Guide',
+    }),
+    defineField({
       name: 'bookDescription',
       title: 'Book Section Description',
       type: 'text',
@@ -203,12 +230,47 @@ export const homepageSettings = defineType({
       description: 'Link for the app button (optional)',
     }),
     defineField({
+      name: 'appTagline',
+      title: 'App Tagline',
+      type: 'string',
+      group: 'app',
+      description: 'Short line under the app title in the card (e.g. "Self-Guided Meditation").',
+    }),
+    defineField({
       name: 'appImage',
       title: 'App Screenshot / Icon',
       type: 'image',
       group: 'app',
-      description: 'Portrait-orientation screenshot (iPhone-sized) or app icon.',
+      description: 'Portrait-orientation screenshot (iPhone-sized) or app icon. Used as a fallback if no carousel images below.',
       options: { hotspot: true },
+    }),
+    defineField({
+      name: 'appImages',
+      title: 'App Screenshots (carousel)',
+      type: 'array',
+      group: 'app',
+      description: 'Upload 3–7 screenshots. Visitors flip through them in the App card. Falls back to the single "App Screenshot" above if empty.',
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'appWebsiteButtonText',
+      title: 'App Website Button Text',
+      type: 'string',
+      group: 'app',
+      description: 'Label for the second (website) button in the App card.',
+      initialValue: 'Visit Website',
+    }),
+    defineField({
+      name: 'appWebsiteButtonUrl',
+      title: 'App Website Button URL',
+      type: 'url',
+      group: 'app',
+      description: 'Link for the website button (optional). The existing "App Button" above acts as the Download button.',
     }),
     defineField({
       name: 'appGongSound',
@@ -514,12 +576,28 @@ export const homepageSettings = defineType({
       description: 'Direct Instagram profile URL (used as a fallback if not set in Social Links)',
     }),
     defineField({
+      name: 'aboutTagline',
+      title: 'About — Tagline (under name)',
+      type: 'string',
+      group: 'about',
+      description: 'Small line under your name in the About card (e.g. "Builder · Investor · Lifelong Meditator").',
+      initialValue: 'Builder · Investor · Lifelong Meditator',
+    }),
+    defineField({
+      name: 'aboutImage',
+      title: 'About — Photo',
+      type: 'image',
+      group: 'about',
+      description: 'Photo shown on the LEFT of the About card; your name, links, and everything else sit to the right.',
+      options: { hotspot: true },
+    }),
+    defineField({
       name: 'aboutIntroText',
       title: 'About Me Introduction Text',
       type: 'text',
       group: 'about',
       rows: 3,
-      description: 'Short text shown below the social media icons in the About panel',
+      description: 'Short description shown under your name in the About card (e.g. "email me your thoughts").',
     }),
 
     // Social Links

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
-  const { name, email, subject, message } = await req.json()
+  const { name, email, phone, subject, message } = await req.json()
 
   const apiKey = process.env.RESEND_API_KEY
   const to = process.env.CONTACT_EMAIL
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
       subject: subject ? `[Contact] ${subject}` : "[Contact] New message",
       html: `
         <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
+        ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ""}
         <p><strong>Subject:</strong> ${subject}</p>
         <hr />
         <p>${message.replace(/\n/g, "<br>")}</p>
