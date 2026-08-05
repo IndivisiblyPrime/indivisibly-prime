@@ -82,9 +82,11 @@ export function DeskStagePhone({
               height: `${s.object.height}%`,
             }}
           >
+            {/* Only the App cut-out shows a white frame, and only before the first
+                tap (pulseApp). Every other object is frame-less; the label is the cue. */}
             <span
-              className={`absolute inset-0 rounded-lg ring-1 ring-white/55 transition-all group-active:bg-white/5 group-active:ring-white ${
-                pulseApp && s.id === "app" ? "desk-pulse" : ""
+              className={`absolute inset-0 rounded-lg transition-all group-active:bg-white/10 ${
+                pulseApp && s.id === "app" ? "ring-1 ring-white/60 desk-pulse" : ""
               }`}
             />
             <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
@@ -94,9 +96,6 @@ export function DeskStagePhone({
               >
                 {s.num && <span className="opacity-60">{s.num}</span>}
                 <span>{s.word}</span>
-              </span>
-              <span className="mt-0.5 block text-[0.55rem] uppercase tracking-[0.3em] text-white/60">
-                Tap to open
               </span>
             </span>
           </button>

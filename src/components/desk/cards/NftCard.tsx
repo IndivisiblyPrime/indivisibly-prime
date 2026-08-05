@@ -30,7 +30,7 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
         <img
           src={urlFor(item.image).width(900).url()}
           alt={item.alt || item.title || ""}
-          className="block h-auto max-h-[44vh] w-auto max-w-full object-contain"
+          className="block h-auto max-h-[52vh] w-auto max-w-full object-contain"
           draggable={false}
         />
         {(item.title || item.year) && (
@@ -52,22 +52,22 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
 
   return (
     <div>
-      <Eyebrow>03 — The Art</Eyebrow>
+      <Eyebrow>03 — The NFTs</Eyebrow>
       <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{heading}</h2>
       <p className="mt-2 italic text-neutral-500">{subtitle}</p>
 
       {hasSanity ? (
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-4">
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-5">
           <div className="flex justify-center">{renderTile(portrait1)}</div>
           <div className="flex justify-center">{renderTile(landscape1)}</div>
           <div className="flex justify-center">{renderTile(portrait2)}</div>
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end">
           {FALLBACK.nfts.map((n) => {
             const inner = (
               <div className="group relative w-full overflow-hidden rounded-lg shadow-md ring-1 ring-black/10 transition-transform duration-500 hover:scale-105">
-                <img src={n.src} alt={n.title} className="block h-56 w-full object-cover" draggable={false} />
+                <img src={n.src} alt={n.title} className="block h-64 w-full object-cover" draggable={false} />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-3 pt-8">
                   <p className="text-sm font-medium leading-tight text-white drop-shadow">{n.title}</p>
                   <p className="text-xs text-white/70 drop-shadow">{n.year}</p>

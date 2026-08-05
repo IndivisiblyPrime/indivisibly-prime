@@ -13,18 +13,15 @@ import { HOTSPOTS, type DeskId } from "./data"
 export function DeskStageWeb({
   onOpen,
   pulseApp,
-  onInteract,
 }: {
   onOpen: (id: DeskId) => void
   pulseApp: boolean
-  onInteract: () => void
 }) {
   const [hovered, setHovered] = useState<DeskId | null>(null)
 
-  const enter = (id: DeskId) => {
-    setHovered(id)
-    onInteract()
-  }
+  // Hovering only spotlights the object — it does NOT clear the App attract pulse.
+  // The pulse persists through hover and lifts only on an actual click (onOpen).
+  const enter = (id: DeskId) => setHovered(id)
   const leave = (id: DeskId) => setHovered((p) => (p === id ? null : p))
 
   const hoveredSpot = HOTSPOTS.find((h) => h.id === hovered)
@@ -44,8 +41,8 @@ export function DeskStageWeb({
         />
         <div className="pointer-events-none absolute inset-0" style={{ boxShadow: "inset 0 0 220px rgba(0,0,0,0.5)" }} />
 
-        {/* App attract pulse (until first interaction) */}
-        {pulseApp && !hovered && (
+        {/* App attract pulse — stays until the first click, even while hovering */}
+        {pulseApp && (
           <div
             className="desk-pulse pointer-events-none absolute z-[12]"
             style={{

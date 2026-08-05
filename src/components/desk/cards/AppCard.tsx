@@ -31,10 +31,10 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
   const websiteText = settings.appWebsiteButtonText || "Visit Website"
 
   return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,300px)_1fr] md:gap-12">
+    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:gap-14">
       {/* Carousel */}
       <div className="flex flex-col items-center">
-        <div className="w-full max-w-[240px]">
+        <div className="w-full max-w-[300px]">
           <img
             src={images[i]}
             alt={`${title} screenshot ${i + 1}`}

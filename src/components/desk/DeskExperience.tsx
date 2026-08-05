@@ -47,14 +47,16 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
   }, [])
   const close = useCallback(() => setActive(null), [])
 
-  const entryTitle = settings.entryTitle || "Jack Harvey"
-  const entrySubtitle = settings.entrySubtitle || "enter"
+  // Cover greeting derives from the name so it stays correct if the name changes.
+  // Single line only — no "enter" second row (subtitle intentionally blank).
+  const name = settings.entryTitle || "Jack Harvey"
+  const coverTitle = `${name}'s Portfolio`
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-[#171009]">
       {/* Desktop desk (all objects at once) */}
       <div className="hidden h-full w-full md:block">
-        <DeskStageWeb onOpen={open} pulseApp={pulseApp} onInteract={onInteract} />
+        <DeskStageWeb onOpen={open} pulseApp={pulseApp} />
       </div>
 
       {/* Phone desk — intro over the full desk, then scroll to object cut-outs */}
@@ -63,8 +65,8 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
           onOpen={open}
           pulseApp={pulseApp}
           onInteract={onInteract}
-          entryTitle={entryTitle}
-          entrySubtitle={entrySubtitle}
+          entryTitle={coverTitle}
+          entrySubtitle=""
         />
       </div>
 
@@ -72,13 +74,16 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
           Greets on first visit, lifts on scroll/click, never returns. */}
       <div className="hidden md:block">
         {!coverGone && (
-          <EntryCover title={entryTitle} subtitle={entrySubtitle} onDismiss={dismissCover} />
+          <EntryCover title={coverTitle} subtitle="" onDismiss={dismissCover} />
         )}
       </div>
 
-      {/* Detail card */}
+      {/* Detail card. App/Book get the biggest (xl) shell; NFT/About stay at "wide". */}
       {active && (
-        <Modal onClose={close} wide={active === "nft" || active === "about"}>
+        <Modal
+          onClose={close}
+          size={active === "app" || active === "book" ? "xl" : active === "nft" || active === "about" ? "wide" : "base"}
+        >
           {active === "app" && <AppCard settings={settings} />}
           {active === "book" && <BookCard settings={settings} />}
           {active === "nft" && <NftCard settings={settings} />}

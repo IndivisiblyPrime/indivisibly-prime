@@ -10,11 +10,11 @@ import { X } from "lucide-react"
  */
 export function Modal({
   onClose,
-  wide = false,
+  size = "base",
   children,
 }: {
   onClose: () => void
-  wide?: boolean
+  size?: "base" | "wide" | "xl"
   children: React.ReactNode
 }) {
   useEffect(() => {
@@ -34,7 +34,9 @@ export function Modal({
     >
       <div
         className="relative max-h-[90dvh] overflow-y-auto overscroll-contain rounded-2xl border border-black/10 bg-[#f8f5ee] shadow-2xl duration-500 ease-out animate-in fade-in zoom-in-95 slide-in-from-bottom-4"
-        style={{ width: wide ? "min(96vw, 60rem)" : "min(96vw, 46rem)" }}
+        style={{
+          width: size === "xl" ? "min(96vw, 76rem)" : size === "wide" ? "min(96vw, 60rem)" : "min(96vw, 46rem)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
