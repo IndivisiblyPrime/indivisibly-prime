@@ -31,7 +31,7 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
   const websiteText = settings.appWebsiteButtonText || "Visit Website"
 
   return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:gap-14">
+    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
       {/* Carousel */}
       <div className="flex flex-col items-center">
         <div className="w-full max-w-[300px]">
@@ -76,7 +76,7 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
       </div>
 
       {/* Text */}
-      <div className="flex flex-col justify-center">
+      <div className="flex flex-col">
         <Eyebrow>01 — The App</Eyebrow>
         <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
         {tagline && <p className="mt-2 text-lg text-neutral-600">{tagline}</p>}

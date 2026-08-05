@@ -28,9 +28,9 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
     const inner = (
       <div className="group relative inline-block overflow-hidden rounded-lg shadow-md ring-1 ring-black/10 transition-transform duration-500 hover:scale-105">
         <img
-          src={urlFor(item.image).width(900).url()}
+          src={urlFor(item.image).width(1100).url()}
           alt={item.alt || item.title || ""}
-          className="block h-auto max-h-[52vh] w-auto max-w-full object-contain"
+          className="block h-auto max-h-[62vh] w-auto max-w-full object-contain"
           draggable={false}
         />
         {(item.title || item.year) && (
@@ -67,7 +67,7 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
           {FALLBACK.nfts.map((n) => {
             const inner = (
               <div className="group relative w-full overflow-hidden rounded-lg shadow-md ring-1 ring-black/10 transition-transform duration-500 hover:scale-105">
-                <img src={n.src} alt={n.title} className="block h-64 w-full object-cover" draggable={false} />
+                <img src={n.src} alt={n.title} className="block h-[19rem] w-full object-cover" draggable={false} />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-3 pt-8">
                   <p className="text-sm font-medium leading-tight text-white drop-shadow">{n.title}</p>
                   <p className="text-xs text-white/70 drop-shadow">{n.year}</p>

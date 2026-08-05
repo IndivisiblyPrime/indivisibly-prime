@@ -78,12 +78,10 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
         )}
       </div>
 
-      {/* Detail card. App/Book get the biggest (xl) shell; NFT/About stay at "wide". */}
+      {/* Detail card. App/Book/NFT share the biggest (xl) shell; About is the one
+          intentionally different size ("wide"), per Jack. */}
       {active && (
-        <Modal
-          onClose={close}
-          size={active === "app" || active === "book" ? "xl" : active === "nft" || active === "about" ? "wide" : "base"}
-        >
+        <Modal onClose={close} size={active === "about" ? "wide" : "xl"}>
           {active === "app" && <AppCard settings={settings} />}
           {active === "book" && <BookCard settings={settings} />}
           {active === "nft" && <NftCard settings={settings} />}

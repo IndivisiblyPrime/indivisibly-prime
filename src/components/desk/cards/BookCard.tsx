@@ -17,16 +17,19 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
   const btnText = settings.bookButtonText || "More Details / Buy"
 
   return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:gap-14">
-      <div className="flex items-center justify-center">
+    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
+      <div className="flex items-start justify-center">
+        {/* Jack's uploaded cover is a 3:2 landscape photo; aspect-[3/4] + object-cover
+            doubles its rendered height at the same width (per Jack's request), cropping
+            in slightly rather than adding blank space around it. */}
         <img
           src={cover}
           alt={title}
-          className="w-64 rounded-md shadow-2xl ring-1 ring-black/10 sm:w-72"
+          className="aspect-[3/4] w-64 rounded-md object-cover shadow-2xl ring-1 ring-black/10 sm:w-72"
           draggable={false}
         />
       </div>
-      <div className="flex flex-col justify-center">
+      <div className="flex flex-col">
         <Eyebrow>02 — The Book</Eyebrow>
         <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
         {subtitle && <p className="mt-2 italic text-neutral-500">{subtitle}</p>}
