@@ -20,7 +20,9 @@ Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `Ind
 | `/api/contact`, `/api/subscribe` | forms → Resend email |
 | `/api/revalidate` | ISR revalidation |
 
-Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch `backup/classic-homepage`, or point `src/app/page.tsx` back at `Navbar` + `HeroSection` + `ExploreSection`.
+Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch `backup/classic-homepage`, or point `src/app/page.tsx` back at `Navbar` + `HeroSection` + `ExploreSection`. Tag `v1.0-desk-live` is the Desk as it stood on 2026-08-06, before the favicon fix and the Studio reorg.
+
+`/` preloading all five desk PNGs (~4.1 MB) on both viewports is **Jack's explicit decision**, not an oversight. Don't "optimise" it away.
 
 ## The Desk
 
@@ -56,28 +58,44 @@ Components in `src/components/desk/`:
 ### Known Studio gaps (content tasks, not code)
 
 - `appWebsiteButtonUrl` is empty, so the Website button is hidden. Code, schema, and GROQ are all wired — just fill it in.
-- `entrySubtitle` ("enter") is still in the schema but no longer rendered; the cover is single-line.
+- `nftSectionTitle` is literally `"NFTs"`, which `NftCard` treats as *unset* — so the card shows "The Lost Library of Alexandria". Any other string is used verbatim.
+
+## Site chrome — title, favicon, app icons
+
+All of it lives in **`src/app/layout.tsx`**, so every route including `/studio` inherits it. Driven by `getSiteSettings()` (a small `cache()`-wrapped query in `homepage.ts`, separate from `HOMEPAGE_QUERY`).
+
+**Pages must not declare `icons`.** App Router metadata merges shallowly — a page-level `icons` replaces the layout's entire set, including `apple-touch-icon`. That is exactly what broke the favicon on mobile: `/` declared a single unsized icon, which lost to the scaffold `favicon.ico`'s declared `sizes="256x256"`. Pages may still override `title` (`/classic` does).
+
+- `src/app/favicon.ico` — Jack's icon at 16/32/48/64/128/256. **Must be RGBA**; Turbopack refuses to decode an RGB-encoded ICO.
+- `src/app/manifest.ts` → `/manifest.webmanifest`, 192 + 512 icons for Android install.
+- `apple-touch-icon` at 180×180 is what iOS Add-to-Home-Screen uses; without it iOS screenshots the page. Keep `siteFavicon` opaque — iOS fills transparency with black.
+- Regenerate the `.ico` from the Sanity asset with PIL after changing `siteFavicon`.
 
 ## Sanity — `homepageSettings`
 
 **The one rule that keeps biting**: `HOMEPAGE_QUERY` must explicitly project every field a component reads. A field missing from the projection is `undefined` in the component no matter what Studio holds. Nested arrays need full sub-projections — `experienceEntries[]{_key, logo, jobTitle, dateRange, company, description}`, `logoFreeformEntries[]{_key, logo, title, dateRange, subtitle, description}`, `comingSoonItems[]{_key, logo, title, dateRange, subtitle, description, url, exploreMoreUrl}`. All three have silently rendered blank before.
 
-Field groups (see `src/sanity/schemaTypes/homepageSettings.ts` for the authoritative list):
+### Studio tabs mirror the Desk's cards
 
-| Group | Fields |
+Tabs are cut by **what a visitor sees**, not by legacy section names, and every classic-only field is quarantined in the last tab. Ordering: `Entry Cover` · `1 · App` · `2 · Book` · `3 · NFTs` · `About` · `Site & Tab` · `○ Classic only`.
+
+Every field description opens with a scope marker. **Keep tagging new fields** — the whole point is that Jack never has to guess which page an edit lands on:
+
+| Marker | Means |
 |---|---|
-| Site | `siteTitle`, `siteFavicon` |
-| Entry Cover | `entryTitle` (doubles as the person's name on the About card), `entrySubtitle` (unused) |
-| Navigation | `navItems[]` |
-| Hero | `heroImage`, `heroVideo`, `heroVideoUrl`, `heroIntroVideo`, `heroBoredomVideo` + `heroBoredomButtonText` (both unreachable) |
-| Book | `bookTitle`, `bookSubtitle`, `bookDescription`, `bookImage`, `bookButtonText`, `bookButtonUrl` |
-| App Section | `appTitle`, `appTagline`, `appSubtitle`, `appButtonText`/`appButtonUrl`, `appWebsiteButtonText`/`appWebsiteButtonUrl`, `appImages[]` (carousel; falls back to `appImage`), `appGongSound` |
-| NFT Gallery | `nftSectionTitle`, `nftSectionSubtitle`, `nftGallery[]` (portrait), `landscapeGallery[]` |
-| CTA | `ctaButtonText`, `ctaButtonUrl`, `encryptedText` |
-| About | `aboutTagline`, `aboutIntroText`, `aboutAccordion[]` (itemType `text` / `experience` / `logoFreeform`), `socialLinks[]`, `instagramUrl` |
-| Coming Soon | `comingSoonTagline`, `comingSoonItems[]` |
+| `● Desk only` | `entryTitle`, `bookSubtitle`, `appTagline`, `appImages`, `appWebsiteButton*`, `nftSectionTitle`, `aboutTagline`, `aboutImage` |
+| `◆ Desk + Classic` | everything else in tabs 1–6 |
+| `○ Classic only` | `navItems`, all `hero*`, `comingSoonItems`, `appGongSound` — the last tab, safe to ignore |
+
+`entrySubtitle` was deleted on 2026-08-06 — it held no data, was never read from `settings`, and its render branches were unreachable. The entry cover is single-line in code now, with no subtitle prop to revive.
+
+Note the near-miss pairs: `comingSoonTagline` is on the **About** tab (it's the mailing-list line on the About card) while `comingSoonItems` is classic-only; `appImages` is Desk-only but `appImage` is shared.
 
 Gallery items carry an optional `url`; clicking falls back to `ctaButtonUrl`. Types live in `src/lib/types.ts`.
+
+### Studio structure
+
+`src/sanity/structure.ts` lists items **explicitly** — a new document type will not appear until you add it there. `homepageSettings` is a singleton pinned to `2d3fb790-8d0b-442f-b91e-362a31cf9ad3` so the sidebar opens the form directly; `sanity.config.ts` strips its delete/duplicate/unpublish actions, because every query reads `[0]` and a second copy would be picked at random. The unused `heroSection` type is parked under **Archive**.
 
 Schema changes: edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`.
 

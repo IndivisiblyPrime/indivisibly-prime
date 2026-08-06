@@ -1,21 +1,18 @@
 export const revalidate = 60
 
 import { Metadata } from "next"
-import { urlFor } from "@/sanity/lib/image"
-import { getHomepageSettings } from "@/sanity/lib/homepage"
+import { getHomepageSettings, getSiteSettings } from "@/sanity/lib/homepage"
 import { Navbar } from "@/components/Navbar"
 import { HeroSection } from "@/components/sections/HeroSection"
 import { ExploreSection } from "@/components/sections/ExploreSection"
 
+// Overrides only the title — icons are inherited from the root layout on purpose.
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getHomepageSettings()
+  const settings = await getSiteSettings()
   const title = settings?.siteTitle || "Jack Harvey"
   return {
     title: `${title} — Classic`,
     description: title,
-    icons: settings?.siteFavicon
-      ? { icon: urlFor(settings.siteFavicon).width(64).height(64).url() }
-      : undefined,
   }
 }
 

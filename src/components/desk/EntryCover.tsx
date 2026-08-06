@@ -3,17 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 /**
- * Stillpoint-style intro cover: a warm-dark scrim over the desk showing only the
- * name + a short "enter" line. Lifts away (fade + rise + slight scale, desk sharpens)
- * on the first scroll / wheel / touch / key or a click — then never returns this visit.
+ * Stillpoint-style intro cover: a warm-dark scrim over the desk showing the name
+ * on a single line. Lifts away (fade + rise + slight scale, desk sharpens) on the
+ * first scroll / wheel / touch / key or a click — then never returns this visit.
  */
 export function EntryCover({
   title,
-  subtitle,
   onDismiss,
 }: {
   title: string
-  subtitle: string
   onDismiss: () => void
 }) {
   const [leaving, setLeaving] = useState(false)
@@ -75,14 +73,6 @@ export function EntryCover({
         >
           {title}
         </h1>
-        {subtitle && (
-          <p
-            className="mt-6 text-xs uppercase tracking-[0.4em] text-[#E7DCC6]/85 sm:text-sm"
-            style={{ textShadow: "0 1px 10px rgba(0,0,0,0.6)" }}
-          >
-            {subtitle}
-          </p>
-        )}
       </div>
 
       {/* Scroll cue */}

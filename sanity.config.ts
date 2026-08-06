@@ -25,4 +25,16 @@ export default defineConfig({
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({defaultApiVersion: apiVersion}),
   ],
+  document: {
+    // homepageSettings is a singleton — every query reads `[0]`, so a second copy
+    // would make the live site pick one at random. Remove the actions that could
+    // create or destroy one.
+    actions: (prev, {schemaType}) =>
+      schemaType === 'homepageSettings'
+        ? prev.filter(
+            ({action}) =>
+              action !== 'duplicate' && action !== 'delete' && action !== 'unpublish'
+          )
+        : prev,
+  },
 })

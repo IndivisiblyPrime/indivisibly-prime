@@ -48,7 +48,7 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
   const close = useCallback(() => setActive(null), [])
 
   // Cover greeting derives from the name so it stays correct if the name changes.
-  // Single line only — no "enter" second row (subtitle intentionally blank).
+  // Single line by design — there is no second row.
   const name = settings.entryTitle || "Jack Harvey"
   const coverTitle = `${name}'s Portfolio`
 
@@ -66,7 +66,6 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
           pulseApp={pulseApp}
           onInteract={onInteract}
           entryTitle={coverTitle}
-          entrySubtitle=""
         />
       </div>
 
@@ -74,7 +73,7 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
           Greets on first visit, lifts on scroll/click, never returns. */}
       <div className="hidden md:block">
         {!coverGone && (
-          <EntryCover title={coverTitle} subtitle="" onDismiss={dismissCover} />
+          <EntryCover title={coverTitle} onDismiss={dismissCover} />
         )}
       </div>
 

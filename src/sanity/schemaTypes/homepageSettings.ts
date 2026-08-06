@@ -1,255 +1,109 @@
 import { defineField, defineType, defineArrayMember } from 'sanity'
 import { HomeIcon } from '@sanity/icons'
 
+/**
+ * Two surfaces read this document:
+ *   • The Desk  — jackharvey.me  (the live homepage, and `/desk`)
+ *   • Classic   — jackharvey.me/classic  (the previous design, kept as an archive)
+ *
+ * They overlap but are not the same, which used to make editing a guessing game.
+ * So every field below is tagged with where it actually lands, and the tabs are
+ * cut to match the Desk's cards. Rules:
+ *
+ *   1. Tabs 1–6 are all Desk. If a field is in one of them, editing it changes
+ *      the live homepage. The marker tells you whether it ALSO changes Classic.
+ *   2. Everything that only touches Classic lives in the last tab. You can ignore
+ *      that tab entirely and never affect the live site.
+ *
+ * When adding a field, tag it — and remember HOMEPAGE_QUERY in
+ * src/sanity/lib/homepage.ts must project it or it arrives `undefined`.
+ */
+const DESK = '● Desk only —'
+const BOTH = '◆ Desk + Classic —'
+const CLASSIC = '○ Classic only —'
+
 export const homepageSettings = defineType({
   name: 'homepageSettings',
-  title: 'Homepage Settings',
+  title: 'The Desk — Homepage',
   type: 'document',
   icon: HomeIcon,
-  groups: [
-    { name: 'site', title: 'Site Settings' },
-    { name: 'entry', title: 'Entry Cover' },
-    { name: 'navigation', title: 'Navigation' },
-    { name: 'hero', title: 'Hero Section' },
-    { name: 'book', title: 'Book Section' },
-    { name: 'app', title: 'App Section' },
-    { name: 'nft', title: 'NFT Gallery' },
-    { name: 'cta', title: 'CTA Section' },
-    { name: 'about', title: 'About Me' },
-    { name: 'comingSoon', title: 'Coming Soon' },
-  ],
-  fields: [
-    // ─── Site Settings ───────────────────────────────────────────────────────
-    defineField({
-      name: 'siteTitle',
-      title: 'Browser Tab Title',
-      type: 'string',
-      group: 'site',
-      description: 'Text shown in the browser tab (e.g. "Jack Harvey")',
-      initialValue: 'Jack Harvey',
-    }),
-    defineField({
-      name: 'siteFavicon',
-      title: 'Favicon',
-      type: 'image',
-      group: 'site',
-      description: 'Icon shown in the browser tab. Use a square image (e.g. 32×32 or 64×64 px).',
-      options: { hotspot: false },
-    }),
 
-    // ─── Entry Cover ─────────────────────────────────────────────────────────
+  // Tabs mirror the Desk in the order a visitor meets it, then site chrome,
+  // then the Classic-only quarantine last.
+  groups: [
+    { name: 'entry', title: 'Entry Cover', default: true },
+    { name: 'app', title: '1 · App' },
+    { name: 'book', title: '2 · Book' },
+    { name: 'nft', title: '3 · NFTs' },
+    { name: 'about', title: 'About' },
+    { name: 'site', title: 'Site & Tab' },
+    { name: 'classic', title: '○ Classic only' },
+  ],
+
+  // Collapsed sections keep the Classic tab tidy — it exists to be ignored.
+  fieldsets: [
+    {
+      name: 'classicHero',
+      title: 'Hero — background video & "Bored?" button',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'classicNav',
+      title: 'Navigation menu',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'classicComingSoon',
+      title: 'Coming Soon cards',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'classicOther',
+      title: 'Other',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
+
+  fields: [
+    // ═══ ENTRY COVER ════════════════════════════════════════════════════════
     defineField({
       name: 'entryTitle',
-      title: 'Entry Cover — Title',
+      title: 'Your Name',
       type: 'string',
       group: 'entry',
-      description: 'Large name shown on the intro cover that greets visitors (also used as the About card name).',
+      description: `${DESK} The cover greets visitors with "<name>'s Portfolio" — you type just the name, the "'s Portfolio" is added for you. Also used as the heading on the About card.`,
       initialValue: 'Jack Harvey',
     }),
-    defineField({
-      name: 'entrySubtitle',
-      title: 'Entry Cover — Subtitle',
-      type: 'string',
-      group: 'entry',
-      description: 'Short line under the name on the intro cover (e.g. "enter"). The cover fades away on first scroll or click.',
-      initialValue: 'enter',
-    }),
 
-    // ─── Navigation Items ────────────────────────────────────────────────────
-    defineField({
-      name: 'navItems',
-      title: 'Navigation Items',
-      type: 'array',
-      group: 'navigation',
-      description: 'Customize the navigation menu items',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'navItem',
-          title: 'Nav Item',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              validation: (rule) => rule.required(),
-            }),
-            defineField({
-              name: 'target',
-              title: 'Target Section',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Home (Hero)', value: 'hero' },
-                  { title: '1. Book', value: 'book' },
-                  { title: '2. App', value: 'app' },
-                  { title: '3. NFTs', value: 'nfts' },
-                  { title: 'About Me', value: 'about' },
-                  { title: 'Contact Me', value: 'contact' },
-                  { title: 'Coming Soon (Panel)', value: 'comingsoon' },
-                  { title: 'Coming Soon (Footer, legacy)', value: 'coming-soon' },
-                ],
-              },
-              validation: (rule) => rule.required(),
-            }),
-          ],
-          preview: {
-            select: { title: 'label', subtitle: 'target' },
-          },
-        }),
-      ],
-    }),
-
-    // ─── Hero Section ────────────────────────────────────────────────────────
-    defineField({
-      name: 'heroImage',
-      title: 'Hero Background Image',
-      type: 'image',
-      group: 'hero',
-      description: 'Background image for the hero section (used if no video is set)',
-      options: { hotspot: true },
-    }),
-    defineField({
-      name: 'heroVideo',
-      title: 'Hero Background Video',
-      type: 'file',
-      group: 'hero',
-      description: 'Background video for the hero section (MP4 recommended). Takes priority over image.',
-      options: { accept: 'video/*' },
-    }),
-    defineField({
-      name: 'heroVideoUrl',
-      title: 'Hero Video URL (External)',
-      type: 'url',
-      group: 'hero',
-      description: 'External video URL (e.g., from a CDN). Used if no uploaded video.',
-    }),
-    defineField({
-      name: 'heroIntroVideo',
-      title: 'Intro Video (plays once before loop)',
-      type: 'file',
-      group: 'hero',
-      description: 'Short clip (e.g. 10s) that plays once when the page loads, then switches to the looping background video.',
-      options: { accept: 'video/*' },
-    }),
-    defineField({
-      name: 'heroBoredomVideo',
-      title: '"Bored?" Video',
-      type: 'file',
-      group: 'hero',
-      description: 'Video that plays when the visitor clicks the "Bored?" button (~45–60s clip).',
-      options: { accept: 'video/*' },
-    }),
-    defineField({
-      name: 'heroBoredomButtonText',
-      title: '"Bored?" Button Text',
-      type: 'string',
-      group: 'hero',
-      description: 'Label on the button shown in the bottom-right of the hero.',
-      initialValue: 'Bored?',
-    }),
-
-    // ─── Book Section ────────────────────────────────────────────────────────
-    defineField({
-      name: 'bookTitle',
-      title: 'Book Section Title',
-      type: 'string',
-      group: 'book',
-      description: 'Title displayed above the book (e.g., "The Greatest Wisdom of Zen")',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'bookSubtitle',
-      title: 'Book Subtitle',
-      type: 'string',
-      group: 'book',
-      description: 'Small line under the title in the card (e.g. "A Complete Guide").',
-      initialValue: 'A Complete Guide',
-    }),
-    defineField({
-      name: 'bookDescription',
-      title: 'Book Section Description',
-      type: 'text',
-      group: 'book',
-      description: 'Description text for the Book section',
-      rows: 4,
-    }),
-    defineField({
-      name: 'bookImage',
-      title: 'Book Cover Image',
-      type: 'image',
-      group: 'book',
-      description: 'Book cover image (will preserve aspect ratio)',
-      options: { hotspot: true },
-    }),
-    defineField({
-      name: 'bookButtonText',
-      title: 'Book Button Text',
-      type: 'string',
-      group: 'book',
-      description: 'Text for the button below the book image',
-      initialValue: 'Buy / View More Details',
-    }),
-    defineField({
-      name: 'bookButtonUrl',
-      title: 'Book Button URL',
-      type: 'url',
-      group: 'book',
-      description: 'Link for the book button (optional)',
-    }),
-
-    // ─── App Section ─────────────────────────────────────────────────────────
+    // ═══ 1 · APP CARD ═══════════════════════════════════════════════════════
     defineField({
       name: 'appTitle',
-      title: 'App Section Title',
+      title: 'App Name',
       type: 'string',
       group: 'app',
-      description: 'Title shown in the "2. App" panel (e.g. "My App Name")',
-    }),
-    defineField({
-      name: 'appSubtitle',
-      title: 'App Section Description',
-      type: 'text',
-      group: 'app',
-      description: 'Description / subtitle shown below the title',
-      rows: 4,
-    }),
-    defineField({
-      name: 'appButtonText',
-      title: 'App Button Text',
-      type: 'string',
-      group: 'app',
-      description: 'Text for the app download/details button',
-      initialValue: 'Download / View More',
-    }),
-    defineField({
-      name: 'appButtonUrl',
-      title: 'App Button URL',
-      type: 'url',
-      group: 'app',
-      description: 'Link for the app button (optional)',
+      description: `${BOTH} Big heading at the top of the App card. Falls back to "Bonsai" if blank.`,
     }),
     defineField({
       name: 'appTagline',
       title: 'App Tagline',
       type: 'string',
       group: 'app',
-      description: 'Short line under the app title in the card (e.g. "Self-Guided Meditation").',
+      description: `${DESK} Small line between the name and the description. Optional and has no fallback — leave blank and no line appears (useful when the App Name already says it).`,
     }),
     defineField({
-      name: 'appImage',
-      title: 'App Screenshot / Icon',
-      type: 'image',
+      name: 'appSubtitle',
+      title: 'App Description',
+      type: 'text',
       group: 'app',
-      description: 'Portrait-orientation screenshot (iPhone-sized) or app icon. Used as a fallback if no carousel images below.',
-      options: { hotspot: true },
+      rows: 4,
+      description: `${BOTH} Paragraph under the title.`,
     }),
     defineField({
       name: 'appImages',
       title: 'App Screenshots (carousel)',
       type: 'array',
       group: 'app',
-      description: 'Upload 3–7 screenshots. Visitors flip through them in the App card. Falls back to the single "App Screenshot" above if empty.',
+      description: `${DESK} 3–7 portrait screenshots that visitors flip through inside the iPhone mockup. Feed it tall 19.5:9 shots or the sides get cropped. Whenever this has at least one image it wins over the single screenshot below.`,
       of: [
         defineArrayMember({
           type: 'image',
@@ -258,51 +112,114 @@ export const homepageSettings = defineType({
       ],
     }),
     defineField({
-      name: 'appWebsiteButtonText',
-      title: 'App Website Button Text',
+      name: 'appImage',
+      title: 'App Screenshot (single, fallback)',
+      type: 'image',
+      group: 'app',
+      description: `${BOTH} Only used on the Desk when the carousel above is empty. Classic always uses this one.`,
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'appButtonText',
+      title: 'Download Button — Text',
       type: 'string',
       group: 'app',
-      description: 'Label for the second (website) button in the App card.',
+      description: `${BOTH} Falls back to "Download Now".`,
+      initialValue: 'Download / View More',
+    }),
+    defineField({
+      name: 'appButtonUrl',
+      title: 'Download Button — URL',
+      type: 'url',
+      group: 'app',
+      description: `${BOTH} Where the download button points.`,
+    }),
+    defineField({
+      name: 'appWebsiteButtonText',
+      title: 'Website Button — Text',
+      type: 'string',
+      group: 'app',
+      description: `${DESK} Label for the second, outlined button.`,
       initialValue: 'Visit Website',
     }),
     defineField({
       name: 'appWebsiteButtonUrl',
-      title: 'App Website Button URL',
+      title: 'Website Button — URL',
       type: 'url',
       group: 'app',
-      description: 'Link for the website button (optional). The existing "App Button" above acts as the Download button.',
-    }),
-    defineField({
-      name: 'appGongSound',
-      title: 'Gong Sound',
-      type: 'file',
-      group: 'app',
-      description: 'Audio file (MP3/WAV) that plays when the "2. App" panel is opened.',
-      options: { accept: 'audio/*' },
+      description: `${DESK} The whole button is hidden until you fill this in — that is why you currently see only one button on the App card.`,
     }),
 
-    // ─── NFT Gallery Section ─────────────────────────────────────────────────
+    // ═══ 2 · BOOK CARD ══════════════════════════════════════════════════════
+    defineField({
+      name: 'bookTitle',
+      title: 'Book Title',
+      type: 'string',
+      group: 'book',
+      description: `${BOTH} Heading on the Book card.`,
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'bookSubtitle',
+      title: 'Book Subtitle',
+      type: 'string',
+      group: 'book',
+      description: `${DESK} Small line under the title. No fallback — leave blank and nothing renders.`,
+    }),
+    defineField({
+      name: 'bookDescription',
+      title: 'Book Description',
+      type: 'text',
+      group: 'book',
+      rows: 4,
+      description: `${BOTH} Paragraph beside the cover.`,
+    }),
+    defineField({
+      name: 'bookImage',
+      title: 'Book Cover Image',
+      type: 'image',
+      group: 'book',
+      description: `${BOTH} On the Desk this is deliberately cropped to a tall 3:4 so a landscape photo reads as a book. Set the hotspot to control which part survives the crop.`,
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'bookButtonText',
+      title: 'Book Button — Text',
+      type: 'string',
+      group: 'book',
+      description: `${BOTH} Falls back to "More Details / Buy".`,
+      initialValue: 'Buy / View More Details',
+    }),
+    defineField({
+      name: 'bookButtonUrl',
+      title: 'Book Button — URL',
+      type: 'url',
+      group: 'book',
+      description: `${BOTH} Where the book button points.`,
+    }),
+
+    // ═══ 3 · NFT CARD ═══════════════════════════════════════════════════════
     defineField({
       name: 'nftSectionTitle',
-      title: 'Section Heading',
+      title: 'NFT Card Heading',
       type: 'string',
       group: 'nft',
-      description: 'Large heading at the top of this section (e.g. "NFTs" or "Art")',
+      description: `${DESK} ⚠️ Heads up: the exact word "NFTs" is treated as "not set" and the card shows "The Lost Library of Alexandria" instead. Type anything else and it is used verbatim.`,
       initialValue: 'NFTs',
     }),
     defineField({
       name: 'nftSectionSubtitle',
-      title: 'Section Subtitle',
+      title: 'NFT Card Subtitle',
       type: 'string',
       group: 'nft',
-      description: 'Smaller line below the heading (e.g. "Highlights from XYZ collection")',
+      description: `${BOTH} Smaller line below the heading.`,
     }),
     defineField({
       name: 'landscapeGallery',
       title: 'Landscape Paintings',
       type: 'array',
       group: 'nft',
-      description: 'Wide/landscape images shown above the portrait grid. Use for paintings wider than they are tall.',
+      description: `${BOTH} Wide images. The Desk card shows these interleaved with the portraits — portrait 1, then landscape 1, then portrait 2 — so ordering across both lists matters. Images are never cropped.`,
       of: [
         defineArrayMember({
           type: 'object',
@@ -324,7 +241,7 @@ export const homepageSettings = defineType({
               name: 'url',
               title: 'Link URL',
               type: 'url',
-              description: 'Optional — clicking this image opens this URL. Falls back to the CTA Button URL if left blank.',
+              description: 'Optional — clicking this image opens this URL. Falls back to the CTA Button URL below.',
             }),
           ],
           preview: {
@@ -338,7 +255,7 @@ export const homepageSettings = defineType({
       title: 'Portrait Gallery',
       type: 'array',
       group: 'nft',
-      description: 'Portrait/square images shown in the 2-column grid.',
+      description: `${BOTH} Portrait/square images. The Desk card uses the first two, either side of the first landscape painting.`,
       of: [
         defineArrayMember({
           type: 'object',
@@ -360,7 +277,7 @@ export const homepageSettings = defineType({
               name: 'url',
               title: 'Link URL',
               type: 'url',
-              description: 'Optional — clicking this image opens this URL. Falls back to the CTA Button URL if left blank.',
+              description: 'Optional — clicking this image opens this URL. Falls back to the CTA Button URL below.',
             }),
           ],
           preview: {
@@ -369,39 +286,61 @@ export const homepageSettings = defineType({
         }),
       ],
     }),
-
-    // ─── CTA Section ─────────────────────────────────────────────────────────
     defineField({
       name: 'ctaButtonText',
-      title: 'CTA Button Text',
+      title: 'Gallery Button — Text',
       type: 'string',
-      group: 'cta',
-      description: 'Text for the gradient button',
+      group: 'nft',
+      description: `${BOTH} Button at the bottom of the NFT card. Falls back to "All NFT Galleries".`,
       initialValue: 'Learn More',
     }),
     defineField({
       name: 'ctaButtonUrl',
-      title: 'CTA Button URL',
+      title: 'Gallery Button — URL',
       type: 'url',
-      group: 'cta',
-      description: 'External link for the CTA button',
+      group: 'nft',
+      description: `${BOTH} Also the default destination for any gallery image that has no Link URL of its own.`,
     }),
     defineField({
       name: 'encryptedText',
       title: 'Encrypted Text',
       type: 'string',
-      group: 'cta',
-      description: 'Text that decrypts when you hover over it',
+      group: 'nft',
+      description: `${BOTH} Scrambled line on the NFT card that decodes when you hover it.`,
       initialValue: 'Welcome to the Matrix, Neo.',
     }),
 
-    // ─── About Me Section ────────────────────────────────────────────────────
+    // ═══ ABOUT CARD ═════════════════════════════════════════════════════════
+    defineField({
+      name: 'aboutImage',
+      title: 'Your Photo',
+      type: 'image',
+      group: 'about',
+      description: `${DESK} Sits in the left column of the About card, with your social links and email button beneath it.`,
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'aboutTagline',
+      title: 'Tagline (under your name)',
+      type: 'string',
+      group: 'about',
+      description: `${DESK} One short line, e.g. "Builder · Investor · Seeker".`,
+      initialValue: 'Builder · Investor · Lifelong Meditator',
+    }),
+    defineField({
+      name: 'aboutIntroText',
+      title: 'Intro Text',
+      type: 'text',
+      group: 'about',
+      rows: 3,
+      description: `${BOTH} Short line under your name, e.g. "Email me".`,
+    }),
     defineField({
       name: 'aboutAccordion',
-      title: 'About Me Accordion Items',
+      title: 'Accordion Sections',
       type: 'array',
       group: 'about',
-      description: 'Accordion sections for the About Me page.',
+      description: `${BOTH} Expandable sections in the right column. Pick a layout per section below.`,
       of: [
         defineArrayMember({
           type: 'object',
@@ -567,46 +506,12 @@ export const homepageSettings = defineType({
         }),
       ],
     }),
-
-    defineField({
-      name: 'instagramUrl',
-      title: 'Instagram URL',
-      type: 'url',
-      group: 'about',
-      description: 'Direct Instagram profile URL (used as a fallback if not set in Social Links)',
-    }),
-    defineField({
-      name: 'aboutTagline',
-      title: 'About — Tagline (under name)',
-      type: 'string',
-      group: 'about',
-      description: 'Small line under your name in the About card (e.g. "Builder · Investor · Lifelong Meditator").',
-      initialValue: 'Builder · Investor · Lifelong Meditator',
-    }),
-    defineField({
-      name: 'aboutImage',
-      title: 'About — Photo',
-      type: 'image',
-      group: 'about',
-      description: 'Photo shown on the LEFT of the About card; your name, links, and everything else sit to the right.',
-      options: { hotspot: true },
-    }),
-    defineField({
-      name: 'aboutIntroText',
-      title: 'About Me Introduction Text',
-      type: 'text',
-      group: 'about',
-      rows: 3,
-      description: 'Short description shown under your name in the About card (e.g. "email me your thoughts").',
-    }),
-
-    // Social Links
     defineField({
       name: 'socialLinks',
       title: 'Social Links',
       type: 'array',
       group: 'about',
-      description: 'Social media links (shown in accordion items with "Show Social Links" enabled)',
+      description: `${BOTH} Icon buttons under your photo. The Desk renders LinkedIn and Instagram.`,
       of: [
         defineArrayMember({
           type: 'object',
@@ -644,22 +549,147 @@ export const homepageSettings = defineType({
         }),
       ],
     }),
-
-    // ─── Coming Soon Section ──────────────────────────────────────────────────
+    defineField({
+      name: 'instagramUrl',
+      title: 'Instagram URL',
+      type: 'url',
+      group: 'about',
+      description: `${BOTH} Fallback used only when there is no Instagram entry in Social Links above.`,
+    }),
     defineField({
       name: 'comingSoonTagline',
       title: 'Mailing List Tagline',
       type: 'string',
-      group: 'comingSoon',
-      description: 'Small parenthetical text shown below the "Join the mailing list" signup form (e.g. "Zero spam, updates only")',
+      group: 'about',
+      description: `${BOTH} Small print under the "Join the mailing list" form at the bottom of the About card.`,
       initialValue: 'Zero spam and only a singular email when a new project has launched',
+    }),
+
+    // ═══ SITE & BROWSER TAB ═════════════════════════════════════════════════
+    defineField({
+      name: 'siteTitle',
+      title: 'Browser Tab Title',
+      type: 'string',
+      group: 'site',
+      description: `${BOTH} Shown in the browser tab, and used as the name if someone adds the site to their phone's home screen.`,
+      initialValue: 'Jack Harvey',
+    }),
+    defineField({
+      name: 'siteFavicon',
+      title: 'Favicon / App Icon',
+      type: 'image',
+      group: 'site',
+      description: `${BOTH} Square image, 512×512 or larger. Used for the browser tab, the iOS home-screen icon, and the Android install icon. Avoid transparency — iOS fills transparent pixels with black.`,
+      options: { hotspot: false },
+    }),
+
+    // ═══ CLASSIC ONLY — ignore this tab ═════════════════════════════════════
+    // Nothing below renders on jackharvey.me. Kept so /classic keeps working and
+    // so the existing values (hero video, nav, coming-soon cards) aren't lost.
+    defineField({
+      name: 'heroImage',
+      title: 'Hero Background Image',
+      type: 'image',
+      group: 'classic',
+      fieldset: 'classicHero',
+      description: `${CLASSIC} Used only if no video is set.`,
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'heroVideo',
+      title: 'Hero Background Video',
+      type: 'file',
+      group: 'classic',
+      fieldset: 'classicHero',
+      description: `${CLASSIC} Looping background video. Takes priority over the image.`,
+      options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'heroVideoUrl',
+      title: 'Hero Video URL (External)',
+      type: 'url',
+      group: 'classic',
+      fieldset: 'classicHero',
+      description: `${CLASSIC} External video URL, used if nothing is uploaded above.`,
+    }),
+    defineField({
+      name: 'heroIntroVideo',
+      title: 'Intro Video (plays once before loop)',
+      type: 'file',
+      group: 'classic',
+      fieldset: 'classicHero',
+      description: `${CLASSIC} Short clip that plays once on load, then hands over to the looping video.`,
+      options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'heroBoredomVideo',
+      title: '"Bored?" Video',
+      type: 'file',
+      group: 'classic',
+      fieldset: 'classicHero',
+      description: `${CLASSIC} Plays when the visitor clicks the "Bored?" button.`,
+      options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'heroBoredomButtonText',
+      title: '"Bored?" Button Text',
+      type: 'string',
+      group: 'classic',
+      fieldset: 'classicHero',
+      description: `${CLASSIC} Label on the button in the bottom-right of the hero.`,
+      initialValue: 'Bored?',
+    }),
+    defineField({
+      name: 'navItems',
+      title: 'Navigation Items',
+      type: 'array',
+      group: 'classic',
+      fieldset: 'classicNav',
+      description: `${CLASSIC} The Desk has no nav bar — you click objects on the desk instead.`,
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'navItem',
+          title: 'Nav Item',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: 'target',
+              title: 'Target Section',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Home (Hero)', value: 'hero' },
+                  { title: '1. Book', value: 'book' },
+                  { title: '2. App', value: 'app' },
+                  { title: '3. NFTs', value: 'nfts' },
+                  { title: 'About Me', value: 'about' },
+                  { title: 'Contact Me', value: 'contact' },
+                  { title: 'Coming Soon (Panel)', value: 'comingsoon' },
+                  { title: 'Coming Soon (Footer, legacy)', value: 'coming-soon' },
+                ],
+              },
+              validation: (rule) => rule.required(),
+            }),
+          ],
+          preview: {
+            select: { title: 'label', subtitle: 'target' },
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'comingSoonItems',
       title: 'Coming Soon Items',
       type: 'array',
-      group: 'comingSoon',
-      description: 'Logo + freeform cards shown in the Coming Soon accordion panel',
+      group: 'classic',
+      fieldset: 'classicComingSoon',
+      description: `${CLASSIC} Project cards in the Coming Soon panel. The Desk shows no such panel — only the Mailing List Tagline on the About tab survives.`,
       of: [
         defineArrayMember({
           type: 'object',
@@ -702,13 +732,13 @@ export const homepageSettings = defineType({
               name: 'url',
               title: 'Project URL',
               type: 'url',
-              description: 'Optional — makes the card title clickable (cursor changes to pointer). Leave blank for no link.',
+              description: 'Optional — makes the card title clickable. Leave blank for no link.',
             }),
             defineField({
               name: 'exploreMoreUrl',
               title: '"Explore More" Button URL',
               type: 'url',
-              description: 'Optional — shows an "Explore More" button below the description that links here.',
+              description: 'Optional — shows an "Explore More" button below the description.',
             }),
           ],
           preview: {
@@ -717,11 +747,20 @@ export const homepageSettings = defineType({
         }),
       ],
     }),
-
+    defineField({
+      name: 'appGongSound',
+      title: 'Gong Sound',
+      type: 'file',
+      group: 'classic',
+      fieldset: 'classicOther',
+      description: `${CLASSIC} Plays when the App panel opens on Classic. The Desk's App card is silent.`,
+      options: { accept: 'audio/*' },
+    }),
   ],
+
   preview: {
     prepare() {
-      return { title: 'Homepage Settings' }
+      return { title: 'The Desk — Homepage' }
     },
   },
 })

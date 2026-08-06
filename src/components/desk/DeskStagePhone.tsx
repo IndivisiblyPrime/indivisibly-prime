@@ -15,13 +15,11 @@ export function DeskStagePhone({
   pulseApp,
   onInteract,
   entryTitle,
-  entrySubtitle,
 }: {
   onOpen: (id: DeskId) => void
   pulseApp: boolean
   onInteract: () => void
   entryTitle: string
-  entrySubtitle: string
 }) {
   return (
     <div className="min-h-dvh w-full bg-[#171009]">
@@ -48,14 +46,6 @@ export function DeskStagePhone({
           >
             {entryTitle}
           </h1>
-          {entrySubtitle && (
-            <p
-              className="mt-5 text-xs uppercase tracking-[0.4em] text-[#E7DCC6]/85"
-              style={{ textShadow: "0 1px 10px rgba(0,0,0,0.6)" }}
-            >
-              {entrySubtitle}
-            </p>
-          )}
         </div>
         <div className="pointer-events-none absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center">
           <span className="mb-2 text-[0.6rem] uppercase tracking-[0.3em] text-white/60">Scroll</span>

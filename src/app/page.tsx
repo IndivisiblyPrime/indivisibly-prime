@@ -1,21 +1,11 @@
 export const revalidate = 60
 
-import { Metadata } from "next"
-import { urlFor } from "@/sanity/lib/image"
 import { getHomepageSettings } from "@/sanity/lib/homepage"
 import { DeskExperience } from "@/components/desk/DeskExperience"
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getHomepageSettings()
-  const title = settings?.siteTitle || "Jack Harvey"
-  return {
-    title,
-    description: title,
-    icons: settings?.siteFavicon
-      ? { icon: urlFor(settings.siteFavicon).width(64).height(64).url() }
-      : undefined,
-  }
-}
+// Title, description and icons all come from the root layout — declaring `icons`
+// here would replace the layout's full icon set (including apple-touch-icon) with
+// just this one entry, which is exactly what broke the favicon on mobile.
 
 export default async function Home() {
   const settings = await getHomepageSettings()

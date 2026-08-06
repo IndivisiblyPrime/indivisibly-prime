@@ -89,7 +89,6 @@ export interface HomepageSettings {
 
   // Entry cover
   entryTitle?: string;
-  entrySubtitle?: string;
 
   // Navigation
   navItems?: NavItem[];
