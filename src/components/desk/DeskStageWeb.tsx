@@ -7,8 +7,10 @@ import { HOTSPOTS, type DeskId } from "./data"
 /**
  * Desktop desk: the full photo with clickable object hotspots. On hover the
  * hovered object brightens + gets a white ring while the rest of the desk dims
- * (spotlight box-shadow) — "singling it out". Before the first interaction the
- * "1 · App" object gently pulses to invite the first click.
+ * (spotlight box-shadow) — "singling it out". Before the first click anywhere
+ * on the desk, that spotlight only fires for "app" (to draw the eye there
+ * first); any click unlocks it for every object. The "1 · App" object also
+ * gently pulses to invite the first click, independent of this gating.
  */
 export function DeskStageWeb({
   onOpen,
@@ -18,6 +20,10 @@ export function DeskStageWeb({
   pulseApp: boolean
 }) {
   const [hovered, setHovered] = useState<DeskId | null>(null)
+  // Before the visitor's first click anywhere on the desk, the hover spotlight
+  // (background shading) only fires for "app" — it invites that first click
+  // without distracting toward the other objects. Any click unlocks it for all.
+  const [spotlightUnlocked, setSpotlightUnlocked] = useState(false)
 
   // Hovering only spotlights the object — it does NOT clear the App attract pulse.
   // The pulse persists through hover and lifts only on an actual click (onOpen).
@@ -32,6 +38,7 @@ export function DeskStageWeb({
       <div
         className="relative select-none shadow-[0_0_140px_rgba(0,0,0,0.85)]"
         style={{ width: "min(100vw, 177.68vh)", aspectRatio: "1672 / 941" }}
+        onClick={() => setSpotlightUnlocked(true)}
       >
         <img
           src="/desk.png"
@@ -75,8 +82,9 @@ export function DeskStageWeb({
           />
         ))}
 
-        {/* Spotlight — brighten hovered rect + white ring + darken everything else */}
-        {hoveredSpot && (
+        {/* Spotlight — brighten hovered rect + white ring + darken everything else.
+            Gated to "app" only until the visitor's first click anywhere on the desk. */}
+        {hoveredSpot && (spotlightUnlocked || hoveredSpot.id === "app") && (
           <div
             className="pointer-events-none absolute z-[16] ring-1 ring-white/60 backdrop-brightness-[1.16] backdrop-saturate-[1.06]"
             style={{

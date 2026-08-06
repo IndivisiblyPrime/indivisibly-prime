@@ -17,7 +17,7 @@ const dancingScript = Dancing_Script({
   weight: ["700"],
 });
 
-// Elegant serif used by the OS "Wisdom.pdf" reader and Bonsai headings
+// Serif used by the Desk entry cover and phone-stage labels
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
