@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
 import { Eyebrow, ActionButton } from "./shared"
+import { PhoneFrame } from "../PhoneFrame"
 import { FALLBACK } from "../data"
 
 const DEFAULT_DESC =
@@ -18,32 +19,50 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
 
   const images =
     settings.appImages && settings.appImages.length > 0
-      ? settings.appImages.map((img) => urlFor(img).width(700).url())
+      ? settings.appImages.map((img) => urlFor(img).width(840).auto("format").url())
       : settings.appImage
-      ? [urlFor(settings.appImage).width(700).url()]
+      ? [urlFor(settings.appImage).width(840).auto("format").url()]
       : FALLBACK.appScreens
 
   const [i, setI] = useState(0)
   const count = images.length
   const go = (d: number) => setI((prev) => (prev + d + count) % count)
 
+  // Swipe the screen on touch devices, where the arrows are a small target.
+  const touchX = useRef<number | null>(null)
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchX.current
+    touchX.current = null
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1)
+  }
+
   const downloadText = settings.appButtonText || "Download Now"
   const websiteText = settings.appWebsiteButtonText || "Visit Website"
 
   return (
     <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
-      {/* Carousel */}
+      {/* Carousel — one fixed phone shell, the screenshots cross-fade inside it */}
       <div className="flex flex-col items-center">
-        <div className="w-full max-w-[300px]">
-          <img
-            src={images[i]}
-            alt={`${title} screenshot ${i + 1}`}
-            className="w-full rounded-[1.7rem] shadow-2xl ring-1 ring-black/10"
-            draggable={false}
-          />
-        </div>
+        <PhoneFrame onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          {images.map((src, d) => (
+            <img
+              key={src}
+              src={src}
+              alt={d === i ? `${title} screenshot ${i + 1} of ${count}` : ""}
+              aria-hidden={d !== i}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out ${
+                d === i ? "opacity-100" : "opacity-0"
+              }`}
+              draggable={false}
+            />
+          ))}
+        </PhoneFrame>
         {count > 1 && (
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-6 flex items-center gap-4">
             <button
               type="button"
               onClick={() => go(-1)}

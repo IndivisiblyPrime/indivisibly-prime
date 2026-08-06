@@ -46,7 +46,15 @@ export const PHONE_SCENES: PhoneScene[] = [
 // Fallback imagery cropped from the desk photo — shown until the matching
 // Sanity fields are populated, so the site looks complete out of the box.
 export const FALLBACK = {
-  appScreens: ["/crops/phone_screen.png"],
+  // Real Bonsai app screenshots (1170×2532), shown inside <PhoneFrame />.
+  appScreens: [
+    "/app-screens/01-bell-timer.webp",
+    "/app-screens/02-session-preview.webp",
+    "/app-screens/03-breathwork.webp",
+    "/app-screens/04-journey.webp",
+    "/app-screens/05-visual.webp",
+    "/app-screens/06-timers.webp",
+  ],
   bookCover: "/crops/book_cover.png",
   journal: "/crops/journal_left.png",
   nfts: [
