@@ -5,6 +5,7 @@ import { ChevronRight, Linkedin, Instagram } from "lucide-react"
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { EncryptedText } from "@/components/ui/encrypted-text"
+import { sanityFileUrl } from "@/lib/sanityFile"
 import {
   AccordionItem as AccordionItemType,
   SocialLink,
@@ -13,17 +14,6 @@ import {
   ComingSoonEntry,
   SanityFileAsset,
 } from "@/lib/types"
-
-// ─── Sanity file → CDN URL ─────────────────────────────────────────────────────
-
-function sanityFileUrl(asset: SanityFileAsset | undefined): string | undefined {
-  if (!asset?.asset?._ref) return undefined
-  const ref = asset.asset._ref
-  const parts = ref.split("-")
-  const ext = parts[parts.length - 1]
-  const id = parts.slice(1, parts.length - 1).join("-")
-  return `https://cdn.sanity.io/files/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/${id}.${ext}`
-}
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
 

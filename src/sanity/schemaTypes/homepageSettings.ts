@@ -57,11 +57,6 @@ export const homepageSettings = defineType({
       title: 'Coming Soon cards',
       options: { collapsible: true, collapsed: true },
     },
-    {
-      name: 'classicOther',
-      title: 'Other',
-      options: { collapsible: true, collapsed: true },
-    },
   ],
 
   fields: [
@@ -148,6 +143,14 @@ export const homepageSettings = defineType({
       type: 'url',
       group: 'app',
       description: `${DESK} The whole button is hidden until you fill this in — that is why you currently see only one button on the App card.`,
+    }),
+    defineField({
+      name: 'appGongSound',
+      title: 'Gong Sound',
+      type: 'file',
+      group: 'app',
+      description: `${BOTH} Plays once when the App card is opened. Leave empty for silence. A browser may still refuse to play it if the visitor hasn't interacted with the page yet.`,
+      options: { accept: 'audio/*' },
     }),
 
     // ═══ 2 · BOOK CARD ══════════════════════════════════════════════════════
@@ -746,15 +749,6 @@ export const homepageSettings = defineType({
           },
         }),
       ],
-    }),
-    defineField({
-      name: 'appGongSound',
-      title: 'Gong Sound',
-      type: 'file',
-      group: 'classic',
-      fieldset: 'classicOther',
-      description: `${CLASSIC} Plays when the App panel opens on Classic. The Desk's App card is silent.`,
-      options: { accept: 'audio/*' },
     }),
   ],
 

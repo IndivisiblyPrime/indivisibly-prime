@@ -1,10 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
+import { sanityFileUrl } from "@/lib/sanityFile"
 import { Eyebrow, ActionButton } from "./shared"
 import { PhoneFrame } from "../PhoneFrame"
 import { FALLBACK } from "../data"
@@ -27,6 +28,24 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
   const [i, setI] = useState(0)
   const count = images.length
   const go = (d: number) => setI((prev) => (prev + d + count) % count)
+
+  // Gong on open, matching /classic. This card only mounts when the App is
+  // opened, so a mount effect fires exactly once per open. The open is always a
+  // user click, so autoplay policy lets it through — but a browser can still
+  // refuse, hence the ignored rejection.
+  const gongUrl = sanityFileUrl(settings.appGongSound)
+  useEffect(() => {
+    if (!gongUrl) return
+    const audio = new Audio(gongUrl)
+    audio.play().catch(() => {
+      /* autoplay blocked — the card is still perfectly usable */
+    })
+    // Don't leave a gong ringing over a closed card.
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }, [gongUrl])
 
   // Swipe the screen on touch devices, where the arrows are a small target.
   const touchX = useRef<number | null>(null)

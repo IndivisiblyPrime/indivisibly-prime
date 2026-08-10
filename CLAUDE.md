@@ -51,7 +51,8 @@ Components in `src/components/desk/`:
 - The App attract pulse **persists through hover** — hovering only spotlights. It clears on an actual click.
 - Phone scenes are **frame-less with no "Tap to open" text**; the word label is the only cue. The App cut-out is the one exception: it keeps its ring + pulse until first tap.
 - NFT eyebrow reads **"03 — The NFTs"**, not "The Art". Tiles use `object-contain` — no cropping; they read wider because the modal is `xl`, not because the aspect was forced.
-- Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo and this exactly doubles its rendered height at the same width. `bookSubtitle` has **no code fallback**; it renders only if set.
+- Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo, so this crops in rather than padding out. It is sized to land on the **same height as the App card's phone**: it fills a `27.5rem` column (lg+), and 27.5rem × 4/3 = 587px vs the phone's 588px. `max-h-[67dvh]` mirrors the phone's own dvh cap so both shrink together on short laptops instead of the cover overflowing the modal — verified 470/469 at 1440×700 with no scroll. Change one and you must change the other. `bookSubtitle` has **no code fallback**; it renders only if set.
+- The App card plays `appGongSound` **once on open, on both the Desk and `/classic`**. The Desk uses a mount effect (the card only mounts when opened) with cleanup that stops a gong still ringing when the card closes.
 - About card has **no eyebrow above the name**; socials + ✉️ sit below the photo in the left column. Mailing-list signup is at the bottom of the card.
 - App/Book/NFT deliberately **share the `xl` modal size**; About is the odd one at `wide`.
 
@@ -85,13 +86,15 @@ Every field description opens with a scope marker. **Keep tagging new fields** �
 |---|---|
 | `● Desk only` | `entryTitle`, `bookSubtitle`, `appTagline`, `appImages`, `appWebsiteButton*`, `nftSectionTitle`, `aboutTagline`, `aboutImage` |
 | `◆ Desk + Classic` | everything else in tabs 1–6 |
-| `○ Classic only` | `navItems`, all `hero*`, `comingSoonItems`, `appGongSound` — the last tab, safe to ignore |
+| `○ Classic only` | `navItems`, all `hero*`, `comingSoonItems` — the last tab, safe to ignore |
 
 `entrySubtitle` was deleted on 2026-08-06 — it held no data, was never read from `settings`, and its render branches were unreachable. The entry cover is single-line in code now, with no subtitle prop to revive.
 
 Note the near-miss pairs: `comingSoonTagline` is on the **About** tab (it's the mailing-list line on the About card) while `comingSoonItems` is classic-only; `appImages` is Desk-only but `appImage` is shared.
 
 Gallery items carry an optional `url`; clicking falls back to `ctaButtonUrl`. Types live in `src/lib/types.ts`.
+
+Sanity **files** (hero videos, the gong) have no URL builder — `sanityFileUrl()` in `src/lib/sanityFile.ts` assembles the CDN URL from the `file-<id>-<ext>` ref. One shared copy; don't inline a fourth.
 
 ### Studio structure
 

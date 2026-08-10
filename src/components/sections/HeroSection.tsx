@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
+import { sanityFileUrl } from "@/lib/sanityFile"
 import { SanityFileAsset } from "@/lib/types"
 
 interface HeroSectionProps {
@@ -12,16 +13,6 @@ interface HeroSectionProps {
   heroIntroVideo?: SanityFileAsset
   heroBoredomVideo?: SanityFileAsset
   heroBoredomButtonText?: string
-}
-
-function sanityFileUrl(asset: SanityFileAsset | undefined): string | undefined {
-  if (!asset?.asset?._ref) return undefined
-  const ref = asset.asset._ref
-  const parts = ref.split("-")
-  // format: file-<id>-<ext>
-  const ext = parts[parts.length - 1]
-  const id = parts.slice(1, parts.length - 1).join("-")
-  return `https://cdn.sanity.io/files/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/${id}.${ext}`
 }
 
 export function HeroSection({
