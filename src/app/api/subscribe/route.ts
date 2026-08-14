@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 
+/** The signup goes out as HTML, so anything a stranger typed has to be inert. */
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
 export async function POST(req: NextRequest) {
   const { email } = await req.json()
 
@@ -27,8 +37,20 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       from,
       to,
-      subject: `[Mailing List] New subscriber: ${email}`,
-      html: `<p>New mailing list signup from <strong>${email}</strong></p>`,
+      // Hitting reply in the inbox answers the subscriber, not Resend.
+      reply_to: email,
+      // Every site uses this same `[Mailing]` prefix, so one inbox rule catches
+      // all of them. Which site it came from is the sender name and the
+      // "Sent from" line below — all three send from breathebonsai.com, so the
+      // address alone can't tell them apart.
+      subject: `[Mailing] New subscriber: ${email}`,
+      html: `
+        <p><strong>From:</strong> &lt;${escapeHtml(email)}&gt;</p>
+        <p><strong>Sent from:</strong> jackharvey.me</p>
+        <hr />
+        <p>Please add me to the mailing list.</p>
+      `,
+      text: `From: <${email}>\nSent from: jackharvey.me\n\nPlease add me to the mailing list.`,
     }),
   })
 
