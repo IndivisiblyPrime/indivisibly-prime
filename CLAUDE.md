@@ -41,8 +41,9 @@ Components in `src/components/desk/`:
 ### Assets
 
 - **Not in Studio, by choice**: `public/desk.png`, `public/desk-phone-*.png`, `public/crops/*`. Regenerate crops/scenes from `desk.png` with PIL.
+- **Swapping `desk.png` is never just a file copy.** Four things are calibrated to the pixels: `HOTSPOTS` (desktop rects + label anchors), `PHONE_SCENES` (the four scene crops *and* the `object` % inside each), `public/crops/*`, and the alt text. Measure the new objects, then redo all four — a swap alone leaves every hotspot pointing at bare wood. The photo was last swapped **2026-08-16** (same 1672×941): the brass gong is gone, the open "Alex Mori" journal is now a closed leather notebook embossed *Jack Harvey*, and the phone shows Breathwork.
 - **`public/app-screens/*.webp`** — six real Bonsai screens (828×1792), wired as `FALLBACK.appScreens`. Sanity's `appImages` wins whenever it's non-empty.
-- Every card falls back to `public/crops/*` plus sensible copy when its Sanity fields are empty (`FALLBACK` in `data.ts`), so the site looks complete before Studio is filled.
+- Every card falls back to `public/crops/*` plus sensible copy when its Sanity fields are empty (`FALLBACK` in `data.ts`), so the site looks complete before Studio is filled. `FALLBACK.journal` / `crops/journal_left.png` keep their names but now hold the leather notebook; it is cut 4:5 to match the About card's `aspect-[4/5] object-cover`. `crops/phone_screen.png` is regenerated for consistency but nothing reads it.
 - CSS lives in `globals.css` under the `desk-*` namespace: `desk-pulse`, `desk-rise`, `desk-scroll-cue`.
 
 ### Locked decisions — don't undo these without asking Jack
@@ -54,6 +55,7 @@ Components in `src/components/desk/`:
 - Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo, so this crops in rather than padding out. It is sized to land on the **same height as the App card's phone**: it fills a `27.5rem` column (lg+), and 27.5rem × 4/3 = 587px vs the phone's 588px. `max-h-[67dvh]` mirrors the phone's own dvh cap so both shrink together on short laptops instead of the cover overflowing the modal — verified 470/469 at 1440×700 with no scroll. Change one and you must change the other. `bookSubtitle` has **no code fallback**; it renders only if set.
 - The App card plays `appGongSound` **once on open, on both the Desk and `/classic`**. The Desk uses a mount effect (the card only mounts when opened) with cleanup that stops a gong still ringing when the card closes.
 - About card has **no eyebrow above the name**; socials + ✉️ sit below the photo in the left column. Mailing-list signup is at the bottom of the card.
+- On the desk, "About Me" is the only `labelPlace: "center"` label. It sits at `labelY: 72` — the lower half of the notebook, clear of the *Jack Harvey* embossing at ~53% and the bottom stitching at ~90%. Re-check it if the photo changes.
 - App/Book/NFT deliberately **share the `xl` modal size**; About is the odd one at `wide`.
 
 ### Known Studio gaps (content tasks, not code)

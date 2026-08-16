@@ -20,10 +20,12 @@ export interface Hotspot {
 }
 
 export const HOTSPOTS: Hotspot[] = [
-  { id: "app", num: "1", word: "App", left: 9.2, top: 40.8, width: 10.8, height: 44.6, radius: "1.7rem", labelX: 14.6, labelY: 88, labelPlace: "below" },
-  { id: "book", num: "2", word: "Book", left: 24.0, top: 25.6, width: 20.6, height: 61.2, radius: "0.4rem", labelX: 34.4, labelY: 89, labelPlace: "below" },
-  { id: "nft", num: "3", word: "NFTs", left: 52.0, top: 10.8, width: 36.0, height: 33.0, radius: "0.5rem", labelX: 70.0, labelY: 7.2, labelPlace: "above" },
-  { id: "about", num: "", word: "About Me", left: 50.5, top: 45.4, width: 39.5, height: 51.0, radius: "0.5rem", labelX: 70.3, labelY: 47, labelPlace: "center" },
+  { id: "app", num: "1", word: "App", left: 13.9, top: 41.3, width: 11.1, height: 40.3, radius: "1.7rem", labelX: 19.4, labelY: 84, labelPlace: "below" },
+  { id: "book", num: "2", word: "Book", left: 28.2, top: 27.3, width: 20.6, height: 58.6, radius: "0.4rem", labelX: 38.5, labelY: 88, labelPlace: "below" },
+  { id: "nft", num: "3", word: "NFTs", left: 53.0, top: 9.4, width: 36.8, height: 36.6, radius: "0.5rem", labelX: 71.4, labelY: 8.5, labelPlace: "above" },
+  // "About Me" sits centred on the lower half of the notebook — clear of the
+  // "JACK HARVEY" embossing at ~53%, above the bottom stitching at ~90%.
+  { id: "about", num: "", word: "About Me", left: 61.0, top: 47.0, width: 16.7, height: 46.5, radius: "0.5rem", labelX: 69.0, labelY: 72, labelPlace: "center" },
 ]
 
 export interface PhoneScene {
@@ -37,10 +39,10 @@ export interface PhoneScene {
 }
 
 export const PHONE_SCENES: PhoneScene[] = [
-  { id: "app", num: "1", word: "App", src: "/desk-phone-app.png", object: { left: 27, top: 8, width: 47, height: 74 } },
-  { id: "book", num: "2", word: "Book", src: "/desk-phone-book.png", object: { left: 12, top: 5, width: 77, height: 87 } },
-  { id: "nft", num: "3", word: "NFTs", src: "/desk-phone-nft.png", object: { left: 2, top: 7, width: 95, height: 80 } },
-  { id: "about", num: "", word: "About Me", src: "/desk-phone-about.png", object: { left: 2, top: 3, width: 95, height: 93 } },
+  { id: "app", num: "1", word: "App", src: "/desk-phone-app.png", object: { left: 23, top: 13, width: 55, height: 73 } },
+  { id: "book", num: "2", word: "Book", src: "/desk-phone-book.png", object: { left: 10, top: 6, width: 80, height: 87 } },
+  { id: "nft", num: "3", word: "NFTs", src: "/desk-phone-nft.png", object: { left: 3, top: 9, width: 93, height: 82 } },
+  { id: "about", num: "", word: "About Me", src: "/desk-phone-about.png", object: { left: 16, top: 4, width: 68, height: 85 } },
 ]
 
 // Fallback imagery cropped from the desk photo — shown until the matching

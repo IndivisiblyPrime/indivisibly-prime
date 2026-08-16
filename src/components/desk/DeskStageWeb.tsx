@@ -42,7 +42,7 @@ export function DeskStageWeb({
       >
         <img
           src="/desk.png"
-          alt="Jack Harvey's desk — an iPhone running Bonsai, a Zen book, a frame of NFT art, and an open journal"
+          alt="Jack Harvey's desk — an iPhone running Bonsai, a Zen book, a frame of NFT art, and a leather notebook"
           className="absolute inset-0 h-full w-full object-cover"
           draggable={false}
         />
