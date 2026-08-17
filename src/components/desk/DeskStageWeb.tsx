@@ -4,6 +4,14 @@
 import { useState } from "react"
 import { HOTSPOTS, type DeskId } from "./data"
 
+// The outline is %-of-stage points (see data.ts), so both renderings scale
+// fluidly with the stage: clip-path uses % directly, and the SVG stretches its
+// 0–100 viewBox over the stage via preserveAspectRatio="none".
+const toClip = (o: [number, number][]) =>
+  `polygon(${o.map(([x, y]) => `${x.toFixed(2)}% ${y.toFixed(2)}%`).join(", ")})`
+const toPath = (o: [number, number][]) =>
+  `M${o.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L")}Z`
+
 /**
  * Desktop desk: the full photo with clickable object hotspots. On hover the
  * hovered object brightens + gets a white ring while the rest of the desk dims
@@ -82,20 +90,38 @@ export function DeskStageWeb({
           />
         ))}
 
-        {/* Spotlight — brighten hovered rect + white ring + darken everything else.
-            Gated to "app" only until the visitor's first click anywhere on the desk. */}
+        {/* Spotlight — dim everything outside the object's true outline, render
+            the object itself brightened inside it (a clipped copy of the same
+            photo, so pixels align exactly), and trace it with a white ring +
+            warm glow. The outline hugs the photographed object — perspective
+            skew, page fore-edge, leaning pen and all — instead of a box.
+            Gated to "app" only until the visitor's first click anywhere. */}
         {hoveredSpot && (spotlightUnlocked || hoveredSpot.id === "app") && (
-          <div
-            className="pointer-events-none absolute z-[16] ring-1 ring-white/60 backdrop-brightness-[1.16] backdrop-saturate-[1.06]"
-            style={{
-              left: `${hoveredSpot.left}%`,
-              top: `${hoveredSpot.top}%`,
-              width: `${hoveredSpot.width}%`,
-              height: `${hoveredSpot.height}%`,
-              borderRadius: hoveredSpot.radius,
-              boxShadow: "0 0 0 100vmax rgba(0,0,0,0.28), 0 0 55px rgba(255,238,210,0.35)",
-            }}
-          />
+          <div className="pointer-events-none absolute inset-0 z-[16]">
+            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+              <path d={`M0 0H100V100H0Z ${toPath(hoveredSpot.outline)}`} fill="rgba(0,0,0,0.28)" fillRule="evenodd" />
+            </svg>
+            {/* glow lives on the wrapper: filter after clip-path on one element
+                would clip the shadow away, so they must sit on separate nodes */}
+            <div className="absolute inset-0" style={{ filter: "drop-shadow(0 0 28px rgba(255,238,210,0.35))" }}>
+              <img
+                src="/desk.png"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ clipPath: toClip(hoveredSpot.outline), filter: "brightness(1.16) saturate(1.06)" }}
+                draggable={false}
+              />
+            </div>
+            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+              <path
+                d={toPath(hoveredSpot.outline)}
+                fill="none"
+                stroke="rgba(255,255,255,0.6)"
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
         )}
 
         {/* Always-visible white labels (kept above the spotlight so they stay legible) */}
