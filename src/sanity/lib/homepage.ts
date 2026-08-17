@@ -9,6 +9,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
   entryTitle,
+  entryCoverText,
   navItems[]{ _key, label, target },
   heroImage,
   heroVideo,

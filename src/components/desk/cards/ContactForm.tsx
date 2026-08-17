@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { solidButton } from "./shared"
 
 const inputCls =
   "w-full rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:border-black focus:outline-none"
@@ -62,11 +63,7 @@ export function ContactForm() {
         <textarea name="message" required rows={4} value={form.message} onChange={handleChange} className={`${inputCls} resize-none`} placeholder="Your message..." />
       </div>
       {status === "error" && <p className="text-sm text-red-600">Something went wrong. Please try again.</p>}
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="border border-black px-8 py-3 text-sm font-medium tracking-wide transition-colors hover:bg-black hover:text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={status === "sending"} className={`${solidButton} px-8 py-3`}>
         {status === "sending" ? "Sending…" : "Send Message"}
       </button>
     </form>

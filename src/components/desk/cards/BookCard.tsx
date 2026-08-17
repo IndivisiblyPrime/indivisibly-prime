@@ -17,18 +17,22 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
   const btnText = settings.bookButtonText || "More Details / Buy"
 
   return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14 lg:grid-cols-[minmax(0,27.5rem)_1fr]">
+    <div className="grid gap-8 md:grid-cols-[minmax(0,380px)_1fr] md:items-start md:gap-14 lg:grid-cols-[minmax(0,31.5rem)_1fr]">
       <div className="flex items-start justify-center">
         {/* Jack's upload is a 3:2 landscape photo; aspect-[3/4] + object-cover crops
-            in rather than padding it out. Sized to land on the SAME height as the App
-            card's phone: the cover fills a 27.5rem column, and 27.5rem × 4/3 = 587px,
-            against the phone's 588px. `max-h-[67dvh]` mirrors the phone's own dvh cap
-            (2.1 × 32dvh) so both shrink together on short viewports instead of the
-            cover overflowing the modal. */}
+            in rather than padding it out. The cover drives the card's height, so
+            "make the Book card ~15% taller" (Jack, 2026-08-17) is done by growing
+            the cover, not by padding: a 31.5rem column × 4/3 = 672px against the
+            old 27.5rem/587px, i.e. +14.5%. The modal's own width is unchanged —
+            the text column just gets proportionally narrower.
+            This deliberately BREAKS the old cover-height == App-phone-height
+            pairing; the two are no longer meant to match. `max-h-[77dvh]` is the
+            old 67dvh scaled by the same 15% so the cap doesn't clamp away the
+            extra height on short laptops. */}
         <img
           src={cover}
           alt={title}
-          className="aspect-[3/4] max-h-[67dvh] w-full rounded-md object-cover shadow-2xl ring-1 ring-black/10"
+          className="aspect-[3/4] max-h-[77dvh] w-full rounded-md object-cover shadow-2xl ring-1 ring-black/10"
           draggable={false}
         />
       </div>

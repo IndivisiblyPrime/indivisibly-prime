@@ -9,8 +9,11 @@ import { ContactForm } from "./ContactForm"
 import { MailingListForm } from "./MailingListForm"
 import { FALLBACK } from "../data"
 
+// ~33% larger than the old h-9/w-9 (Jack asked for 30–50% bigger, both viewports).
 const iconBtn =
-  "flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/15 text-neutral-700 transition-colors hover:bg-black hover:text-white"
+  "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-black/15 text-neutral-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black hover:text-white hover:shadow-md"
+
+const iconSize = "h-[1.35rem] w-[1.35rem]"
 
 const sectionLabel = "text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400"
 
@@ -30,46 +33,65 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const experienceEntries = experienceItem?.experienceEntries ?? []
   const talentEntries = talentsItem?.logoFreeformEntries ?? []
 
+  const socials = (
+    <div className="flex gap-3">
+      {linkedin && (
+        <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className={iconBtn}>
+          <Linkedin className={iconSize} />
+        </a>
+      )}
+      {instagram && (
+        <a href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={iconBtn}>
+          <Instagram className={iconSize} />
+        </a>
+      )}
+      <button
+        type="button"
+        onClick={() => setShowContact((v) => !v)}
+        aria-label="Email me"
+        aria-pressed={showContact}
+        className={`${iconBtn} ${showContact ? "bg-black text-white" : ""}`}
+      >
+        <Mail className={iconSize} />
+      </button>
+    </div>
+  )
+
   return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,240px)_1fr] md:gap-10">
-      {/* Photo + socials — left */}
-      <div className="mx-auto w-full max-w-[220px] md:mx-0 md:max-w-none">
-        <img
-          src={photo}
-          alt={name}
-          className="aspect-[4/5] w-full rounded-lg object-cover shadow-lg ring-1 ring-black/10"
-          draggable={false}
-        />
-        <div className="mt-4 flex justify-center gap-2.5 md:justify-start">
-          {linkedin && (
-            <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className={iconBtn}>
-              <Linkedin className="h-4 w-4" />
-            </a>
-          )}
-          {instagram && (
-            <a href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={iconBtn}>
-              <Instagram className="h-4 w-4" />
-            </a>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowContact((v) => !v)}
-            aria-label="Email me"
-            aria-pressed={showContact}
-            className={`${iconBtn} ${showContact ? "bg-black text-white" : ""}`}
-          >
-            <Mail className="h-4 w-4" />
-          </button>
+    /* Identity banner across the top — photo beside the name — then every
+       section stacked full-width beneath it (Jack, 2026-08-17). The old layout
+       ran the photo down a narrow left rail with Experience alongside it. */
+    <div>
+      {/* items-center, not items-start: the identity text is much shorter than
+          the 4:5 photo, so centring shares the slack above and below it instead
+          of leaving one big gap underneath. */}
+      <div className="grid gap-6 md:grid-cols-[minmax(0,240px)_1fr] md:items-center md:gap-10">
+        <div className="mx-auto w-full max-w-[220px] md:mx-0 md:max-w-none">
+          <img
+            src={photo}
+            alt={name}
+            className="aspect-[4/5] w-full rounded-lg object-cover shadow-lg ring-1 ring-black/10"
+            draggable={false}
+          />
+        </div>
+
+        <div className="flex flex-col">
+          {/* Name and socials share a line; they stack and centre on phone. */}
+          <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left">
+            <div>
+              <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
+              {tagline && <p className="mt-2 tracking-wide text-neutral-500">{tagline}</p>}
+            </div>
+            {socials}
+          </div>
+          {intro && <p className="mt-5 leading-relaxed text-neutral-600">{intro}</p>}
         </div>
       </div>
 
-      {/* Everything else — right */}
-      <div>
-        <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
-        {tagline && <p className="mt-2 tracking-wide text-neutral-500">{tagline}</p>}
-
+      {/* Everything below the banner runs the card's full width. */}
+      <div className="mt-10">
         {showContact ? (
-          <div className="mt-6 duration-300 animate-in fade-in slide-in-from-top-2">
+          <div className="duration-300 animate-in fade-in slide-in-from-top-2">
             <button
               type="button"
               onClick={() => setShowContact(false)}
@@ -82,11 +104,9 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
           </div>
         ) : (
           <>
-            {intro && <p className="mt-5 leading-relaxed text-neutral-600">{intro}</p>}
-
             {/* Experience — logo in the left slot, year as the small grey line */}
             {experienceEntries.length > 0 && (
-              <div className="mt-8">
+              <div>
                 <h3 className={`mb-5 ${sectionLabel}`}>{experienceItem?.title || "Experience"}</h3>
                 <div>
                   {experienceEntries.map((entry, idx) => {
@@ -128,7 +148,7 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
 
             {/* Other Talents & Interests — text only, no logos */}
             {talentEntries.length > 0 && (
-              <div className={experienceEntries.length > 0 ? "" : "mt-8"}>
+              <div>
                 <h3 className={`mb-4 ${sectionLabel}`}>{talentsItem?.title || "Other Talents & Interests"}</h3>
                 <div className="space-y-3">
                   {talentEntries.map((entry) => (

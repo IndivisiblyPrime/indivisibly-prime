@@ -32,7 +32,7 @@ Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch
 Components in `src/components/desk/`:
 
 - **`DeskExperience.tsx`** — `"use client"` orchestrator. State: `active` (open card), `coverGone`, `pulseApp`. Renders `EntryCover`, then `DeskStageWeb` (`hidden md:block`) or `DeskStagePhone` (`md:hidden`), plus the `Modal`. `sessionStorage["desk-cover-seen"]` skips the cover on repeat visits.
-- **`EntryCover.tsx`** — warm-dark scrim + scroll cue, single line: `` `${entryTitle}'s Portfolio` ``. Lifts on first wheel/scroll/touch/key/click, never returns that session.
+- **`EntryCover.tsx`** — warm-dark scrim + scroll cue, single line: `entryCoverText` verbatim, or `` `${entryTitle}'s Portfolio` `` when that's blank. Lifts on first wheel/scroll/touch/key/click, never returns that session.
 - **`DeskStageWeb.tsx`** — desktop desk photo (`public/desk.png`, 1672×941). Hotspots are the objects' **true photographed outlines**, calibrated by hand in `/calibrate` (below) and stored in **`hotspots.json`**. `roundedOutline()` fillets the corners in pixel space and emits %-of-stage points, so everything scales fluidly with the window. Hovering renders two stage-sized layers: an SVG even-odd mask dimming everything *outside* the outline, and a brightened clipped copy of the same photo inside it (pixels align exactly). The outline paths also **are** the hit targets — hover/click only fire over the real object, not a bounding box around it.
 - **`CalibrateTool.tsx`** + **`/calibrate`** — dev-only corner editor. See "Calibrating the hotspots".
 - **`DeskStagePhone.tsx`** — four full-width scene images (`public/desk-phone-{app,book,nft,about}.png`) stacked vertically, each with a word label. Swap in real photos by replacing those four files.
@@ -73,9 +73,10 @@ It costs the live site nothing: the tool compiles to its own ~14KB chunk referen
 - **No visible outline on hover, ever.** Hovering dims everything else and relights the object; there is deliberately no white ring (Jack, 2026-08-17). The single exception is the **App attract outline** on the web desk — it blinks on arrival to earn the first click and is gone permanently once any card opens. If you add a ring back to hover, you've broken this.
 - Phone scenes are **frame-less with no "Tap to open" text**; the word label is the only cue. The App cut-out is the one exception: it keeps its ring + pulse until first tap.
 - NFT eyebrow reads **"03 — The NFTs"**, not "The Art". Tiles use `object-contain` — no cropping; they read wider because the modal is `xl`, not because the aspect was forced.
-- Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo, so this crops in rather than padding out. It is sized to land on the **same height as the App card's phone**: it fills a `27.5rem` column (lg+), and 27.5rem × 4/3 = 587px vs the phone's 588px. `max-h-[67dvh]` mirrors the phone's own dvh cap so both shrink together on short laptops instead of the cover overflowing the modal — verified 470/469 at 1440×700 with no scroll. Change one and you must change the other. `bookSubtitle` has **no code fallback**; it renders only if set.
+- Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo, so this crops in rather than padding out. The cover drives the card's height, so it's the lever for "make the Book card taller": it fills a `31.5rem` column (lg+) = 672px tall, with `max-h-[77dvh]` as the short-laptop cap. It **no longer matches the App card's phone height** — that pairing was retired on 2026-08-17 when Jack asked for the Book card ~15% taller (27.5rem/587px → 31.5rem/672px). The modal's own width is unchanged; the text column just narrows. `bookSubtitle` has **no code fallback**; it renders only if set.
 - The App card plays `appGongSound` **once on open, on both the Desk and `/classic`**. The Desk uses a mount effect (the card only mounts when opened) with cleanup that stops a gong still ringing when the card closes.
-- About card has **no eyebrow above the name**; socials + ✉️ sit below the photo in the left column. Mailing-list signup is at the bottom of the card.
+- About card has **no eyebrow above the name**. Layout is an **identity banner** — photo left, name + tagline + socials on one line beside it, intro under them — with Experience, Talents and the mailing list stacked **full-width beneath**, not alongside the photo (Jack, 2026-08-17). The banner uses `md:items-center` because the identity text is far shorter than the 4:5 photo. Social buttons are `h-12 w-12`; the ✉️ toggles the contact form into the full-width area below.
+- **Primary buttons are solid black from the start** — never outline-that-fills-on-hover, and hover must not invert to white (Jack, 2026-08-17). One shared `solidButton` class in `cards/shared.tsx` covers every card CTA plus Send Message and Subscribe; hover lifts, deepens the shadow, warms to `neutral-800`, and nudges the arrow. Change it there, not per-button.
 - On the desk, every label now sits **outside its object** — "About Me" moved from centred-on-the-notebook to `below` it (Jack's call, 2026-08-17), and the NFTs label was pulled close above the frame once the outline stopped over-reaching. Keep label gaps in that spirit: snug, just clear of the outline.
 - App/Book/NFT deliberately **share the `xl` modal size**; About is the odd one at `wide`.
 
@@ -107,9 +108,11 @@ Every field description opens with a scope marker. **Keep tagging new fields** �
 
 | Marker | Means |
 |---|---|
-| `● Desk only` | `entryTitle`, `bookSubtitle`, `appTagline`, `appImages`, `appWebsiteButton*`, `nftSectionTitle`, `aboutTagline`, `aboutImage` |
+| `● Desk only` | `entryTitle`, `entryCoverText`, `bookSubtitle`, `appTagline`, `appImages`, `appWebsiteButton*`, `nftSectionTitle`, `aboutTagline`, `aboutImage` |
 | `◆ Desk + Classic` | everything else in tabs 1–6 |
 | `○ Classic only` | `navItems`, all `hero*`, `comingSoonItems` — the last tab, safe to ignore |
+
+**`entryTitle` vs `entryCoverText`** — two fields on purpose. `entryCoverText` is the cover line typed verbatim (added 2026-08-17 so Jack controls the whole greeting, not just a name slotted into `"'s Portfolio"`); `entryTitle` is the bare name, which the About card still needs as its heading. Blank cover text falls back to `` `${entryTitle}'s Portfolio` ``, so nothing broke when the field was added.
 
 `entrySubtitle` was deleted on 2026-08-06 — it held no data, was never read from `settings`, and its render branches were unreachable. The entry cover is single-line in code now, with no subtitle prop to revive.
 

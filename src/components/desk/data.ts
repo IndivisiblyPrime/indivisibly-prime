@@ -51,8 +51,12 @@ export const GEOMETRY = geometry as unknown as Record<DeskId, HotspotGeometry>
  * (computed in pixel space, where arcs stay circular despite the non-square
  * image), then convert to % of the stage. Rendered via clip-path/SVG in
  * DeskStageWeb, so the highlight scales fluidly with the stage.
+ *
+ * `segs` is the fillet's point count. It's generous because the App attract
+ * outline is drawn as a thick stroke, and a coarse fillet shows up there as
+ * visible facets — the corners read as pointy rather than round.
  */
-export function roundedOutline(corners: Pt[], r: number, segs = 4): Pt[] {
+export function roundedOutline(corners: Pt[], r: number, segs = 14): Pt[] {
   const n = corners.length
   const out: Pt[] = []
   for (let i = 0; i < n; i++) {

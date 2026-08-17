@@ -89,6 +89,8 @@ export interface HomepageSettings {
 
   // Entry cover
   entryTitle?: string;
+  /** Full cover line, used verbatim; falls back to `${entryTitle}'s Portfolio`. */
+  entryCoverText?: string;
 
   // Navigation
   navItems?: NavItem[];

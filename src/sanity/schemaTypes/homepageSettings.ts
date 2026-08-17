@@ -62,11 +62,18 @@ export const homepageSettings = defineType({
   fields: [
     // ═══ ENTRY COVER ════════════════════════════════════════════════════════
     defineField({
+      name: 'entryCoverText',
+      title: 'Cover Text',
+      type: 'string',
+      group: 'entry',
+      description: `${DESK} The entry cover's line, exactly as typed — nothing is added to it. Leave blank to fall back to "<Your Name>'s Portfolio".`,
+    }),
+    defineField({
       name: 'entryTitle',
       title: 'Your Name',
       type: 'string',
       group: 'entry',
-      description: `${DESK} The cover greets visitors with "<name>'s Portfolio" — you type just the name, the "'s Portfolio" is added for you. Also used as the heading on the About card.`,
+      description: `${DESK} Your name on its own. Used as the heading on the About card, and as the fallback for Cover Text above.`,
       initialValue: 'Jack Harvey',
     }),
 

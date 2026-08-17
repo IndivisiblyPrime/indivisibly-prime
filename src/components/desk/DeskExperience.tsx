@@ -47,10 +47,11 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
   }, [])
   const close = useCallback(() => setActive(null), [])
 
-  // Cover greeting derives from the name so it stays correct if the name changes.
-  // Single line by design — there is no second row.
+  // Single line by design — there is no second row. `entryCoverText` is used
+  // verbatim when set, so the whole greeting is editable in Studio; with it
+  // blank we fall back to deriving it from the name.
   const name = settings.entryTitle || "Jack Harvey"
-  const coverTitle = `${name}'s Portfolio`
+  const coverTitle = settings.entryCoverText || `${name}'s Portfolio`
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-[#171009]">

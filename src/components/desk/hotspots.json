@@ -1,31 +1,31 @@
 {
   "_comment": "Desk hotspot geometry — EDIT WITH THE TOOL, NOT BY HAND. Run `npm run dev` and open /calibrate to click each object's corners on the photo; Save writes this file. Coordinates are pixels in public/desk.png (1672x941), corners clockwise from top-left. cornerRadius is the fillet in those same pixels. label x/y are % of the stage.",
   "app": {
-    "corners": [[241, 393], [417, 389], [408, 767], [228, 769]],
+    "corners": [[242, 395], [415, 390], [408, 765], [232, 769]],
     "cornerRadius": 33,
     "labelX": 19.8,
-    "labelY": 39.8,
+    "labelY": 40.8,
     "labelPlace": "above"
   },
   "book": {
-    "corners": [[475, 260], [810, 260], [818, 811], [465, 814]],
+    "corners": [[479, 263], [809, 262], [815, 808], [471, 811]],
     "cornerRadius": 10,
     "labelX": 38.5,
-    "labelY": 25.5,
+    "labelY": 26.9,
     "labelPlace": "above"
   },
   "nft": {
-    "corners": [[894, 109], [1487, 116], [1507, 404], [892, 397]],
+    "corners": [[897, 111], [1483, 113], [1504, 401], [896, 391]],
     "cornerRadius": 8,
-    "labelX": 71.9,
-    "labelY": 9.7,
+    "labelX": 71.3,
+    "labelY": 10.2,
     "labelPlace": "above"
   },
   "about": {
-    "corners": [[1018, 438], [1277, 435], [1289, 884], [1018, 883]],
+    "corners": [[1018, 438], [1277, 435], [1285, 870], [1018, 870]],
     "cornerRadius": 20,
-    "labelX": 69.3,
-    "labelY": 96.4,
+    "labelX": 68.8,
+    "labelY": 93.6,
     "labelPlace": "below"
   }
 }

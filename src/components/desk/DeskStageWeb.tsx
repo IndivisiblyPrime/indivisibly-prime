@@ -72,16 +72,26 @@ export function DeskStageWeb({
         )}
 
         {/* The one visible outline on the whole desk: the App attract pulse.
-            Traces the phone itself and disappears permanently on the first click. */}
+            Traces the phone itself and disappears permanently on the first click.
+            Deliberately heavy (Jack wanted it ~3× thicker) — `round` joins and
+            caps keep a stroke this thick from showing corner facets. */}
         {pulseApp && (
           <svg
             className="desk-outline-pulse pointer-events-none absolute inset-0 z-[17] h-full w-full"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            style={{ filter: "drop-shadow(0 0 10px rgba(255,238,210,0.55))" }}
+            style={{ filter: "drop-shadow(0 0 14px rgba(255,238,210,0.6))" }}
             aria-hidden
           >
-            <path d={toPath(appSpot.outline)} fill="none" stroke="#fff" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+            <path
+              d={toPath(appSpot.outline)}
+              fill="none"
+              stroke="#fff"
+              strokeWidth={4.5}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
           </svg>
         )}
 

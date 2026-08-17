@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { solidButton } from "./shared"
 
 /** Mailing list signup → POST /api/subscribe (same endpoint as /classic's Coming Soon panel). */
 export function MailingListForm({ tagline }: { tagline?: string }) {
@@ -39,11 +40,7 @@ export function MailingListForm({ tagline }: { tagline?: string }) {
           placeholder="your@email.com"
           className="flex-1 rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:border-black focus:outline-none"
         />
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          className="border border-black px-5 py-2.5 text-sm font-medium tracking-wide transition-colors hover:bg-black hover:text-white disabled:opacity-50"
-        >
+        <button type="submit" disabled={status === "sending"} className={`${solidButton} px-5`}>
           {status === "sending" ? "…" : "Subscribe"}
         </button>
       </form>
