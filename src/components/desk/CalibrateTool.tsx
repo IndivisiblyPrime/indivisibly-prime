@@ -44,8 +44,11 @@ export function CalibrateTool() {
   const [drag, setDrag] = useState<{ kind: "corner"; i: number } | { kind: "label" } | null>(null)
   const [cursor, setCursor] = useState<Pt | null>(null)
   const [preview, setPreview] = useState(false)
-  const [status, setStatus] = useState("")
+  const [status, setStatus] = useState<{ kind: "ok" | "err" | "busy"; msg: string } | null>(null)
   const [history, setHistory] = useState<Geo[]>([])
+  // Last state written to disk, so the header can show unsaved-changes at a glance.
+  const [saved, setSaved] = useState<string>(() => JSON.stringify(GEOMETRY))
+  const dirty = JSON.stringify(geo) !== saved
 
   const stageRef = useRef<HTMLDivElement>(null)
   const g = geo[active]
@@ -77,11 +80,9 @@ export function CalibrateTool() {
       setDrag({ kind: "corner", i: best })
       return
     }
-    const lab: Pt = [(g.labelX / 100) * IMG_W, (g.labelY / 100) * IMG_H]
-    if (Math.hypot(lab[0] - p[0], lab[1] - p[1]) < 16) {
-      setDrag({ kind: "label" })
-      return
-    }
+    // NB: the label is deliberately NOT grabbable from here — it has its own
+    // handle. Catching it by proximity meant a click meant for a corner near
+    // the label silently dragged the label instead.
     // Insert the new point on the nearest edge, so clicking corners in any
     // order still builds a sane polygon.
     const corners = g.corners
@@ -152,17 +153,39 @@ export function CalibrateTool() {
     setSel(null)
   }
 
-  const save = async () => {
-    setStatus("Saving…")
-    const res = await fetch("/api/calibrate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(geo),
-    })
-    const json = await res.json().catch(() => ({}))
-    setStatus(res.ok ? `Saved to ${json.file} — the desk hot-reloads.` : `Error: ${json.error ?? res.status}`)
-    setTimeout(() => setStatus(""), 6000)
-  }
+  const save = useCallback(async () => {
+    const body = JSON.stringify(geo)
+    setStatus({ kind: "busy", msg: "Saving…" })
+    try {
+      const res = await fetch("/api/calibrate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      })
+      const json = await res.json().catch(() => ({}))
+      if (res.ok) {
+        setSaved(body)
+        setStatus({ kind: "ok", msg: "Saved ✓  hotspots.json written" })
+      } else {
+        setStatus({ kind: "err", msg: `Failed: ${json.error ?? res.status}` })
+      }
+    } catch (e) {
+      setStatus({ kind: "err", msg: `Failed: ${(e as Error).message}` })
+    }
+    setTimeout(() => setStatus(null), 5000)
+  }, [geo])
+
+  // ⌘S / Ctrl+S saves without reaching for the button.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault()
+        void save()
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [save])
 
   const outlines = OBJECTS.map((o) => ({
     id: o.id,
@@ -198,8 +221,30 @@ export function CalibrateTool() {
             <button onClick={undo} disabled={!history.length} className="rounded bg-neutral-800 px-3 py-1.5 text-sm disabled:opacity-40">
               Undo
             </button>
-            <button onClick={save} className="rounded bg-white px-4 py-1.5 text-sm font-semibold text-black">
-              Save
+            {/* Feedback lives HERE, beside the button — the stage is tall enough
+                that anything below it is off-screen and effectively invisible. */}
+            {status ? (
+              <span
+                className={`rounded px-2.5 py-1.5 text-sm font-medium ${
+                  status.kind === "ok"
+                    ? "bg-emerald-500/15 text-emerald-300"
+                    : status.kind === "err"
+                    ? "bg-red-500/15 text-red-300"
+                    : "bg-neutral-700 text-neutral-200"
+                }`}
+              >
+                {status.msg}
+              </span>
+            ) : (
+              <span className={`text-sm ${dirty ? "text-amber-400" : "text-neutral-500"}`}>
+                {dirty ? "● unsaved changes" : "all changes saved"}
+              </span>
+            )}
+            <button
+              onClick={save}
+              className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
+            >
+              Save <span className="opacity-50">⌘S</span>
             </button>
           </div>
         </header>
@@ -207,8 +252,10 @@ export function CalibrateTool() {
         <p className="mb-3 text-xs leading-relaxed text-neutral-400">
           Click the object&rsquo;s corners on the photo (any order — points insert on the nearest edge). Drag a corner to
           move it; the loupe magnifies {ZOOM}× so you can land on the exact pixel. Arrow keys nudge the selected
-          corner 1px, Shift+arrow 10px. Drag the ◆ to move the label. <strong className="text-neutral-300">Save</strong> writes
-          <code className="mx-1 rounded bg-neutral-800 px-1">hotspots.json</code> and the homepage picks it up on reload.
+          corner 1px, Shift+arrow 10px. The label only moves if you grab its ◆ handle.{" "}
+          <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
+          <code className="mx-1 rounded bg-neutral-800 px-1">hotspots.json</code>; the desk hot-reloads, but you still
+          need to <strong className="text-neutral-300">commit the file</strong> for it to reach the live site.
         </p>
 
         <div
@@ -266,14 +313,22 @@ export function CalibrateTool() {
               }}
             />
           ))}
-          {/* label handle */}
+          {/* Label handle — its own hit target, so it moves only when you grab
+              the diamond itself. stopPropagation keeps the stage from also
+              inserting a corner underneath it. */}
           <div
-            className="pointer-events-none absolute text-sm font-bold"
+            onMouseDown={(e) => { e.stopPropagation(); push(); setDrag({ kind: "label" }) }}
+            title="Drag to move this object's label"
+            className="absolute flex cursor-move items-center justify-center rounded-full text-sm font-bold"
             style={{
               left: `${g.labelX}%`,
               top: `${g.labelY}%`,
+              width: 22,
+              height: 22,
               transform: "translate(-50%, -50%)",
               color: COLORS[active],
+              background: "rgba(0,0,0,0.45)",
+              border: `1px solid ${COLORS[active]}`,
               textShadow: "0 0 4px #000",
             }}
           >
@@ -334,7 +389,6 @@ export function CalibrateTool() {
             </div>
           </div>
 
-          {status && <div className="text-sm text-emerald-400">{status}</div>}
         </div>
       </div>
 
