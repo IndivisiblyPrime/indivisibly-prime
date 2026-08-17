@@ -19,8 +19,7 @@ Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `Ind
 | `/classic` | the previous homepage, preserved. See `docs/classic.md`. |
 | `/api/contact`, `/api/subscribe` | forms → Resend email |
 | `/api/revalidate` | ISR revalidation |
-| `/calibrate` | click the desk objects' corners → `hotspots.json`. Live too, behind Basic auth |
-| `/api/calibrate` | the file write. **dev only** — 404s in prod, where the FS is read-only |
+| `/calibrate`, `/api/calibrate` | **local only** (404 in prod) — click the desk objects' corners, writes `hotspots.json` |
 
 Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch `backup/classic-homepage`, or point `src/app/page.tsx` back at `Navbar` + `HeroSection` + `ExploreSection`. Tag `v1.0-desk-live` is the Desk as it stood on 2026-08-06, before the favicon fix and the Studio reorg.
 
@@ -53,14 +52,11 @@ Click each object's corners on the photo (points insert on the nearest edge, so 
 
 - `hotspots.json` is generated — **never hand-edit it**; re-run the tool.
 - Corners are pixels in `desk.png`, clockwise from top-left. Four is normal; add more for a non-quad (the book's page fore-edge once needed a fifth).
-- Iterate the **known ids**, never `Object.keys(GEOMETRY)` — the file also carries `_comment`, which has no `corners` and crashed the export once.
+- Iterate the **known ids**, never `Object.keys(GEOMETRY)` — the file also carries `_comment`, which has no `corners`.
 
-**It also runs on jackharvey.me**, gated by `src/middleware.ts`:
+**The tool is local-only, and that's the settled call** (Jack, 2026-08-17). It briefly ran on jackharvey.me behind Basic auth; that was reverted because saving means writing to the source tree, which a serverless filesystem can't do — the calibrated result only reaches the live site through a commit either way, so production had nothing to offer. The workflow is: calibrate locally → Save → commit `hotspots.json`.
 
-- HTTP Basic auth from `CALIBRATE_USER` / `CALIBRATE_PASSWORD`. **Fails closed** — with either unset the route 404s, so a deploy that forgets them hides the tool rather than exposing it. Dev bypasses auth entirely (localhost is already private).
-- The page is `noindex, nofollow` and `force-dynamic`.
-- **Save can't write on Vercel** — serverless filesystems are read-only, and a write wouldn't survive the next deploy anyway. In production the tool switches to **Copy JSON / Download**: calibrate on the real site, then paste the result over `hotspots.json` and commit. `CalibrateTool` takes a `writable` prop for exactly this; `/api/calibrate` still 404s in prod so there is no public write endpoint.
-- If you ever want true click-to-save in production, the geometry has to live somewhere persistent — Sanity is the natural home, since auth and hosting already exist there.
+It costs the live site nothing: the tool compiles to its own ~14KB chunk referenced only by `/calibrate`'s manifest, and appears zero times in the homepage HTML. Don't "optimise" it out on performance grounds — that was measured, not assumed. If you ever *do* want click-to-save in production, the geometry has to move somewhere persistent; Sanity is the natural home, since auth and hosting already exist there.
 
 ### Assets
 
@@ -138,9 +134,6 @@ NEXT_PUBLIC_SANITY_DATASET=
 RESEND_API_KEY=            # /api/contact + /api/subscribe
 CONTACT_EMAIL=             # where those emails land
 CONTACT_FROM_EMAIL=        # sender (defaults to onboarding@resend.dev)
-
-CALIBRATE_USER=            # Basic-auth for /calibrate in production.
-CALIBRATE_PASSWORD=        # Both unset -> /calibrate 404s. Dev ignores them.
 ```
 
 ## Final task

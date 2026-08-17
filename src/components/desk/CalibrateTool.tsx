@@ -37,28 +37,7 @@ type Geo = Record<DeskId, HotspotGeometry>
 
 const clone = (g: Geo): Geo => JSON.parse(JSON.stringify(g))
 
-/** Serialised exactly like the API writes it, so an export can be pasted verbatim. */
-function serialise(geo: Geo) {
-  const comment = (GEOMETRY as unknown as { _comment?: string })._comment ?? ""
-  // Iterate the known ids, NOT Object.keys — hotspots.json also carries the
-  // "_comment" string, which has no corners to map over.
-  const blocks = OBJECTS.map(({ id }) => {
-    const g = geo[id]
-    const corners = g.corners.map((c) => `[${Math.round(c[0])}, ${Math.round(c[1])}]`).join(", ")
-    return [
-      `  ${JSON.stringify(id)}: {`,
-      `    "corners": [${corners}],`,
-      `    "cornerRadius": ${Math.round(g.cornerRadius)},`,
-      `    "labelX": ${Math.round(g.labelX * 10) / 10},`,
-      `    "labelY": ${Math.round(g.labelY * 10) / 10},`,
-      `    "labelPlace": ${JSON.stringify(g.labelPlace)}`,
-      `  }`,
-    ].join("\n")
-  })
-  return `{\n  "_comment": ${JSON.stringify(comment)},\n${blocks.join(",\n")}\n}\n`
-}
-
-export function CalibrateTool({ writable = true }: { writable?: boolean }) {
+export function CalibrateTool() {
   const [geo, setGeo] = useState<Geo>(() => clone(GEOMETRY))
   const [active, setActive] = useState<DeskId>("app")
   const [sel, setSel] = useState<number | null>(null)
@@ -174,34 +153,8 @@ export function CalibrateTool({ writable = true }: { writable?: boolean }) {
     setSel(null)
   }
 
-  const download = useCallback(() => {
-    const url = URL.createObjectURL(new Blob([serialise(geo)], { type: "application/json" }))
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "hotspots.json"
-    a.click()
-    URL.revokeObjectURL(url)
-    setSaved(JSON.stringify(geo))
-  }, [geo])
-
   const save = useCallback(async () => {
     const body = JSON.stringify(geo)
-    // Read-only filesystem in production (Vercel), so there is nothing to write
-    // to — hand the JSON back instead of pretending a save happened.
-    if (!writable) {
-      try {
-        await navigator.clipboard.writeText(serialise(geo))
-        setSaved(body)
-        setStatus({ kind: "ok", msg: "Copied ✓ paste into hotspots.json and commit" })
-      } catch {
-        // Clipboard needs a secure context and permission; fall through to a
-        // download rather than leaving the work stranded in the page.
-        download()
-        setStatus({ kind: "ok", msg: "Clipboard blocked — downloaded hotspots.json instead" })
-      }
-      setTimeout(() => setStatus(null), 6000)
-      return
-    }
     setStatus({ kind: "busy", msg: "Saving…" })
     try {
       const res = await fetch("/api/calibrate", {
@@ -220,7 +173,7 @@ export function CalibrateTool({ writable = true }: { writable?: boolean }) {
       setStatus({ kind: "err", msg: `Failed: ${(e as Error).message}` })
     }
     setTimeout(() => setStatus(null), 5000)
-  }, [geo, writable, download])
+  }, [geo])
 
   // ⌘S / Ctrl+S saves without reaching for the button.
   useEffect(() => {
@@ -287,16 +240,11 @@ export function CalibrateTool({ writable = true }: { writable?: boolean }) {
                 {dirty ? "● unsaved changes" : "all changes saved"}
               </span>
             )}
-            {!writable && (
-              <button onClick={download} className="rounded bg-neutral-800 px-3 py-1.5 text-sm">
-                Download
-              </button>
-            )}
             <button
               onClick={save}
               className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
             >
-              {writable ? "Save" : "Copy JSON"} <span className="opacity-50">⌘S</span>
+              Save <span className="opacity-50">⌘S</span>
             </button>
           </div>
         </header>
@@ -305,21 +253,9 @@ export function CalibrateTool({ writable = true }: { writable?: boolean }) {
           Click the object&rsquo;s corners on the photo (any order — points insert on the nearest edge). Drag a corner to
           move it; the loupe magnifies {ZOOM}× so you can land on the exact pixel. Arrow keys nudge the selected
           corner 1px, Shift+arrow 10px. The label only moves if you grab its ◆ handle.{" "}
-          {writable ? (
-            <>
-              <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
-              <code className="mx-1 rounded bg-neutral-800 px-1">hotspots.json</code>; the desk hot-reloads, but you
-              still need to <strong className="text-neutral-300">commit the file</strong> for it to reach the live site.
-            </>
-          ) : (
-            <>
-              <strong className="text-amber-300">You&rsquo;re on the live site</strong>, where the filesystem is
-              read-only — nothing here can save itself.{" "}
-              <strong className="text-neutral-300">Copy JSON</strong> (or ⌘S) puts the finished file on your clipboard;
-              paste it over <code className="mx-1 rounded bg-neutral-800 px-1">src/components/desk/hotspots.json</code>
-              and commit to deploy it.
-            </>
-          )}
+          <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
+          <code className="mx-1 rounded bg-neutral-800 px-1">hotspots.json</code> and the desk hot-reloads — then the
+          file needs a <strong className="text-neutral-300">commit</strong> to reach jackharvey.me.
         </p>
 
         <div
