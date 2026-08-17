@@ -19,6 +19,7 @@ Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `Ind
 | `/classic` | the previous homepage, preserved. See `docs/classic.md`. |
 | `/api/contact`, `/api/subscribe` | forms → Resend email |
 | `/api/revalidate` | ISR revalidation |
+| `/calibrate`, `/api/calibrate` | **dev only** (404 in prod) — click the desk objects' corners, writes `hotspots.json` |
 
 Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch `backup/classic-homepage`, or point `src/app/page.tsx` back at `Navbar` + `HeroSection` + `ExploreSection`. Tag `v1.0-desk-live` is the Desk as it stood on 2026-08-06, before the favicon fix and the Studio reorg.
 
@@ -32,16 +33,31 @@ Components in `src/components/desk/`:
 
 - **`DeskExperience.tsx`** — `"use client"` orchestrator. State: `active` (open card), `coverGone`, `pulseApp`. Renders `EntryCover`, then `DeskStageWeb` (`hidden md:block`) or `DeskStagePhone` (`md:hidden`), plus the `Modal`. `sessionStorage["desk-cover-seen"]` skips the cover on repeat visits.
 - **`EntryCover.tsx`** — warm-dark scrim + scroll cue, single line: `` `${entryTitle}'s Portfolio` ``. Lifts on first wheel/scroll/touch/key/click, never returns that session.
-- **`DeskStageWeb.tsx`** — desktop desk photo (`public/desk.png`, 1672×941). Hotspots are the objects' **true photographed outlines**: `data.ts` holds each object's corners in image pixels (4 points; the book has a 5th where the pages' fore-edge steps past the cover) plus a `cornerRadius`, and `roundedOutline()` turns that into %-of-stage points. The hover spotlight renders three stage-sized layers from that outline — an SVG even-odd mask that dims everything else, a brightened clipped copy of the same photo (pixels align exactly), and a 1px `non-scaling-stroke` ring — so it hugs the object at any window size. Click targets + the App pulse use the outline's bounding box. The About outline deliberately includes the pen leaning on the notebook.
+- **`DeskStageWeb.tsx`** — desktop desk photo (`public/desk.png`, 1672×941). Hotspots are the objects' **true photographed outlines**, calibrated by hand in `/calibrate` (below) and stored in **`hotspots.json`**. `roundedOutline()` fillets the corners in pixel space and emits %-of-stage points, so everything scales fluidly with the window. Hovering renders two stage-sized layers: an SVG even-odd mask dimming everything *outside* the outline, and a brightened clipped copy of the same photo inside it (pixels align exactly). The outline paths also **are** the hit targets — hover/click only fire over the real object, not a bounding box around it.
+- **`CalibrateTool.tsx`** + **`/calibrate`** — dev-only corner editor. See "Calibrating the hotspots".
 - **`DeskStagePhone.tsx`** — four full-width scene images (`public/desk-phone-{app,book,nft,about}.png`) stacked vertically, each with a word label. Swap in real photos by replacing those four files.
 - **`Modal.tsx`** — card shell; ✕ / Esc / backdrop close. `size` prop: `about` → `wide`, everything else → `xl`.
 - **`PhoneFrame.tsx`** — reusable iPhone mockup in pure CSS/HTML (no image asset, no Apple artwork). One fixed shell; images cross-fade *inside* its screen, clipped by the corner radius — never bake a bezel into an asset. Every dimension derives from one custom property `--pw` (device width) so it scales as a unit. `--pw = min(maxWidth, 32dvh, 62vw)`: **32dvh** keeps the ~2.1×-tall device inside the modal on short laptops, **62vw** keeps it clear of the modal's ✕ on phones. Screen is `aspect-ratio: 1170/2532` — feed it 19.5:9 images or `object-cover` side-crops them.
 - **`cards/`** — `AppCard`, `BookCard`, `NftCard`, `AboutCard`, plus `ContactForm`, `MailingListForm`, `shared.tsx` (`Eyebrow`, `ActionButton`).
 
+### Calibrating the hotspots
+
+Object outlines are **not** measured in code, and must not be. Both attempts at that failed: eyeballing zoomed crops was off by 5–25px, and gradient edge-fitting locked onto the wrong edge entirely (the phone's screen instead of its bezel, the book's printed border instead of its cover). In a photo with soft shadows and interior lines stronger than the true boundary, "where the object ends" is a judgment call — so a human makes it.
+
+```
+npm run dev   →   localhost:3000/calibrate
+```
+
+Click each object's corners on the photo (points insert on the nearest edge, so order doesn't matter); drag to adjust with a **9× loupe** for exact pixels; arrow keys nudge 1px, Shift+arrow 10px. Corner-radius slider, draggable label anchor, live spotlight preview. **Save** writes `src/components/desk/hotspots.json` and the desk hot-reloads.
+
+- `hotspots.json` is generated — **never hand-edit it**; re-run the tool.
+- Corners are pixels in `desk.png`, clockwise from top-left. Four is normal; add more for a non-quad (the book's page fore-edge once needed a fifth).
+- Both `/calibrate` and `/api/calibrate` **404 in production** (verified in the build output) — the API writes to the source tree, so it must never ship.
+
 ### Assets
 
 - **Not in Studio, by choice**: `public/desk.png`, `public/desk-phone-*.png`, `public/crops/*`. Regenerate crops/scenes from `desk.png` with PIL.
-- **Swapping `desk.png` is never just a file copy.** Four things are calibrated to the pixels: `HOTSPOTS` (per-object corner coords + label anchors), `PHONE_SCENES` (the four scene crops *and* the `object` % inside each), `public/crops/*`, and the alt text. Measure the new objects, then redo all four — a swap alone leaves every hotspot pointing at bare wood. Corners were traced to ±2px on 2026-08-17 by drawing candidate outlines over 4× zoomed corner crops (PIL) and iterating. The photo was last swapped **2026-08-16** (same 1672×941): the brass gong is gone, the open "Alex Mori" journal is now a closed leather notebook embossed *Jack Harvey*, and the phone shows Breathwork.
+- **Swapping `desk.png` is never just a file copy.** Four things are calibrated to the pixels: `hotspots.json` (corners + label anchors — redo in `/calibrate`), `PHONE_SCENES` (the four scene crops *and* the `object` % inside each), `public/crops/*`, and the alt text. A swap alone leaves every hotspot pointing at bare wood. The photo was last swapped **2026-08-16** (same 1672×941): the brass gong is gone, the open "Alex Mori" journal is now a closed leather notebook embossed *Jack Harvey*, and the phone shows Breathwork.
 - **`public/app-screens/*.webp`** — six real Bonsai screens (828×1792), wired as `FALLBACK.appScreens`. Sanity's `appImages` wins whenever it's non-empty.
 - Every card falls back to `public/crops/*` plus sensible copy when its Sanity fields are empty (`FALLBACK` in `data.ts`), so the site looks complete before Studio is filled. `FALLBACK.journal` / `crops/journal_left.png` keep their names but now hold the leather notebook; it is cut 4:5 to match the About card's `aspect-[4/5] object-cover`. `crops/phone_screen.png` is regenerated for consistency but nothing reads it.
 - CSS lives in `globals.css` under the `desk-*` namespace: `desk-pulse`, `desk-rise`, `desk-scroll-cue`.
@@ -50,6 +66,7 @@ Components in `src/components/desk/`:
 
 - The cards are **black & white**. An "Editorial Monograph" ivory/oxblood restyle was built and explicitly reverted.
 - The App attract pulse **persists through hover** — hovering only spotlights. It clears on an actual click.
+- **No visible outline on hover, ever.** Hovering dims everything else and relights the object; there is deliberately no white ring (Jack, 2026-08-17). The single exception is the **App attract outline** on the web desk — it blinks on arrival to earn the first click and is gone permanently once any card opens. If you add a ring back to hover, you've broken this.
 - Phone scenes are **frame-less with no "Tap to open" text**; the word label is the only cue. The App cut-out is the one exception: it keeps its ring + pulse until first tap.
 - NFT eyebrow reads **"03 — The NFTs"**, not "The Art". Tiles use `object-contain` — no cropping; they read wider because the modal is `xl`, not because the aspect was forced.
 - Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo, so this crops in rather than padding out. It is sized to land on the **same height as the App card's phone**: it fills a `27.5rem` column (lg+), and 27.5rem × 4/3 = 587px vs the phone's 588px. `max-h-[67dvh]` mirrors the phone's own dvh cap so both shrink together on short laptops instead of the cover overflowing the modal — verified 470/469 at 1440×700 with no scroll. Change one and you must change the other. `bookSubtitle` has **no code fallback**; it renders only if set.

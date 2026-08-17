@@ -191,6 +191,14 @@
 }
 .desk-pulse { animation: desk-pulse 1.7s ease-in-out infinite; }
 
+/* Desk (web): the App attract outline. Same cadence as .desk-pulse, but drives
+   an SVG stroke — box-shadow does nothing on a <path>. */
+@keyframes desk-outline-pulse {
+  0%, 100% { opacity: 0.38; }
+  50%      { opacity: 1; }
+}
+.desk-outline-pulse { animation: desk-outline-pulse 1.7s ease-in-out infinite; }
+
 /* Entry-cover content entrance */
 @keyframes desk-rise {
   from { opacity: 0; transform: translateY(18px); }
@@ -206,5 +214,5 @@
 .desk-scroll-cue { transform-origin: top; animation: desk-scroll-cue 2.4s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .desk-pulse, .desk-rise, .desk-scroll-cue { animation: none; }
+  .desk-pulse, .desk-outline-pulse, .desk-rise, .desk-scroll-cue { animation: none; }
 }

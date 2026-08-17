@@ -2,23 +2,19 @@
 "use client"
 
 import { useState } from "react"
-import { HOTSPOTS, type DeskId } from "./data"
-
-// The outline is %-of-stage points (see data.ts), so both renderings scale
-// fluidly with the stage: clip-path uses % directly, and the SVG stretches its
-// 0–100 viewBox over the stage via preserveAspectRatio="none".
-const toClip = (o: [number, number][]) =>
-  `polygon(${o.map(([x, y]) => `${x.toFixed(2)}% ${y.toFixed(2)}%`).join(", ")})`
-const toPath = (o: [number, number][]) =>
-  `M${o.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L")}Z`
+import { HOTSPOTS, toClip, toPath, type DeskId } from "./data"
 
 /**
- * Desktop desk: the full photo with clickable object hotspots. On hover the
- * hovered object brightens + gets a white ring while the rest of the desk dims
- * (spotlight box-shadow) — "singling it out". Before the first click anywhere
- * on the desk, that spotlight only fires for "app" (to draw the eye there
- * first); any click unlocks it for every object. The "1 · App" object also
- * gently pulses to invite the first click, independent of this gating.
+ * Desktop desk: the full photo with clickable object hotspots, each traced to
+ * the object's real outline (see hotspots.json / the /calibrate tool).
+ *
+ * Hovering dims everything *outside* the object and brightens the object
+ * itself — deliberately with **no visible white ring**. The only white outline
+ * anywhere is the App attract pulse, which blinks on first arrival to invite
+ * that first click and is gone for good once the visitor opens any card.
+ *
+ * Before that first click the hover spotlight is gated to "app", so nothing
+ * competes with the invitation.
  */
 export function DeskStageWeb({
   onOpen,
@@ -28,9 +24,6 @@ export function DeskStageWeb({
   pulseApp: boolean
 }) {
   const [hovered, setHovered] = useState<DeskId | null>(null)
-  // Before the visitor's first click anywhere on the desk, the hover spotlight
-  // (background shading) only fires for "app" — it invites that first click
-  // without distracting toward the other objects. Any click unlocks it for all.
   const [spotlightUnlocked, setSpotlightUnlocked] = useState(false)
 
   // Hovering only spotlights the object — it does NOT clear the App attract pulse.
@@ -39,6 +32,7 @@ export function DeskStageWeb({
   const leave = (id: DeskId) => setHovered((p) => (p === id ? null : p))
 
   const hoveredSpot = HOTSPOTS.find((h) => h.id === hovered)
+  const showSpotlight = hoveredSpot && (spotlightUnlocked || hoveredSpot.id === "app")
   const appSpot = HOTSPOTS.find((h) => h.id === "app")!
 
   return (
@@ -56,54 +50,16 @@ export function DeskStageWeb({
         />
         <div className="pointer-events-none absolute inset-0" style={{ boxShadow: "inset 0 0 220px rgba(0,0,0,0.5)" }} />
 
-        {/* App attract pulse — stays until the first click, even while hovering */}
-        {pulseApp && (
-          <div
-            className="desk-pulse pointer-events-none absolute z-[12]"
-            style={{
-              left: `${appSpot.left}%`,
-              top: `${appSpot.top}%`,
-              width: `${appSpot.width}%`,
-              height: `${appSpot.height}%`,
-              borderRadius: appSpot.radius,
-            }}
-          />
-        )}
-
-        {/* Transparent hover / click targets */}
-        {HOTSPOTS.map((h) => (
-          <button
-            key={h.id}
-            type="button"
-            onClick={() => onOpen(h.id)}
-            onMouseEnter={() => enter(h.id)}
-            onMouseLeave={() => leave(h.id)}
-            aria-label={`Open ${h.word || "About Me"}`}
-            className="absolute z-[13] cursor-pointer focus:outline-none"
-            style={{
-              left: `${h.left}%`,
-              top: `${h.top}%`,
-              width: `${h.width}%`,
-              height: `${h.height}%`,
-              borderRadius: h.radius,
-            }}
-          />
-        ))}
-
-        {/* Spotlight — dim everything outside the object's true outline, render
-            the object itself brightened inside it (a clipped copy of the same
-            photo, so pixels align exactly), and trace it with a white ring +
-            warm glow. The outline hugs the photographed object — perspective
-            skew, page fore-edge, leaning pen and all — instead of a box.
-            Gated to "app" only until the visitor's first click anywhere. */}
-        {hoveredSpot && (spotlightUnlocked || hoveredSpot.id === "app") && (
+        {/* Spotlight — dim everything outside the outline, then relight the object
+            with a clipped copy of the same photo so pixels align exactly. No ring. */}
+        {showSpotlight && (
           <div className="pointer-events-none absolute inset-0 z-[16]">
             <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
               <path d={`M0 0H100V100H0Z ${toPath(hoveredSpot.outline)}`} fill="rgba(0,0,0,0.28)" fillRule="evenodd" />
             </svg>
             {/* glow lives on the wrapper: filter after clip-path on one element
                 would clip the shadow away, so they must sit on separate nodes */}
-            <div className="absolute inset-0" style={{ filter: "drop-shadow(0 0 28px rgba(255,238,210,0.35))" }}>
+            <div className="absolute inset-0" style={{ filter: "drop-shadow(0 0 28px rgba(255,238,210,0.30))" }}>
               <img
                 src="/desk.png"
                 alt=""
@@ -112,17 +68,42 @@ export function DeskStageWeb({
                 draggable={false}
               />
             </div>
-            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
-              <path
-                d={toPath(hoveredSpot.outline)}
-                fill="none"
-                stroke="rgba(255,255,255,0.6)"
-                strokeWidth={1}
-                vectorEffect="non-scaling-stroke"
-              />
-            </svg>
           </div>
         )}
+
+        {/* The one visible outline on the whole desk: the App attract pulse.
+            Traces the phone itself and disappears permanently on the first click. */}
+        {pulseApp && (
+          <svg
+            className="desk-outline-pulse pointer-events-none absolute inset-0 z-[17] h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            style={{ filter: "drop-shadow(0 0 10px rgba(255,238,210,0.55))" }}
+            aria-hidden
+          >
+            <path d={toPath(appSpot.outline)} fill="none" stroke="#fff" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+          </svg>
+        )}
+
+        {/* Hover / click targets — the outline itself, so the cursor only reacts
+            over the actual object rather than a bounding box around it. */}
+        <svg className="absolute inset-0 z-[18] h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {HOTSPOTS.map((h) => (
+            <path
+              key={h.id}
+              d={toPath(h.outline)}
+              fill="transparent"
+              className="cursor-pointer outline-none"
+              style={{ pointerEvents: "auto" }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${h.word || "About Me"}`}
+              onClick={() => onOpen(h.id)}
+              onMouseEnter={() => enter(h.id)}
+              onMouseLeave={() => leave(h.id)}
+            />
+          ))}
+        </svg>
 
         {/* Always-visible white labels (kept above the spotlight so they stay legible) */}
         {HOTSPOTS.map((h) => {

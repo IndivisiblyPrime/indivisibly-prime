@@ -3,52 +3,48 @@
 export type DeskId = "app" | "book" | "nft" | "about"
 export type LabelPlace = "above" | "below" | "center"
 
-/** Native size of public/desk.png — all corner coords below are pixels in it. */
-const IMG_W = 1672
-const IMG_H = 941
+import geometry from "./hotspots.json"
 
-type Pt = [number, number]
+/** Native size of public/desk.png — all corner coords are pixels in it. */
+export const IMG_W = 1672
+export const IMG_H = 941
 
-interface HotspotDef {
-  id: DeskId
-  num: string
-  word: string
-  /**
-   * The object's photographed outline as corners in desk.png pixels, clockwise
-   * from top-left. Usually 4 points; the book carries a 5th (an elbow where the
-   * pages' fore-edge steps out past the cover's top-right corner). Re-measure
-   * these whenever the photo changes — see CLAUDE.md.
-   */
+export type Pt = [number, number]
+
+/** One object's calibrated geometry, as stored in hotspots.json. */
+export interface HotspotGeometry {
+  /** outline corners in desk.png pixels, clockwise from top-left */
   corners: Pt[]
-  /** corner rounding in desk.png pixels (bezel curve, frame moulding, …) */
+  /** corner fillet in those same pixels (bezel curve, frame moulding, …) */
   cornerRadius: number
-  /** border-radius for the attract pulse + click target (drawn on the bbox) */
-  radius: string
   /** label anchor as % of the desk stage */
   labelX: number
   labelY: number
   labelPlace: LabelPlace
 }
 
-export interface Hotspot extends HotspotDef {
-  /** bounding box of `corners` as % of the stage — click/hover target + pulse */
+export interface Hotspot extends HotspotGeometry {
+  id: DeskId
+  num: string
+  word: string
+  /** bounding box of `corners` as % of the stage */
   left: number
   top: number
   width: number
   height: number
-  /** rounded outline as %-of-stage points — spotlight clip, dim mask, ring */
+  /** rounded outline as %-of-stage points — spotlight clip, dim mask, hit area */
   outline: Pt[]
 }
 
-// Corners traced to the physical objects (bezel edge, spine-to-pages hull,
-// frame moulding, notebook leather + the pen leaning on its right edge), so
-// the spotlight hugs each object's true, slightly perspective-skewed shape.
-const DEFS: HotspotDef[] = [
-  { id: "app", num: "1", word: "App", corners: [[242, 399], [410, 399], [409, 753], [241, 753]], cornerRadius: 33, radius: "1.7rem", labelX: 19.5, labelY: 82.5, labelPlace: "below" },
-  { id: "book", num: "2", word: "Book", corners: [[468, 266], [799, 265], [812, 330], [811, 809], [468, 810]], cornerRadius: 10, radius: "0.4rem", labelX: 38.3, labelY: 88, labelPlace: "below" },
-  { id: "nft", num: "3", word: "NFTs", corners: [[891, 122], [1500, 112], [1500, 398], [893, 404]], cornerRadius: 8, radius: "0.5rem", labelX: 71.5, labelY: 11, labelPlace: "above" },
-  { id: "about", num: "", word: "About Me", corners: [[1020, 443], [1314, 441], [1314, 877], [1020, 879]], cornerRadius: 20, radius: "0.5rem", labelX: 69.8, labelY: 95.2, labelPlace: "below" },
+// Content lives here; geometry lives in hotspots.json, written by /calibrate.
+const CONTENT: { id: DeskId; num: string; word: string }[] = [
+  { id: "app", num: "1", word: "App" },
+  { id: "book", num: "2", word: "Book" },
+  { id: "nft", num: "3", word: "NFTs" },
+  { id: "about", num: "", word: "About Me" },
 ]
+
+export const GEOMETRY = geometry as unknown as Record<DeskId, HotspotGeometry>
 
 /**
  * Round the polygon's corners: replace each corner with a small Bézier fillet
@@ -56,7 +52,7 @@ const DEFS: HotspotDef[] = [
  * image), then convert to % of the stage. Rendered via clip-path/SVG in
  * DeskStageWeb, so the highlight scales fluidly with the stage.
  */
-function roundedOutline(corners: Pt[], r: number, segs = 4): Pt[] {
+export function roundedOutline(corners: Pt[], r: number, segs = 4): Pt[] {
   const n = corners.length
   const out: Pt[] = []
   for (let i = 0; i < n; i++) {
@@ -77,7 +73,7 @@ function roundedOutline(corners: Pt[], r: number, segs = 4): Pt[] {
   return out.map(([x, y]) => [(x / IMG_W) * 100, (y / IMG_H) * 100])
 }
 
-function bbox(corners: Pt[]) {
+export function bbox(corners: Pt[]) {
   const xs = corners.map((c) => c[0])
   const ys = corners.map((c) => c[1])
   const x0 = Math.min(...xs)
@@ -90,11 +86,25 @@ function bbox(corners: Pt[]) {
   }
 }
 
-export const HOTSPOTS: Hotspot[] = DEFS.map((d) => ({
-  ...d,
-  ...bbox(d.corners),
-  outline: roundedOutline(d.corners, d.cornerRadius),
-}))
+/**
+ * Outlines are %-of-stage points, so both renderings scale fluidly with the
+ * stage: clip-path takes % directly, and an SVG stretches its 0–100 viewBox
+ * over the stage via preserveAspectRatio="none".
+ */
+export const toClip = (o: Pt[]) =>
+  `polygon(${o.map(([x, y]) => `${x.toFixed(2)}% ${y.toFixed(2)}%`).join(", ")})`
+export const toPath = (o: Pt[]) =>
+  `M${o.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L")}Z`
+
+export const HOTSPOTS: Hotspot[] = CONTENT.map((c) => {
+  const g = GEOMETRY[c.id]
+  return {
+    ...c,
+    ...g,
+    ...bbox(g.corners),
+    outline: roundedOutline(g.corners, g.cornerRadius),
+  }
+})
 
 export interface PhoneScene {
   id: DeskId
