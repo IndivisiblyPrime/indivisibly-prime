@@ -43,8 +43,13 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
         {description && (
           <p className="mt-5 max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600">{description}</p>
         )}
-        <div className="mt-8">
+        <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
           <ActionButton href={settings.bookButtonUrl}>{btnText}</ActionButton>
+          {settings.bookWebsiteButtonUrl && (
+            <ActionButton href={settings.bookWebsiteButtonUrl} variant="link">
+              {settings.bookWebsiteButtonText || "Website"}
+            </ActionButton>
+          )}
         </div>
       </div>
     </div>

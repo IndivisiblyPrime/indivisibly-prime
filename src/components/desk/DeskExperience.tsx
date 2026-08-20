@@ -57,7 +57,7 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
     <div className="fixed inset-0 overflow-hidden bg-[#171009]">
       {/* Desktop desk (all objects at once) */}
       <div className="hidden h-full w-full md:block">
-        <DeskStageWeb onOpen={open} pulseApp={pulseApp} />
+        <DeskStageWeb onOpen={open} pulseApp={pulseApp} revealed={coverGone} />
       </div>
 
       {/* Phone desk — intro over the full desk, then scroll to object cut-outs */}

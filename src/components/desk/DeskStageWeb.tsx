@@ -1,8 +1,41 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { useState } from "react"
-import { HOTSPOTS, toClip, toPath, type DeskId } from "./data"
+import { useEffect, useRef, useState } from "react"
+import { HOTSPOTS, toClip, toPath, toPathPx, type DeskId } from "./data"
+
+const DRAW_MS = 1150
+
+/**
+ * Trace the App outline once, when the desk is first revealed.
+ *
+ * The dash length has to be measured rather than declared: `pathLength="1"`
+ * looks like it should let CSS animate a normalised dash, but the dash units
+ * here still resolve in user space, so a `stroke-dasharray: 1` renders as
+ * dozens of little dashes marching around the phone instead of one travelling
+ * segment. `getTotalLength()` gives the real figure, and the Web Animations
+ * API keeps the whole thing in one place.
+ */
+function useDrawOn(revealed: boolean) {
+  const ref = useRef<SVGPathElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!revealed || !el) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    const len = el.getTotalLength()
+    el.style.strokeDasharray = String(len)
+    const anim = el.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], {
+      duration: DRAW_MS,
+      easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+      fill: "forwards",
+    })
+    return () => anim.cancel()
+  }, [revealed])
+
+  return ref
+}
 
 /**
  * Desktop desk: the full photo with clickable object hotspots, each traced to
@@ -19,12 +52,16 @@ import { HOTSPOTS, toClip, toPath, type DeskId } from "./data"
 export function DeskStageWeb({
   onOpen,
   pulseApp,
+  revealed,
 }: {
   onOpen: (id: DeskId) => void
   pulseApp: boolean
+  /** Cover has lifted. The attract cues wait for it, or they'd play unseen. */
+  revealed: boolean
 }) {
   const [hovered, setHovered] = useState<DeskId | null>(null)
   const [spotlightUnlocked, setSpotlightUnlocked] = useState(false)
+  const drawRef = useDrawOn(revealed)
 
   // Hovering only spotlights the object — it does NOT clear the App attract pulse.
   // The pulse persists through hover and lifts only on an actual click (onOpen).
@@ -71,28 +108,56 @@ export function DeskStageWeb({
           </div>
         )}
 
-        {/* The one visible outline on the whole desk: the App attract pulse.
-            Traces the phone itself and disappears permanently on the first click.
-            Deliberately heavy (Jack wanted it ~3× thicker) — `round` joins and
-            caps keep a stroke this thick from showing corner facets. */}
-        {pulseApp && (
+        {/* Attract cue, part 1: the other three objects sit slightly in shadow
+            until the first click, so the App is simply the brightest thing on
+            the desk. No new chrome — it works by taking light away. */}
+        {revealed && (
           <svg
-            className="desk-outline-pulse pointer-events-none absolute inset-0 z-[17] h-full w-full"
+            className={`pointer-events-none absolute inset-0 z-[11] h-full w-full transition-opacity duration-[900ms] ${
+              pulseApp ? "opacity-100" : "opacity-0"
+            }`}
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            style={{ filter: "drop-shadow(0 0 14px rgba(255,238,210,0.6))" }}
             aria-hidden
           >
-            <path
-              d={toPath(appSpot.outline)}
-              fill="none"
-              stroke="#fff"
-              strokeWidth={4.5}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-            />
+            {HOTSPOTS.filter((h) => h.id !== "app").map((h) => (
+              <path key={h.id} d={toPath(h.outline)} fill="rgba(0,0,0,0.17)" />
+            ))}
           </svg>
+        )}
+
+        {/* Attract cue, part 2 — the one visible outline on the whole desk.
+            Draws itself around the phone once, then breathes. Gone for good
+            after the first click, fading rather than snapping out.
+            Deliberately heavy (Jack wanted it ~3× thicker); `round` joins and
+            caps keep a stroke this thick from showing corner facets. */}
+        {revealed && (
+          <div
+            className={`pointer-events-none absolute inset-0 z-[17] transition-opacity duration-[900ms] ${
+              pulseApp ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {/* Pixel-space viewBox so this scales uniformly: the stroke stays an
+                even thickness all the way round, and the dash length agrees with
+                getTotalLength(). Width is in those units (5.2 ≈ 4.5px at a
+                1440-wide stage) so it stays proportional as the desk resizes. */}
+            <svg
+              className="desk-outline-pulse absolute inset-0 h-full w-full"
+              viewBox="0 0 1672 941"
+              style={{ filter: "drop-shadow(0 0 14px rgba(255,238,210,0.6))" }}
+              aria-hidden
+            >
+              <path
+                ref={drawRef}
+                d={toPathPx(appSpot.outline)}
+                fill="none"
+                stroke="#fff"
+                strokeWidth={5.2}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
         )}
 
         {/* Hover / click targets — the outline itself, so the cursor only reacts

@@ -207,6 +207,20 @@ export const homepageSettings = defineType({
       group: 'book',
       description: `${BOTH} Where the book button points.`,
     }),
+    defineField({
+      name: 'bookWebsiteButtonText',
+      title: 'Book Website Link — Text',
+      type: 'string',
+      group: 'book',
+      description: `${DESK} The underlined text link beside the black button. Falls back to "Website".`,
+    }),
+    defineField({
+      name: 'bookWebsiteButtonUrl',
+      title: 'Book Website Link — URL',
+      type: 'url',
+      group: 'book',
+      description: `${DESK} Where that link points. Leave blank and the link is hidden entirely.`,
+    }),
 
     // ═══ 3 · NFT CARD ═══════════════════════════════════════════════════════
     defineField({

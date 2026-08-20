@@ -23,6 +23,8 @@ export const HOMEPAGE_QUERY = `*[_type == "homepageSettings"][0]{
   bookImage,
   bookButtonText,
   bookButtonUrl,
+  bookWebsiteButtonText,
+  bookWebsiteButtonUrl,
   appTitle,
   appTagline,
   appSubtitle,

@@ -100,6 +100,17 @@ export const toClip = (o: Pt[]) =>
 export const toPath = (o: Pt[]) =>
   `M${o.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L")}Z`
 
+/**
+ * Same outline in desk.png pixel space, for an SVG using `viewBox="0 0 1672
+ * 941"`. That viewBox matches the stage's aspect exactly, so it scales
+ * *uniformly* — unlike the 0–100 viewBox, which needs
+ * `preserveAspectRatio="none"` and therefore stretches x and y differently.
+ * Anything stroked has to live here: under non-uniform scaling a stroke gets
+ * fatter on one axis, and dash lengths stop agreeing with `getTotalLength()`.
+ */
+export const toPathPx = (o: Pt[]) =>
+  `M${o.map(([x, y]) => `${((x / 100) * IMG_W).toFixed(1)} ${((y / 100) * IMG_H).toFixed(1)}`).join("L")}Z`
+
 export const HOTSPOTS: Hotspot[] = CONTENT.map((c) => {
   const g = GEOMETRY[c.id]
   return {

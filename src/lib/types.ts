@@ -110,6 +110,8 @@ export interface HomepageSettings {
   bookImage?: SanityImageSource;
   bookButtonText?: string;
   bookButtonUrl?: string;
+  bookWebsiteButtonText?: string;
+  bookWebsiteButtonUrl?: string;
 
   // App
   appTitle?: string;

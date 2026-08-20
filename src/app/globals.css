@@ -191,13 +191,18 @@
 }
 .desk-pulse { animation: desk-pulse 1.7s ease-in-out infinite; }
 
-/* Desk (web): the App attract outline. Same cadence as .desk-pulse, but drives
-   an SVG stroke — box-shadow does nothing on a <path>. */
+/* Desk (web): the App attract outline. Drives an SVG stroke — box-shadow does
+   nothing on a <path>.
+
+   Two stages. The outline first draws itself around the phone once (that half
+   runs in JS — see DeskStageWeb, it needs the path's measured length), then
+   settles into this breathing pulse. The delay matches the draw's duration and
+   both endpoints are opacity 1, so the handover is seamless, not a jump. */
 @keyframes desk-outline-pulse {
-  0%, 100% { opacity: 0.38; }
-  50%      { opacity: 1; }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.42; }
 }
-.desk-outline-pulse { animation: desk-outline-pulse 1.7s ease-in-out infinite; }
+.desk-outline-pulse { animation: desk-outline-pulse 1.7s ease-in-out 1.15s infinite; }
 
 /* Entry-cover content entrance */
 @keyframes desk-rise {

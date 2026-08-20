@@ -34,7 +34,10 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const talentEntries = talentsItem?.logoFreeformEntries ?? []
 
   const socials = (
-    <div className="flex gap-3">
+    /* On desktop the buttons top-align with the photo, not with the centre of
+       the name block. `mt-1.5` is the serif heading's cap-height offset inside
+       its line box, so the circles' tops land on the photo's edge. */
+    <div className="flex gap-3 md:mt-1.5 md:self-start">
       {linkedin && (
         <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className={iconBtn}>
           <Linkedin className={iconSize} />
@@ -62,10 +65,11 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
        section stacked full-width beneath it (Jack, 2026-08-17). The old layout
        ran the photo down a narrow left rail with Experience alongside it. */
     <div>
-      {/* items-center, not items-start: the identity text is much shorter than
-          the 4:5 photo, so centring shares the slack above and below it instead
-          of leaving one big gap underneath. */}
-      <div className="grid gap-6 md:grid-cols-[minmax(0,240px)_1fr] md:items-center md:gap-10">
+      {/* Top-aligned (Jack, 2026-08-20): the name and the social buttons line up
+          with the top edge of the photo. `-mt-1.5` cancels the serif heading's
+          leading so the cap-height — not the invisible line box — is what
+          actually meets the photo's edge. */}
+      <div className="grid gap-6 md:grid-cols-[minmax(0,240px)_1fr] md:items-start md:gap-10">
         <div className="mx-auto w-full max-w-[220px] md:mx-0 md:max-w-none">
           <img
             src={photo}
@@ -77,7 +81,7 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
 
         <div className="flex flex-col">
           {/* Name and socials share a line; they stack and centre on phone. */}
-          <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left">
+          <div className="flex flex-col items-center gap-4 text-center md:-mt-1.5 md:flex-row md:items-center md:gap-6 md:text-left">
             <div>
               <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
               {tagline && <p className="mt-2 tracking-wide text-neutral-500">{tagline}</p>}
@@ -167,7 +171,7 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
             {/* Mailing list — bottom of card, same copy/endpoint as /classic's Coming Soon panel */}
             <hr className="my-8 border-neutral-200" />
             <div>
-              <h3 className={`mb-4 ${sectionLabel}`}>Join the Mailing List</h3>
+              <h3 className={`mb-4 ${sectionLabel}`}>Join the Mailing List for future project launches</h3>
               <MailingListForm tagline={settings.comingSoonTagline} />
             </div>
           </>

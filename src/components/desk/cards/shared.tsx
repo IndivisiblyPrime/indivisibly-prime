@@ -26,6 +26,14 @@ export const solidButtonIcon =
 const ghostButton =
   "group inline-flex items-center gap-2 border border-neutral-300 px-6 py-2.5 text-sm font-medium tracking-wide text-neutral-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-black hover:text-black hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-2"
 
+/**
+ * Underlined text link — no box, just the rule beneath it. Sits beside a solid
+ * button as the lighter of two choices. Hover darkens the rule rather than
+ * filling anything, keeping to the no-invert rule.
+ */
+const linkAction =
+  "group inline-flex items-center gap-2 border-b border-neutral-300 pb-1.5 text-base font-medium text-neutral-800 transition-colors duration-200 hover:border-black hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-2"
+
 export function ActionButton({
   children,
   href,
@@ -33,9 +41,9 @@ export function ActionButton({
 }: {
   children: React.ReactNode
   href?: string
-  variant?: "solid" | "ghost"
+  variant?: "solid" | "ghost" | "link"
 }) {
-  const cls = variant === "solid" ? solidButton : ghostButton
+  const cls = variant === "solid" ? solidButton : variant === "link" ? linkAction : ghostButton
 
   if (href) {
     return (
