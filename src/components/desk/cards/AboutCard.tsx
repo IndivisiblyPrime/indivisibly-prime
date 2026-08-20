@@ -34,10 +34,9 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const talentEntries = talentsItem?.logoFreeformEntries ?? []
 
   const socials = (
-    /* On desktop the buttons top-align with the photo, not with the centre of
-       the name block. `mt-1.5` is the serif heading's cap-height offset inside
-       its line box, so the circles' tops land on the photo's edge. */
-    <div className="flex gap-3 md:mt-1.5 md:self-start">
+    // Centred to the name block via the row's own `items-center` below — not
+    // pinned to the photo's top edge (Jack tried top-aligned, then reverted).
+    <div className="flex gap-3">
       {linkedin && (
         <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className={iconBtn}>
           <Linkedin className={iconSize} />
@@ -65,10 +64,11 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
        section stacked full-width beneath it (Jack, 2026-08-17). The old layout
        ran the photo down a narrow left rail with Experience alongside it. */
     <div>
-      {/* Top-aligned (Jack, 2026-08-20): the name and the social buttons line up
-          with the top edge of the photo. `-mt-1.5` cancels the serif heading's
-          leading so the cap-height — not the invisible line box — is what
-          actually meets the photo's edge. */}
+      {/* Sat flush with the photo's top edge at first (2026-08-20), then Jack
+          asked for a small nudge down instead — `mt-5` on the name/socials row
+          — plus the socials centred to the name block rather than pinned to
+          the photo. `md:items-start` on the grid just keeps the photo itself
+          from stretching to the (usually taller) text column's height. */}
       <div className="grid gap-6 md:grid-cols-[minmax(0,240px)_1fr] md:items-start md:gap-10">
         <div className="mx-auto w-full max-w-[220px] md:mx-0 md:max-w-none">
           <img
@@ -81,7 +81,7 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
 
         <div className="flex flex-col">
           {/* Name and socials share a line; they stack and centre on phone. */}
-          <div className="flex flex-col items-center gap-4 text-center md:-mt-1.5 md:flex-row md:items-center md:gap-6 md:text-left">
+          <div className="mt-5 flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left">
             <div>
               <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
               {tagline && <p className="mt-2 tracking-wide text-neutral-500">{tagline}</p>}

@@ -108,29 +108,14 @@ export function DeskStageWeb({
           </div>
         )}
 
-        {/* Attract cue, part 1: the other three objects sit slightly in shadow
-            until the first click, so the App is simply the brightest thing on
-            the desk. No new chrome — it works by taking light away. */}
-        {revealed && (
-          <svg
-            className={`pointer-events-none absolute inset-0 z-[11] h-full w-full transition-opacity duration-[900ms] ${
-              pulseApp ? "opacity-100" : "opacity-0"
-            }`}
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden
-          >
-            {HOTSPOTS.filter((h) => h.id !== "app").map((h) => (
-              <path key={h.id} d={toPath(h.outline)} fill="rgba(0,0,0,0.17)" />
-            ))}
-          </svg>
-        )}
-
-        {/* Attract cue, part 2 — the one visible outline on the whole desk.
-            Draws itself around the phone once, then breathes. Gone for good
-            after the first click, fading rather than snapping out.
-            Deliberately heavy (Jack wanted it ~3× thicker); `round` joins and
-            caps keep a stroke this thick from showing corner facets. */}
+        {/* Attract cue — the one visible outline on the whole desk. Draws
+            itself around the phone once, then breathes. Gone for good after
+            the first click, fading rather than snapping out. Deliberately
+            heavy (Jack wanted it ~3× thicker); `round` joins and caps keep a
+            stroke this thick from showing corner facets.
+            A dim-the-other-three-objects layer used to run alongside this;
+            Jack asked for it removed (2026-08-20) while keeping the outline
+            itself, so the App now earns the click on its own. */}
         {revealed && (
           <div
             className={`pointer-events-none absolute inset-0 z-[17] transition-opacity duration-[900ms] ${
