@@ -62,74 +62,102 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
   const downloadText = settings.appButtonText || "Download Now"
   const websiteText = settings.appWebsiteButtonText || "Visit Website"
 
-  return (
-    <div className="grid gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
-      {/* Carousel — one fixed phone shell, the screenshots cross-fade inside it */}
-      <div className="flex flex-col items-center">
-        <PhoneFrame onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          {images.map((src, d) => (
-            <img
-              key={src}
-              src={src}
-              alt={d === i ? `${title} screenshot ${i + 1} of ${count}` : ""}
-              aria-hidden={d !== i}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out ${
-                d === i ? "opacity-100" : "opacity-0"
-              }`}
-              draggable={false}
-            />
-          ))}
-        </PhoneFrame>
-        {count > 1 && (
-          <div className="mt-6 flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              aria-label="Previous screenshot"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <div className="flex items-center gap-1.5">
-              {images.map((_, d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setI(d)}
-                  aria-label={`Go to screenshot ${d + 1}`}
-                  className={`h-1.5 rounded-full transition-all ${d === i ? "w-5 bg-neutral-800" : "w-1.5 bg-neutral-300 hover:bg-neutral-500"}`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              aria-label="Next screenshot"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+  // Shared pieces, each used once on mobile and once on desktop (below) in a
+  // different order/arrangement — defined once so the two layouts can't drift
+  // out of sync with each other.
+  const media = (
+    <div className="flex flex-col items-center">
+      <PhoneFrame onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        {images.map((src, d) => (
+          <img
+            key={src}
+            src={src}
+            alt={d === i ? `${title} screenshot ${i + 1} of ${count}` : ""}
+            aria-hidden={d !== i}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out ${
+              d === i ? "opacity-100" : "opacity-0"
+            }`}
+            draggable={false}
+          />
+        ))}
+      </PhoneFrame>
+      {count > 1 && (
+        <div className="mt-6 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            aria-label="Previous screenshot"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="flex items-center gap-1.5">
+            {images.map((_, d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setI(d)}
+                aria-label={`Go to screenshot ${d + 1}`}
+                className={`h-1.5 rounded-full transition-all ${d === i ? "w-5 bg-neutral-800" : "w-1.5 bg-neutral-300 hover:bg-neutral-500"}`}
+              />
+            ))}
           </div>
-        )}
+          <button
+            type="button"
+            onClick={() => go(1)}
+            aria-label="Next screenshot"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  const titleBlock = (
+    <>
+      <Eyebrow>01 — The App</Eyebrow>
+      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
+      {tagline && <p className="mt-2 text-lg text-neutral-600">{tagline}</p>}
+    </>
+  )
+
+  const descriptionBlock = description && (
+    <p className="max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600">{description}</p>
+  )
+
+  const buttonsBlock = (
+    <div className="flex flex-wrap gap-3">
+      <ActionButton href={settings.appButtonUrl}>{downloadText}</ActionButton>
+      {settings.appWebsiteButtonUrl && (
+        <ActionButton href={settings.appWebsiteButtonUrl} variant="ghost">
+          {websiteText}
+        </ActionButton>
+      )}
+    </div>
+  )
+
+  return (
+    <>
+      {/* Mobile (2026-09-02): title, then the phone, then description, then
+          buttons — the web order below is unrelated and untouched. */}
+      <div className="flex flex-col gap-8 md:hidden">
+        <div>{titleBlock}</div>
+        {media}
+        {descriptionBlock}
+        {buttonsBlock}
       </div>
 
-      {/* Text */}
-      <div className="flex flex-col">
-        <Eyebrow>01 — The App</Eyebrow>
-        <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
-        {tagline && <p className="mt-2 text-lg text-neutral-600">{tagline}</p>}
-        {description && (
-          <p className="mt-5 max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600">{description}</p>
-        )}
-        <div className="mt-8 flex flex-wrap gap-3">
-          <ActionButton href={settings.appButtonUrl}>{downloadText}</ActionButton>
-          {settings.appWebsiteButtonUrl && (
-            <ActionButton href={settings.appWebsiteButtonUrl} variant="ghost">
-              {websiteText}
-            </ActionButton>
-          )}
+      {/* Desktop/web — unchanged from before the mobile reorder above. */}
+      <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
+        {media}
+        <div className="flex flex-col">
+          {titleBlock}
+          {descriptionBlock && <div className="mt-5">{descriptionBlock}</div>}
+          <div className="mt-8">{buttonsBlock}</div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

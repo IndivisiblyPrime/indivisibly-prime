@@ -4,11 +4,13 @@
 import { MOBILE_TEST_SPOTS, type DeskId } from "./data"
 
 /**
- * Mobile background test (2026-09-02): a thin title bar up top, then the new
- * full-desk photo (desk-mobile.png) as one continuous image — no more
- * separate "scroll to reveal the desk" intro screen. Tap zones are rough
- * eyeballed rectangles over the photo, not calibrated outlines like the web
- * desk; good enough to click through for review, not a final pass.
+ * Mobile background test (2026-09-02): the full-desk photo (desk-mobile.png)
+ * as one continuous image, with the title overlaid on the photo's own top
+ * margin — no separate nav bar, no fixed/sticky positioning, so it scrolls
+ * away with the rest of the desk like anything else on the page. Tap zones
+ * are rough eyeballed rectangles over the photo, not calibrated outlines
+ * like the web desk; good enough to click through for review, not a final
+ * pass.
  */
 export function DeskStagePhone({
   onOpen,
@@ -23,15 +25,6 @@ export function DeskStagePhone({
 }) {
   return (
     <div className="min-h-dvh w-full bg-[#171009]">
-      <header className="sticky top-0 z-30 flex items-center justify-center border-b border-white/10 bg-[#171009]/95 px-6 py-3 backdrop-blur">
-        <span
-          className="text-center text-[0.95rem] font-medium text-[#F7F1E7]"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
-        >
-          {entryTitle}
-        </span>
-      </header>
-
       <div className="relative w-full">
         <img
           src="/desk-mobile.png"
@@ -39,6 +32,18 @@ export function DeskStagePhone({
           className="block w-full select-none"
           draggable={false}
         />
+
+        {/* Title overlaid directly on the photo's own top margin — not a
+            separate bar, and not sticky/fixed, so it scrolls away with the
+            rest of the desk once you start scrolling (Jack, 2026-09-02). */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center px-6 pt-6">
+          <span
+            className="text-center text-[0.95rem] font-medium text-[#F7F1E7]"
+            style={{ fontFamily: "var(--font-cormorant), Georgia, serif", textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}
+          >
+            {entryTitle}
+          </span>
+        </div>
 
         {MOBILE_TEST_SPOTS.map((s) => (
           <button
@@ -76,8 +81,6 @@ export function DeskStagePhone({
           </button>
         ))}
       </div>
-
-      <p className="px-6 py-10 text-center text-xs uppercase tracking-[0.35em] text-white/40">Jack Harvey</p>
     </div>
   )
 }

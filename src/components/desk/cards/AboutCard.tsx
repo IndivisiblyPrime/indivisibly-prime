@@ -34,9 +34,13 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const talentEntries = talentsItem?.logoFreeformEntries ?? []
 
   const socials = (
-    // Centred to the name block via the row's own `items-center` below — not
-    // pinned to the photo's top edge (Jack tried top-aligned, then reverted).
-    <div className="flex gap-3">
+    // On mobile this sits below the whole name+tagline block (order-3, its
+    // default DOM position). On desktop it moves up to sit beside just the
+    // name (order-2, right after the name's order-1) — centred against the
+    // name specifically, not the taller name+tagline stack — while the
+    // tagline drops to its own full-width line via `md:w-full` below (Jack,
+    // 2026-09-02: was centred to the whole block, which visually skewed low).
+    <div className="order-3 flex gap-3 md:order-2">
       {linkedin && (
         <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className={iconBtn}>
           <Linkedin className={iconSize} />
@@ -80,13 +84,17 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
         </div>
 
         <div className="flex flex-col">
-          {/* Name and socials share a line; they stack and centre on phone. */}
-          <div className="mt-5 flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left">
-            <div>
-              <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
-              {tagline && <p className="mt-2 tracking-wide text-neutral-500">{tagline}</p>}
-            </div>
+          {/* Name, socials, and tagline share this row. On mobile they stack in
+              DOM order (name, tagline, socials), centred. On desktop it wraps:
+              name + socials share the first line (centred against each other
+              via order-1/order-2 + items-center), and the tagline is forced
+              onto its own full-width second line via md:w-full + order-3. */}
+          <div className="mt-5 flex flex-col items-center gap-4 text-center md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2 md:text-left">
+            <h2 className="order-1 font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
             {socials}
+            {tagline && (
+              <p className="order-2 tracking-wide text-neutral-500 md:order-3 md:w-full">{tagline}</p>
+            )}
           </div>
           {intro && <p className="mt-5 leading-relaxed text-neutral-600">{intro}</p>}
         </div>
