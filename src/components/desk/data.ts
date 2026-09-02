@@ -138,6 +138,30 @@ export const PHONE_SCENES: PhoneScene[] = [
   { id: "about", num: "", word: "About Me", src: "/desk-phone-about.png", object: { left: 16, top: 4, width: 68, height: 85 } },
 ]
 
+/**
+ * Mobile background test (2026-09-02): a single full-desk photo (public/desk-mobile.png,
+ * 724×2172) used as one continuous image, with rough eyeballed tap zones — NOT
+ * calibrated outlines like the web hotspots.json. This is a trial to review a
+ * new mobile photo direction; if it sticks, re-eyeball these against the final
+ * chosen image rather than trusting these numbers.
+ */
+export interface MobileTestSpot {
+  id: DeskId
+  num: string
+  word: string
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+export const MOBILE_TEST_SPOTS: MobileTestSpot[] = [
+  { id: "nft", num: "3", word: "NFTs", left: 8, top: 3, width: 84, height: 12 },
+  { id: "about", num: "", word: "About Me", left: 35, top: 15, width: 40, height: 10 },
+  { id: "book", num: "2", word: "Book", left: 10, top: 30, width: 80, height: 30 },
+  { id: "app", num: "1", word: "App", left: 0, top: 62, width: 92, height: 36 },
+]
+
 // Fallback imagery cropped from the desk photo — shown until the matching
 // Sanity fields are populated, so the site looks complete out of the box.
 export const FALLBACK = {
