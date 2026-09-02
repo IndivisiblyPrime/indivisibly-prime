@@ -37,13 +37,48 @@ type Geo = Record<DeskId, HotspotGeometry>
 
 const clone = (g: Geo): Geo => JSON.parse(JSON.stringify(g))
 
+const FILE_COMMENT =
+  "MOBILE desk hotspot geometry — EDIT WITH THE TOOL, NOT BY HAND. Run `npm run dev` and open /calibrate-mobile to click each object's corners on the photo; Save writes this file. Coordinates are pixels in public/desk-mobile.png (724x2172), corners clockwise from top-left. cornerRadius is the fillet in those same pixels. label x/y are % of the stage."
+
+/**
+ * Render the geometry exactly as /api/calibrate-mobile writes it, so the text
+ * you copy from the deployed tool is byte-identical to what a local Save
+ * produces — paste it straight into hotspots-mobile.json.
+ *
+ * Iterates the KNOWN ids on purpose. Doing this over `Object.keys(geo)` is how
+ * the web version once crashed in production: the JSON also carries `_comment`,
+ * a string with no `.corners` to map over.
+ */
+function serialise(geo: Geo): string {
+  const blocks = OBJECTS.map(({ id }) => {
+    const g = geo[id]
+    const corners = g.corners.map((c) => `[${Math.round(c[0])}, ${Math.round(c[1])}]`).join(", ")
+    const place = g.labelPlace === "above" || g.labelPlace === "center" ? g.labelPlace : "below"
+    return [
+      `  ${JSON.stringify(id)}: {`,
+      `    "corners": [${corners}],`,
+      `    "cornerRadius": ${Math.round(g.cornerRadius)},`,
+      `    "labelX": ${Math.round(g.labelX * 10) / 10},`,
+      `    "labelY": ${Math.round(g.labelY * 10) / 10},`,
+      `    "labelPlace": ${JSON.stringify(place)}`,
+      `  }`,
+    ].join("\n")
+  })
+  return `{\n  "_comment": ${JSON.stringify(FILE_COMMENT)},\n${blocks.join(",\n")}\n}\n`
+}
+
 /**
  * Mobile twin of CalibrateTool. Same interaction model (click corners, drag to
  * adjust, 9× loupe, arrow-key nudge, ⌘S to save), but laid out for a 1:3 photo:
  * the stage scrolls in its own column beside sticky controls, instead of
  * sitting full-width above them.
+ *
+ * `writable` is false on the deployed site: Vercel's filesystem is read-only,
+ * so there is no Save to offer — the tool exports the JSON instead and the
+ * result reaches the site through a commit, which is the same last step a local
+ * Save needs anyway.
  */
-export function CalibrateMobileTool() {
+export function CalibrateMobileTool({ writable = true }: { writable?: boolean }) {
   const [geo, setGeo] = useState<Geo>(() => clone(MOBILE_GEOMETRY))
   const [active, setActive] = useState<DeskId>("app")
   const [sel, setSel] = useState<number | null>(null)
@@ -166,7 +201,34 @@ export function CalibrateMobileTool() {
     setSel(null)
   }
 
+  const copyJson = useCallback(async () => {
+    const text = serialise(geo)
+    try {
+      await navigator.clipboard.writeText(text)
+      setSaved(JSON.stringify(geo))
+      setStatus({ kind: "ok", msg: "Copied ✓  paste it into the chat" })
+    } catch {
+      setStatus({ kind: "err", msg: "Clipboard blocked — use Download instead" })
+    }
+    setTimeout(() => setStatus(null), 5000)
+  }, [geo])
+
+  const downloadJson = useCallback(() => {
+    const blob = new Blob([serialise(geo)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "hotspots-mobile.json"
+    a.click()
+    URL.revokeObjectURL(url)
+    setSaved(JSON.stringify(geo))
+    setStatus({ kind: "ok", msg: "Downloaded ✓  hotspots-mobile.json" })
+    setTimeout(() => setStatus(null), 5000)
+  }, [geo])
+
   const save = useCallback(async () => {
+    // On the deployed site there is nothing to POST to — export instead.
+    if (!writable) return copyJson()
     const body = JSON.stringify(geo)
     setStatus({ kind: "busy", msg: "Saving…" })
     try {
@@ -186,9 +248,9 @@ export function CalibrateMobileTool() {
       setStatus({ kind: "err", msg: `Failed: ${(e as Error).message}` })
     }
     setTimeout(() => setStatus(null), 5000)
-  }, [geo])
+  }, [geo, writable, copyJson])
 
-  // ⌘S / Ctrl+S saves without reaching for the button.
+  // ⌘S / Ctrl+S saves (or copies, when read-only) without reaching for the button.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
@@ -326,12 +388,26 @@ export function CalibrateMobileTool() {
             <button onClick={undo} disabled={!history.length} className="rounded bg-neutral-800 px-3 py-1.5 text-sm disabled:opacity-40">
               Undo
             </button>
-            <button
-              onClick={save}
-              className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
-            >
-              Save <span className="opacity-50">⌘S</span>
-            </button>
+            {writable ? (
+              <button
+                onClick={save}
+                className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
+              >
+                Save <span className="opacity-50">⌘S</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={copyJson}
+                  className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
+                >
+                  Copy JSON <span className="opacity-50">⌘S</span>
+                </button>
+                <button onClick={downloadJson} className="rounded bg-neutral-800 px-3 py-1.5 text-sm">
+                  Download
+                </button>
+              </>
+            )}
             {status ? (
               <span
                 className={`rounded px-2.5 py-1.5 text-sm font-medium ${
@@ -355,10 +431,24 @@ export function CalibrateMobileTool() {
             Click the object&rsquo;s corners on the photo (any order — points insert on the nearest edge). Drag a corner
             to move it; the loupe magnifies {ZOOM}× so you can land on the exact pixel. Arrow keys nudge the selected
             corner 1px, Shift+arrow 10px. Drag the <strong className="text-neutral-300">label text</strong> itself to
-            reposition it. <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
-            <code className="mx-1 rounded bg-neutral-800 px-1">hotspots-mobile.json</code> and the phone desk
-            hot-reloads — then the file needs a <strong className="text-neutral-300">commit</strong> to reach
-            jackharvey.me.
+            reposition it.{" "}
+            {writable ? (
+              <>
+                <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
+                <code className="mx-1 rounded bg-neutral-800 px-1">hotspots-mobile.json</code> and the phone desk
+                hot-reloads — then the file needs a <strong className="text-neutral-300">commit</strong> to reach
+                jackharvey.me.
+              </>
+            ) : (
+              <>
+                When you&rsquo;re happy, hit <strong className="text-neutral-300">Copy JSON</strong> (or ⌘S) and paste
+                it into the chat — Claude commits it and the change goes live on the next deploy.{" "}
+                <span className="text-neutral-500">
+                  There&rsquo;s no Save here on purpose: this is the deployed site, whose filesystem is read-only, so
+                  nothing can be written to the repo from this page.
+                </span>
+              </>
+            )}
           </p>
 
           <div className="mb-2 flex items-center gap-3 text-sm">
