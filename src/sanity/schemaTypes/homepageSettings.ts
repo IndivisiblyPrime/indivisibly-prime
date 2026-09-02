@@ -496,14 +496,15 @@ export const homepageSettings = defineType({
                       name: 'subtitle',
                       title: 'Subtitle',
                       type: 'string',
-                      description: 'Optional subtitle line below the title',
+                      description:
+                        'Optional — renders inline right after the Title, on the same line, not bolded (e.g. "Meditation" + this). For a separate line below instead, use Description.',
                     }),
                     defineField({
                       name: 'description',
                       title: 'Description',
                       type: 'text',
                       rows: 4,
-                      description: 'Freeform text — write however you like.',
+                      description: 'Optional — a separate paragraph below the title/subtitle line. Leave blank if Subtitle already says everything you need.',
                     }),
                   ],
                   preview: {

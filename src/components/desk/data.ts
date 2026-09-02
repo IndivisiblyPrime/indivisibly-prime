@@ -156,10 +156,10 @@ export interface MobileTestSpot {
 }
 
 export const MOBILE_TEST_SPOTS: MobileTestSpot[] = [
-  { id: "nft", num: "3", word: "NFTs", left: 8, top: 3, width: 84, height: 12 },
-  { id: "about", num: "", word: "About Me", left: 35, top: 15, width: 40, height: 10 },
-  { id: "book", num: "2", word: "Book", left: 10, top: 30, width: 80, height: 30 },
-  { id: "app", num: "1", word: "App", left: 0, top: 62, width: 92, height: 36 },
+  { id: "app", num: "1", word: "App", left: 30, top: 13, width: 38, height: 19 },
+  { id: "book", num: "2", word: "Book", left: 24, top: 33, width: 56, height: 24 },
+  { id: "nft", num: "3", word: "NFTs", left: 5, top: 59, width: 90, height: 14 },
+  { id: "about", num: "", word: "About Me", left: 28, top: 74, width: 58, height: 24 },
 ]
 
 // Fallback imagery cropped from the desk photo — shown until the matching
