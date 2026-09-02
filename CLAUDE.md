@@ -86,7 +86,6 @@ It costs the live site nothing: the tool compiles to its own ~14KB chunk referen
 
 ### Known Studio gaps (content tasks, not code)
 
-- `appWebsiteButtonUrl` is empty, so the Website button is hidden. Code, schema, and GROQ are all wired — just fill it in.
 - `nftSectionTitle` is literally `"NFTs"`, which `NftCard` treats as *unset* — so the card shows "The Lost Library of Alexandria". Any other string is used verbatim.
 
 ## Site chrome — title, favicon, app icons
