@@ -73,12 +73,12 @@ function serialise(geo: Geo): string {
  * the stage scrolls in its own column beside sticky controls, instead of
  * sitting full-width above them.
  *
- * `writable` is false on the deployed site: Vercel's filesystem is read-only,
- * so there is no Save to offer — the tool exports the JSON instead and the
- * result reaches the site through a commit, which is the same last step a local
- * Save needs anyway.
+ * Local-only, like /calibrate. Save writes the file directly; Copy/Download are
+ * kept alongside it because Jack's workflow is "calibrate on localhost, then
+ * download" — handy when the result needs to travel somewhere by hand rather
+ * than just land in the working tree.
  */
-export function CalibrateMobileTool({ writable = true }: { writable?: boolean }) {
+export function CalibrateMobileTool() {
   const [geo, setGeo] = useState<Geo>(() => clone(MOBILE_GEOMETRY))
   const [active, setActive] = useState<DeskId>("app")
   const [sel, setSel] = useState<number | null>(null)
@@ -227,8 +227,6 @@ export function CalibrateMobileTool({ writable = true }: { writable?: boolean })
   }, [geo])
 
   const save = useCallback(async () => {
-    // On the deployed site there is nothing to POST to — export instead.
-    if (!writable) return copyJson()
     const body = JSON.stringify(geo)
     setStatus({ kind: "busy", msg: "Saving…" })
     try {
@@ -248,9 +246,9 @@ export function CalibrateMobileTool({ writable = true }: { writable?: boolean })
       setStatus({ kind: "err", msg: `Failed: ${(e as Error).message}` })
     }
     setTimeout(() => setStatus(null), 5000)
-  }, [geo, writable, copyJson])
+  }, [geo])
 
-  // ⌘S / Ctrl+S saves (or copies, when read-only) without reaching for the button.
+  // ⌘S / Ctrl+S saves without reaching for the button.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
@@ -388,26 +386,18 @@ export function CalibrateMobileTool({ writable = true }: { writable?: boolean })
             <button onClick={undo} disabled={!history.length} className="rounded bg-neutral-800 px-3 py-1.5 text-sm disabled:opacity-40">
               Undo
             </button>
-            {writable ? (
-              <button
-                onClick={save}
-                className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
-              >
-                Save <span className="opacity-50">⌘S</span>
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={copyJson}
-                  className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
-                >
-                  Copy JSON <span className="opacity-50">⌘S</span>
-                </button>
-                <button onClick={downloadJson} className="rounded bg-neutral-800 px-3 py-1.5 text-sm">
-                  Download
-                </button>
-              </>
-            )}
+            <button
+              onClick={save}
+              className={`rounded px-4 py-1.5 text-sm font-semibold ${dirty ? "bg-white text-black" : "bg-neutral-700 text-neutral-300"}`}
+            >
+              Save <span className="opacity-50">⌘S</span>
+            </button>
+            <button onClick={copyJson} className="rounded bg-neutral-800 px-3 py-1.5 text-sm">
+              Copy JSON
+            </button>
+            <button onClick={downloadJson} className="rounded bg-neutral-800 px-3 py-1.5 text-sm">
+              Download
+            </button>
             {status ? (
               <span
                 className={`rounded px-2.5 py-1.5 text-sm font-medium ${
@@ -431,24 +421,12 @@ export function CalibrateMobileTool({ writable = true }: { writable?: boolean })
             Click the object&rsquo;s corners on the photo (any order — points insert on the nearest edge). Drag a corner
             to move it; the loupe magnifies {ZOOM}× so you can land on the exact pixel. Arrow keys nudge the selected
             corner 1px, Shift+arrow 10px. Drag the <strong className="text-neutral-300">label text</strong> itself to
-            reposition it.{" "}
-            {writable ? (
-              <>
-                <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
-                <code className="mx-1 rounded bg-neutral-800 px-1">hotspots-mobile.json</code> and the phone desk
-                hot-reloads — then the file needs a <strong className="text-neutral-300">commit</strong> to reach
-                jackharvey.me.
-              </>
-            ) : (
-              <>
-                When you&rsquo;re happy, hit <strong className="text-neutral-300">Copy JSON</strong> (or ⌘S) and paste
-                it into the chat — Claude commits it and the change goes live on the next deploy.{" "}
-                <span className="text-neutral-500">
-                  There&rsquo;s no Save here on purpose: this is the deployed site, whose filesystem is read-only, so
-                  nothing can be written to the repo from this page.
-                </span>
-              </>
-            )}
+            reposition it. <strong className="text-neutral-300">Save</strong> (or ⌘S) writes
+            <code className="mx-1 rounded bg-neutral-800 px-1">hotspots-mobile.json</code> and the phone desk
+            hot-reloads — then the file needs a <strong className="text-neutral-300">commit</strong> to reach
+            jackharvey.me. <strong className="text-neutral-300">Copy JSON</strong> /{" "}
+            <strong className="text-neutral-300">Download</strong> emit the same text if you&rsquo;d rather move it by
+            hand.
           </p>
 
           <div className="mb-2 flex items-center gap-3 text-sm">

@@ -20,8 +20,7 @@ Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `Ind
 | `/api/contact`, `/api/subscribe` | forms → Resend email |
 | `/api/revalidate` | ISR revalidation |
 | `/calibrate`, `/api/calibrate` | **local only** (404 in prod) — click the desk objects' corners, writes `hotspots.json` |
-| `/calibrate-mobile` | same tool for the phone photo → `hotspots-mobile.json`. **Deployed, but read-only in prod** (Copy/Download JSON instead of Save) |
-| `/api/calibrate-mobile` | **local only** (404 in prod) — the write endpoint behind the above |
+| `/calibrate-mobile`, `/api/calibrate-mobile` | **local only** (404 in prod) — same tool for the phone photo, writes `hotspots-mobile.json` |
 
 Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch `backup/classic-homepage`, or point `src/app/page.tsx` back at `Navbar` + `HeroSection` + `ExploreSection`. Tag `v1.0-desk-live` is the Desk as it stood on 2026-08-06, before the favicon fix and the Studio reorg.
 
@@ -61,10 +60,10 @@ Click each object's corners on the photo (points insert on the nearest edge, so 
 
 **`/calibrate` (web) is local-only, and that's the settled call** (Jack, 2026-08-17). It briefly ran on jackharvey.me behind Basic auth; that was reverted because saving means writing to the source tree, which a serverless filesystem can't do — the calibrated result only reaches the live site through a commit either way, so production had nothing to offer. The workflow is: calibrate locally → Save → commit `hotspots.json`.
 
-**`/calibrate-mobile` IS deployed** (Jack asked, 2026-09-02) — but read-only, which is the only honest way to do it. The page takes a `writable` prop; `process.env.NODE_ENV !== "production"` decides. Locally that's Save→POST as usual; on the live site the button becomes **Copy JSON / Download**, emitting text byte-identical to what the API route writes, which Jack pastes back to be committed. The commit was always the last step regardless, so nothing is lost by not having a real Save.
+**`/calibrate-mobile` is local-only too, and that's now settled** (2026-09-02). It was briefly deployed read-only (Copy/Download JSON instead of Save, since Vercel's filesystem can't be written to); Jack used it for one pass, then asked for it taken down — he doesn't want the tool visible to anyone else. **Both tools now 404 in production, as do both write endpoints.** This is the second time deploying a calibrate tool has been tried and reverted; the workflow is localhost → Save (or Download) → commit. Don't propose deploying it a third time.
 
-- `serialise()` in the tool duplicates the route's formatting on purpose (the route is server-only). It iterates the **known ids**, never `Object.keys(geo)` — doing the latter is precisely how the web version crashed in production, mapping `.corners` on the `_comment` string. Verified against a real `npm run build` + `npm start`, watching for `pageerror`.
-- The page is unlisted and `robots: noindex`, but **publicly reachable**. It can only read — no writes, no secrets, no Sanity token — so the exposure is a stray dev tool, not a hole. Add Basic auth via middleware if that changes.
+- The tool keeps **Copy JSON / Download** beside Save locally — Jack's stated workflow is "calibrate on localhost, then download," useful when the result travels by hand instead of landing straight in the working tree.
+- `serialise()` duplicates the route's formatting on purpose (the route is server-only), so exported text is byte-identical to a Save. It iterates the **known ids**, never `Object.keys(geo)` — the latter is precisely how the web version once crashed in production, mapping `.corners` on the `_comment` string.
 
 It costs the live site nothing: the tool compiles to its own ~14KB chunk referenced only by `/calibrate`'s manifest, and appears zero times in the homepage HTML. Don't "optimise" it out on performance grounds — that was measured, not assumed. If you ever *do* want click-to-save in production, the geometry has to move somewhere persistent; Sanity is the natural home, since auth and hosting already exist there.
 

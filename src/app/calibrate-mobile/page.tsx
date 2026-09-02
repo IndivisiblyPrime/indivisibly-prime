@@ -1,25 +1,19 @@
+import { notFound } from "next/navigation"
 import { CalibrateMobileTool } from "@/components/desk/CalibrateMobileTool"
 
 /**
- * Mobile desk hotspot calibration. Unlike `/calibrate` (still local-only), this
- * one is deployed, at Jack's request (2026-09-02) so he can calibrate against
- * the live site without running a dev server.
+ * Mobile desk hotspot calibration — **local only**, same as `/calibrate`.
  *
- * It is **read-only in production**: Vercel's filesystem can't be written to,
- * so there is no Save button there — the tool exports the JSON (Copy/Download)
- * and the result reaches the site through a commit. That commit was always the
- * last step anyway, even for a local Save, so nothing is lost.
+ * It was briefly deployed read-only (Copy/Download JSON) so Jack could
+ * calibrate against the live site; he did one pass, then asked for it taken
+ * down — he doesn't want the tool visible to anyone else, and localhost + a
+ * download does the job. That's the settled call (2026-09-02).
  *
- * Not linked from anywhere and not in the sitemap, but it IS publicly
- * reachable. It can only read — no writes, no secrets, no Sanity token — so
- * the exposure is a stray dev tool, not a hole. Add Basic auth via middleware
- * if that stops being acceptable.
+ * Both tools now 404 in production, as do both write endpoints.
  */
-export const metadata = {
-  title: "Calibrate mobile desk hotspots",
-  robots: { index: false, follow: false },
-}
+export const metadata = { title: "Calibrate mobile desk hotspots" }
 
 export default function CalibrateMobilePage() {
-  return <CalibrateMobileTool writable={process.env.NODE_ENV !== "production"} />
+  if (process.env.NODE_ENV === "production") notFound()
+  return <CalibrateMobileTool />
 }
