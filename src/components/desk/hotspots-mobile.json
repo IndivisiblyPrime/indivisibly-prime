@@ -1,0 +1,31 @@
+{
+  "_comment": "MOBILE desk hotspot geometry — EDIT WITH THE TOOL, NOT BY HAND. Run `npm run dev` and open /calibrate-mobile to click each object's corners on the photo; Save writes this file. Coordinates are pixels in public/desk-mobile.png (724x2172), corners clockwise from top-left. cornerRadius is the fillet in those same pixels. label x/y are % of the stage.",
+  "app": {
+    "corners": [[266, 315], [456, 315], [456, 706], [266, 706]],
+    "cornerRadius": 18,
+    "labelX": 50,
+    "labelY": 33.5,
+    "labelPlace": "below"
+  },
+  "book": {
+    "corners": [[253, 780], [548, 780], [548, 1227], [253, 1227]],
+    "cornerRadius": 8,
+    "labelX": 55.3,
+    "labelY": 57.3,
+    "labelPlace": "below"
+  },
+  "nft": {
+    "corners": [[49, 1314], [679, 1314], [679, 1596], [49, 1596]],
+    "cornerRadius": 8,
+    "labelX": 50,
+    "labelY": 74.3,
+    "labelPlace": "below"
+  },
+  "about": {
+    "corners": [[284, 1618], [581, 1618], [581, 2128], [284, 2128]],
+    "cornerRadius": 12,
+    "labelX": 59.7,
+    "labelY": 73.9,
+    "labelPlace": "above"
+  }
+}

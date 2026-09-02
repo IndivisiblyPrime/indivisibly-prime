@@ -55,8 +55,12 @@ export const GEOMETRY = geometry as unknown as Record<DeskId, HotspotGeometry>
  * `segs` is the fillet's point count. It's generous because the App attract
  * outline is drawn as a thick stroke, and a coarse fillet shows up there as
  * visible facets — the corners read as pointy rather than round.
+ *
+ * `w`/`h` are the source image's pixel dimensions — they default to desk.png
+ * so every existing web caller is unaffected, and the mobile photo (a very
+ * different aspect) passes its own.
  */
-export function roundedOutline(corners: Pt[], r: number, segs = 14): Pt[] {
+export function roundedOutline(corners: Pt[], r: number, segs = 14, w = IMG_W, h = IMG_H): Pt[] {
   const n = corners.length
   const out: Pt[] = []
   for (let i = 0; i < n; i++) {
@@ -74,19 +78,19 @@ export function roundedOutline(corners: Pt[], r: number, segs = 14): Pt[] {
       out.push([u * u * t1[0] + 2 * u * t * px + t * t * t2[0], u * u * t1[1] + 2 * u * t * py + t * t * t2[1]])
     }
   }
-  return out.map(([x, y]) => [(x / IMG_W) * 100, (y / IMG_H) * 100])
+  return out.map(([x, y]) => [(x / w) * 100, (y / h) * 100])
 }
 
-export function bbox(corners: Pt[]) {
+export function bbox(corners: Pt[], w = IMG_W, h = IMG_H) {
   const xs = corners.map((c) => c[0])
   const ys = corners.map((c) => c[1])
   const x0 = Math.min(...xs)
   const y0 = Math.min(...ys)
   return {
-    left: (x0 / IMG_W) * 100,
-    top: (y0 / IMG_H) * 100,
-    width: ((Math.max(...xs) - x0) / IMG_W) * 100,
-    height: ((Math.max(...ys) - y0) / IMG_H) * 100,
+    left: (x0 / w) * 100,
+    top: (y0 / h) * 100,
+    width: ((Math.max(...xs) - x0) / w) * 100,
+    height: ((Math.max(...ys) - y0) / h) * 100,
   }
 }
 
@@ -138,29 +142,41 @@ export const PHONE_SCENES: PhoneScene[] = [
   { id: "about", num: "", word: "About Me", src: "/desk-phone-about.png", object: { left: 16, top: 4, width: 68, height: 85 } },
 ]
 
-/**
- * Mobile background test (2026-09-02): a single full-desk photo (public/desk-mobile.png,
- * 724×2172) used as one continuous image, with rough eyeballed tap zones — NOT
- * calibrated outlines like the web hotspots.json. This is a trial to review a
- * new mobile photo direction; if it sticks, re-eyeball these against the final
- * chosen image rather than trusting these numbers.
+/* ── Mobile desk ──────────────────────────────────────────────────────────
+ * public/desk-mobile.png is its own photo at its own aspect (724×2172), so it
+ * gets its own calibrated geometry rather than reusing the web corners. Same
+ * shape of data, same tool workflow — see /calibrate-mobile.
  */
-export interface MobileTestSpot {
-  id: DeskId
-  num: string
-  word: string
-  left: number
-  top: number
-  width: number
-  height: number
-}
 
-export const MOBILE_TEST_SPOTS: MobileTestSpot[] = [
-  { id: "app", num: "1", word: "App", left: 30, top: 13, width: 38, height: 19 },
-  { id: "book", num: "2", word: "Book", left: 24, top: 33, width: 56, height: 24 },
-  { id: "nft", num: "3", word: "NFTs", left: 5, top: 59, width: 90, height: 14 },
-  { id: "about", num: "", word: "About Me", left: 28, top: 74, width: 58, height: 24 },
-]
+import mobileGeometry from "./hotspots-mobile.json"
+
+/** Native size of public/desk-mobile.png — all mobile corner coords are px in it. */
+export const MOBILE_IMG_W = 724
+export const MOBILE_IMG_H = 2172
+
+export const MOBILE_GEOMETRY = mobileGeometry as unknown as Record<DeskId, HotspotGeometry>
+
+export const MOBILE_HOTSPOTS: Hotspot[] = CONTENT.map((c) => {
+  const g = MOBILE_GEOMETRY[c.id]
+  return {
+    ...c,
+    ...g,
+    ...bbox(g.corners, MOBILE_IMG_W, MOBILE_IMG_H),
+    outline: roundedOutline(g.corners, g.cornerRadius, 14, MOBILE_IMG_W, MOBILE_IMG_H),
+  }
+})
+
+/**
+ * Mobile outline in desk-mobile.png pixel space, for an SVG using
+ * `viewBox="0 0 724 2172"`. Same reasoning as `toPathPx` on the web desk:
+ * anything *stroked* needs the pixel viewBox so it scales uniformly, or the
+ * stroke fattens on one axis and dash lengths stop agreeing with
+ * getTotalLength().
+ */
+export const toPathPxMobile = (o: Pt[]) =>
+  `M${o
+    .map(([x, y]) => `${((x / 100) * MOBILE_IMG_W).toFixed(1)} ${((y / 100) * MOBILE_IMG_H).toFixed(1)}`)
+    .join("L")}Z`
 
 // Fallback imagery cropped from the desk photo — shown until the matching
 // Sanity fields are populated, so the site looks complete out of the box.
