@@ -40,7 +40,6 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
     setCoverGone(true)
   }, [])
 
-  const onInteract = useCallback(() => setPulseApp(false), [])
   const open = useCallback((id: DeskId) => {
     setActive(id)
     setPulseApp(false)
@@ -60,14 +59,11 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
         <DeskStageWeb onOpen={open} pulseApp={pulseApp} revealed={coverGone} />
       </div>
 
-      {/* Phone desk — intro over the full desk, then scroll to object cut-outs */}
+      {/* Phone desk — one continuous photo, title overlaid on it. No attract
+          outline here: the phone uses the engraved "Click for details" cues
+          instead, so it needs neither pulseApp nor onInteract. */}
       <div className="h-full w-full overflow-y-auto overscroll-none md:hidden">
-        <DeskStagePhone
-          onOpen={open}
-          pulseApp={pulseApp}
-          onInteract={onInteract}
-          entryTitle={coverTitle}
-        />
+        <DeskStagePhone onOpen={open} entryTitle={coverTitle} />
       </div>
 
       {/* Intro cover — DESKTOP only (phone has its own scrolling intro above).
