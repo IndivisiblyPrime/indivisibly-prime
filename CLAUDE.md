@@ -33,7 +33,17 @@ Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch
 
 Components in `src/components/desk/`:
 
-- **`DeskExperience.tsx`** — `"use client"` orchestrator. State: `active` (open card), `coverGone`, `pulseApp`. Renders `EntryCover`, then `DeskStageWeb` (`hidden md:block`) or `DeskStagePhone` (`md:hidden`), plus the `Modal`. `sessionStorage["desk-cover-seen"]` skips the cover on repeat visits.
+- **`DeskExperience.tsx`** — `"use client"` orchestrator. State: `active` (open card), `coverGone`, `pulseApp`. Renders `EntryCover`, then `DeskStageWeb` (`hidden md:block`) or `DeskStagePhone` (`md:hidden`), plus the `Modal`. `sessionStorage["desk-cover-seen"]` skips the cover on repeat visits. The shell is `fixed inset-x-0 top-0 h-[var(--app-h)]`, **not** `inset-0` — see "Viewport height" below.
+
+### Viewport height — `--app-h`
+
+Full-screen layers size off `--app-h`, never `100vh` / `min-h-screen` / bare `inset-0`. On iOS `100vh` is the toolbar-*hidden* height, 100–150px taller than what's actually on screen, and iOS only re-resolves `position: fixed` layers at scroll-end or on layout — which this site never gives it, since the desk is a fixed shell and the phone view scrolls an *inner* div. So the shell kept its load-time size and the strip it no longer covered was left unpainted, showing the page canvas as a band above the browser's bottom bar (Jack, 2026-09-08; same bug on thegreatestwisdomofzen.com, fixed the same way).
+
+`globals.css` defaults `--app-h` to `100dvh`; **`src/components/ViewportSync.tsx`** (mounted in the root layout) overwrites it with the measured `window.innerHeight`. The measurement is not redundant — *writing the property is itself the layout trigger* iOS otherwise skips. It measures `innerHeight`, not `visualViewport.height`, because only the latter also shrinks on pinch-zoom; zoomed viewports are skipped outright.
+
+`body`'s background is the desk's own `#171009` rather than the white `bg-background` token, so any frame that still slips through is invisible instead of a white flash. `--background` itself stays white for the shadcn components that read it.
+
+This is separate from the `dvh` units inside cards (`PhoneFrame`'s `32dvh`, `BookCard`'s `max-h-[77dvh]`, `Modal`'s `90dvh`) — those size content within an already-correct shell and are locked decisions. Don't convert them.
 - **`EntryCover.tsx`** — warm-dark scrim + scroll cue, single line: `entryCoverText` verbatim, or `` `${entryTitle}'s Portfolio` `` when that's blank. Lifts on first wheel/scroll/touch/key/click, never returns that session.
 - **`DeskStageWeb.tsx`** — desktop desk photo (`public/desk.png`, 1672×941). Hotspots are the objects' **true photographed outlines**, calibrated by hand in `/calibrate` (below) and stored in **`hotspots.json`**. `roundedOutline()` fillets the corners in pixel space and emits %-of-stage points, so everything scales fluidly with the window. Hovering renders two stage-sized layers: an SVG even-odd mask dimming everything *outside* the outline, and a brightened clipped copy of the same photo inside it (pixels align exactly). The outline paths also **are** the hit targets — hover/click only fire over the real object, not a bounding box around it.
 - **`CalibrateTool.tsx`** + **`/calibrate`** — dev-only corner editor. See "Calibrating the hotspots".

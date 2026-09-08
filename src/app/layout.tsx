@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Dancing_Script, Cormorant_Garamond } from "next/font/google";
 import { urlFor } from "@/sanity/lib/image";
 import { getSiteSettings } from "@/sanity/lib/homepage";
+import { ViewportSync } from "@/components/ViewportSync";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,6 +34,13 @@ const THEME_COLOR = "#171009";
 
 export const viewport: Viewport = {
   themeColor: THEME_COLOR,
+  // `cover` lets the desk photo run under the rounded corners and home indicator
+  // rather than stopping at a letterboxed safe area.
+  viewportFit: "cover",
+  // Without this, an opening keyboard resizes the visual viewport but not the layout,
+  // which reintroduces exactly the fixed-layer/visible-area mismatch --app-h exists to
+  // prevent.
+  interactiveWidget: "resizes-content",
 };
 
 // Site chrome lives HERE rather than in individual pages so every route gets the
@@ -81,6 +89,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${cormorant.variable} antialiased`}
       >
+        <ViewportSync />
         {children}
       </body>
     </html>

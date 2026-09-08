@@ -53,7 +53,7 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
   const coverTitle = settings.entryCoverText || `${name}'s Portfolio`
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-[#171009]">
+    <div className="fixed inset-x-0 top-0 h-[var(--app-h)] overflow-hidden bg-[#171009]">
       {/* Desktop desk (all objects at once) */}
       <div className="hidden h-full w-full md:block">
         <DeskStageWeb onOpen={open} pulseApp={pulseApp} revealed={coverGone} />

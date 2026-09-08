@@ -46,7 +46,7 @@ export function DeskStagePhone({
   entryTitle: string
 }) {
   return (
-    <div className="min-h-dvh w-full bg-[#171009]">
+    <div className="min-h-[var(--app-h)] w-full bg-[#171009]">
       <div className="relative w-full">
         <img
           src="/desk-mobile.png"
