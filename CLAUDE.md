@@ -10,11 +10,17 @@ npm run lint
 
 Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `IndivisiblyPrime/indivisibly-prime`).
 
+## Architecture
+
+**[`docs/architecture.md`](docs/architecture.md) is the technical record** — the Desk, the hotspot calibration workflow, the viewport model, Sanity's shape, and the **locked decisions that must not be undone without asking Jack**. Read the relevant section before changing anything beyond copy, and **update it in the same commit when you change what it describes.** Nearly every gotcha in it was paid for once already.
+
+`docs/classic.md` covers the previous homepage, still served at `/classic`.
+
 ## Routes
 
 | Route | What |
 |---|---|
-| `/` | **The Desk** — the live homepage. Everything below is about this. |
+| `/` | **The Desk** — the live homepage. See `docs/architecture.md`. |
 | `/desk` | thin alias of `/` |
 | `/classic` | the previous homepage, preserved. See `docs/classic.md`. |
 | `/api/contact`, `/api/subscribe` | forms → Resend email |
@@ -27,133 +33,6 @@ Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch
 
 `/` preloading all five desk PNGs (~4.1 MB) on both viewports is **Jack's explicit decision**, not an oversight. Don't "optimise" it away.
 
-## The Desk
-
-`src/app/page.tsx` (ISR 60s) → `getHomepageSettings()` from **`src/sanity/lib/homepage.ts`** → `<DeskExperience settings>`. That one file holds `HOMEPAGE_QUERY`, a superset query shared by `/`, `/desk`, and `/classic`. `urlFor` builds image URLs client-side.
-
-Components in `src/components/desk/`:
-
-- **`DeskExperience.tsx`** — `"use client"` orchestrator. State: `active` (open card), `coverGone`, `pulseApp`. Renders `EntryCover`, then `DeskStageWeb` (`hidden md:block`) or `DeskStagePhone` (`md:hidden`), plus the `Modal`. `sessionStorage["desk-cover-seen"]` skips the cover on repeat visits. The shell is `fixed inset-x-0 top-0 h-[var(--app-h)]`, **not** `inset-0` — see "Viewport height" below.
-
-### Viewport height — `--app-h`
-
-Full-screen layers size off `--app-h`, never `100vh` / `min-h-screen` / bare `inset-0`. On iOS `100vh` is the toolbar-*hidden* height, 100–150px taller than what's actually on screen, and iOS only re-resolves `position: fixed` layers at scroll-end or on layout — which this site never gives it, since the desk is a fixed shell and the phone view scrolls an *inner* div. So the shell kept its load-time size and the strip it no longer covered was left unpainted, showing the page canvas as a band above the browser's bottom bar (Jack, 2026-09-08; same bug on thegreatestwisdomofzen.com, fixed the same way).
-
-`globals.css` defaults `--app-h` to `100dvh`; **`src/components/ViewportSync.tsx`** (mounted in the root layout) overwrites it with the measured `window.innerHeight`. The measurement is not redundant — *writing the property is itself the layout trigger* iOS otherwise skips. It measures `innerHeight`, not `visualViewport.height`, because only the latter also shrinks on pinch-zoom; zoomed viewports are skipped outright.
-
-`body`'s background is the desk's own `#171009` rather than the white `bg-background` token, so any frame that still slips through is invisible instead of a white flash. `--background` itself stays white for the shadcn components that read it.
-
-This is separate from the `dvh` units inside cards (`PhoneFrame`'s `32dvh`, `BookCard`'s `max-h-[77dvh]`, `Modal`'s `90dvh`) — those size content within an already-correct shell and are locked decisions. Don't convert them.
-- **`EntryCover.tsx`** — warm-dark scrim + scroll cue, single line: `entryCoverText` verbatim, or `` `${entryTitle}'s Portfolio` `` when that's blank. Lifts on first wheel/scroll/touch/key/click, never returns that session.
-- **`DeskStageWeb.tsx`** — desktop desk photo (`public/desk.png`, 1672×941). Hotspots are the objects' **true photographed outlines**, calibrated by hand in `/calibrate` (below) and stored in **`hotspots.json`**. `roundedOutline()` fillets the corners in pixel space and emits %-of-stage points, so everything scales fluidly with the window. Hovering renders two stage-sized layers: an SVG even-odd mask dimming everything *outside* the outline, and a brightened clipped copy of the same photo inside it (pixels align exactly). The outline paths also **are** the hit targets — hover/click only fire over the real object, not a bounding box around it.
-- **`CalibrateTool.tsx`** + **`/calibrate`** — dev-only corner editor. See "Calibrating the hotspots".
-- **`DeskStagePhone.tsx`** — one continuous photo (`public/desk-mobile.png`, 724×2172) with true photographed outlines as hit targets, calibrated by hand in **`/calibrate-mobile`** and stored in **`hotspots-mobile.json`**. Labels sit at their calibrated anchors. It takes only `onOpen` and `entryTitle` — no `pulseApp`/`onInteract`, since there's no attract outline here (see locked decisions). The cover title is overlaid on the photo's own top margin — **not** a nav bar, not sticky/fixed, so it scrolls away with the desk (Jack tried a sticky bar first, then asked for the overlay). No "Jack Harvey" footer, and no separate "scroll to reveal the desk" intro screen. Replaced the old four-stacked-scene-image approach (`PHONE_SCENES` / `desk-phone-*.png` — data + files still present but unused, kept as a revert path).
-- **`Modal.tsx`** — card shell; ✕ / Esc / backdrop close. `size` prop: `about` → `wide`, everything else → `xl`.
-- **`PhoneFrame.tsx`** — reusable iPhone mockup in pure CSS/HTML (no image asset, no Apple artwork). One fixed shell; images cross-fade *inside* its screen, clipped by the corner radius — never bake a bezel into an asset. Every dimension derives from one custom property `--pw` (device width) so it scales as a unit. `--pw = min(maxWidth, 32dvh, 54vw)`: **32dvh** keeps the ~2.1×-tall device inside the modal on short laptops, **54vw** keeps it clear of the modal's ✕ on phones. Screen is `aspect-ratio: 1170/2532` — feed it 19.5:9 images or `object-cover` side-crops them. **The vw term is the phone-only size lever**: it can only bind below a ~520px viewport, so changing it (62→54 on 2026-09-08, when Jack wanted the device smaller on mobile) never touches desktop, where `maxWidth` wins.
-- **`cards/`** — `AppCard`, `BookCard`, `NftCard`, `AboutCard`, plus `ContactForm`, `MailingListForm`, `shared.tsx` (`Eyebrow`, `ActionButton`).
-- **`AppCard.tsx` / `BookCard.tsx`** render two *entire* layouts (`flex flex-col md:hidden` for mobile, `hidden md:grid ...` for desktop), built from shared JSX consts (`media`, `titleBlock`, `descriptionBlock`, `buttonsBlock`) defined once and referenced in both — not one responsive grid with `order-*` tricks. **Because those consts render in both layouts, any phone-only styling on them must be reset at `md`** — the Book cover's mobile size cut is `w-[78%] md:w-full`, and dropping the `md:` half would silently shrink the desktop card too. Mobile order (2026-09-02, Jack's call) is title → media → description → buttons; desktop is untouched from before that change. Both layouts are always mounted (same pattern as `DeskStageWeb`/`DeskStagePhone`), CSS just hides one — so the carousel/cover renders twice in the DOM, harmless. If you need to change desktop, edit inside the `hidden md:grid` block; for mobile order, edit the `md:hidden` block; for shared content (copy, images, button hrefs), edit the const definitions above both.
-
-### Calibrating the hotspots
-
-Object outlines are **not** measured in code, and must not be. Both attempts at that failed: eyeballing zoomed crops was off by 5–25px, and gradient edge-fitting locked onto the wrong edge entirely (the phone's screen instead of its bezel, the book's printed border instead of its cover). In a photo with soft shadows and interior lines stronger than the true boundary, "where the object ends" is a judgment call — so a human makes it.
-
-```
-npm run dev   →   localhost:3000/calibrate          # web desk   → hotspots.json
-              →   localhost:3000/calibrate-mobile   # phone desk → hotspots-mobile.json
-```
-
-Click each object's corners on the photo (points insert on the nearest edge, so order doesn't matter); drag to adjust with a **9× loupe** for exact pixels; arrow keys nudge 1px, Shift+arrow 10px. Corner-radius slider, draggable label anchor, live spotlight preview. **Save** (or ⌘S) writes the JSON and the desk hot-reloads.
-
-- Both JSON files are generated — **never hand-edit them**; re-run the tool.
-- Corners are pixels in the *source photo*, clockwise from top-left. Four is normal; add more for a non-quad (the book's page fore-edge once needed a fifth).
-- Iterate the **known ids**, never `Object.keys(GEOMETRY)` — the files also carry `_comment`, which has no `corners`.
-- **Two tools, two files, two photos, deliberately.** `desk.png` is 1672×941 and `desk-mobile.png` is 724×2172 — completely different crops of a different scene, so corners can't be shared. `/calibrate-mobile` is the same interaction model laid out for a 1:3 photo: the stage scrolls in its own column beside sticky controls, with a zoom slider, and the label handle renders the *real* word at the real anchor so placement is judged on the actual thing. `roundedOutline()` / `bbox()` take optional `w`/`h` (defaulting to the web dims) so both call the same geometry code.
-
-**`/calibrate` (web) is local-only, and that's the settled call** (Jack, 2026-08-17). It briefly ran on jackharvey.me behind Basic auth; that was reverted because saving means writing to the source tree, which a serverless filesystem can't do — the calibrated result only reaches the live site through a commit either way, so production had nothing to offer. The workflow is: calibrate locally → Save → commit `hotspots.json`.
-
-**`/calibrate-mobile` is local-only too, and that's now settled** (2026-09-02). It was briefly deployed read-only (Copy/Download JSON instead of Save, since Vercel's filesystem can't be written to); Jack used it for one pass, then asked for it taken down — he doesn't want the tool visible to anyone else. **Both tools now 404 in production, as do both write endpoints.** This is the second time deploying a calibrate tool has been tried and reverted; the workflow is localhost → Save (or Download) → commit. Don't propose deploying it a third time.
-
-- The tool keeps **Copy JSON / Download** beside Save locally — Jack's stated workflow is "calibrate on localhost, then download," useful when the result travels by hand instead of landing straight in the working tree.
-- `serialise()` duplicates the route's formatting on purpose (the route is server-only), so exported text is byte-identical to a Save. It iterates the **known ids**, never `Object.keys(geo)` — the latter is precisely how the web version once crashed in production, mapping `.corners` on the `_comment` string.
-
-It costs the live site nothing: the tool compiles to its own ~14KB chunk referenced only by `/calibrate`'s manifest, and appears zero times in the homepage HTML. Don't "optimise" it out on performance grounds — that was measured, not assumed. If you ever *do* want click-to-save in production, the geometry has to move somewhere persistent; Sanity is the natural home, since auth and hosting already exist there.
-
-### Assets
-
-- **Not in Studio, by choice**: `public/desk.png`, `public/desk-phone-*.png`, `public/crops/*`. Regenerate crops/scenes from `desk.png` with PIL.
-- **Swapping either photo is never just a file copy.** For `desk.png`: `hotspots.json` (corners + label anchors — redo in `/calibrate`), `public/crops/*`, and the alt text are all calibrated to its pixels. For `desk-mobile.png`: `hotspots-mobile.json` (redo in `/calibrate-mobile`). A swap alone leaves every hotspot pointing at bare wood. `desk.png` was last swapped **2026-08-16** (same 1672×941): the brass gong is gone, the open "Alex Mori" journal is now a closed leather notebook embossed *Jack Harvey*, and the phone shows Breathwork. `desk-mobile.png` was swapped three times on **2026-09-02** while Jack tried mobile directions — if the corners look wrong, the photo probably moved again; re-run `/calibrate-mobile` rather than nudging the JSON.
-- **`public/app-screens/*.webp`** — six real Bonsai screens (828×1792), wired as `FALLBACK.appScreens`. Sanity's `appImages` wins whenever it's non-empty.
-- Every card falls back to `public/crops/*` plus sensible copy when its Sanity fields are empty (`FALLBACK` in `data.ts`), so the site looks complete before Studio is filled. `FALLBACK.journal` / `crops/journal_left.png` keep their names but now hold the leather notebook; it is cut 4:5 to match the About card's `aspect-[4/5] object-cover`. `crops/phone_screen.png` is regenerated for consistency but nothing reads it.
-- CSS lives in `globals.css` under the `desk-*` namespace: `desk-pulse`, `desk-rise`, `desk-scroll-cue`.
-
-### Locked decisions — don't undo these without asking Jack
-
-- The cards are **black & white**. An "Editorial Monograph" ivory/oxblood restyle was built and explicitly reverted.
-- The App attract pulse **persists through hover** — hovering only spotlights. It clears on an actual click.
-- **No visible outline on hover, ever.** Hovering dims everything else and relights the object; there is deliberately no white ring (Jack, 2026-08-17). The single exception is the **App attract outline** on the web desk — it blinks on arrival to earn the first click and is gone permanently once any card opens. If you add a ring back to hover, you've broken this.
-- **The App attract cue** is gated on `revealed` (the cover having lifted — otherwise it plays unseen behind it) and fades out over 900ms on the first click rather than snapping. It traces itself on once around the phone, then breathes. A "dim the other three objects" layer briefly ran alongside it; Jack asked for that removed on 2026-08-20 while keeping the outline, so don't re-add it without being asked.
-- **Anything stroked on the desk needs the pixel viewBox** (`0 0 1672 941` + `toPathPx`), not the 0–100 one. The 0–100 viewBox needs `preserveAspectRatio="none"`, which scales x and y differently: strokes come out fatter on one axis, and dash lengths stop agreeing with `getTotalLength()`. The draw-on measures the path in JS (`useDrawOn`) because `pathLength="1"` does *not* normalise dash units — that renders as dozens of marching dashes instead of one travelling segment. Both mistakes were made and fixed on 2026-08-20; don't redo them.
-- **The phone desk has no attract outline at all** (Jack, 2026-09-02). The white pulsing ring around the App was ported from the web desk, then removed on the same day — don't re-add it. In its place are the **engraved cues**: "Click for details" + an arrow, set into the bare wood beside the App and the Book, styled to look carved rather than painted on (ink darker than the wood, warm highlight offset 1px *below*). The arrow draws its highlight as a real offset path, not a `drop-shadow` — on a stroke that thin a blurred shadow washes out and the arrow vanishes into the wood. Two lines, because that strip of wood is only ~36% of the photo wide and one line overran and clipped. The cues are `pointer-events-none`, so they can't steal a press and the calibrated tap areas stay exactly as measured.
-- **Phone labels carry an arrow, not a number.** The web desk keeps "1 · App"; the phone shows just the word plus a small arrow pointing back at its object. Direction is derived from `labelPlace` (`above` → down, `below` → up), so recalibrating a label to the other side flips its arrow automatically — don't hardcode it per id.
-- The phone title (`entryCoverText`) is `clamp(1.25rem, 7.1vw, 2rem)` with `whitespace-nowrap`: it **must stay on one line**, so it scales with the viewport rather than wrapping. It was 3× larger briefly (`2.85rem`) before Jack asked for ~30% off to fit one line.
-- NFT eyebrow reads **"03 — The NFTs"**, not "The Art". Tiles use `object-contain` — no cropping; they read wider because the modal is `xl`, not because the aspect was forced.
-- Book cover is deliberately cropped `aspect-[3/4]` — Jack's upload is a 3:2 landscape photo, so this crops in rather than padding out. The cover drives the card's height, so it's the lever for "make the Book card taller": it fills a `31.5rem` column (lg+) = 672px tall, with `max-h-[77dvh]` as the short-laptop cap. It **no longer matches the App card's phone height** — that pairing was retired on 2026-08-17 when Jack asked for the Book card ~15% taller (27.5rem/587px → 31.5rem/672px). The modal's own width is unchanged; the text column just narrows. `bookSubtitle` has **no code fallback**; it renders only if set.
-- The App card plays `appGongSound` **once on open, on both the Desk and `/classic`**. The Desk uses a mount effect (the card only mounts when opened) with cleanup that stops a gong still ringing when the card closes.
-- About card has **no eyebrow above the name**. Layout is an **identity banner** — photo left, name + tagline + socials on one line beside it, intro under them — with Experience, Talents and the mailing list stacked **full-width beneath**, not alongside the photo (Jack, 2026-08-17). Social buttons are `h-12 w-12`; the ✉️ toggles the contact form into the full-width area below.
-- **Other Talents & Interests entries** (`logoFreeformEntries`): `title` (bold) and `subtitle` (unbold) render **inline on one line** — `subtitle` is the field for "next to the title," despite its Studio label once implying otherwise (fixed 2026-09-02). `description` is a *separate* field that renders as its own paragraph on the line below; leave it blank unless you actually want a second line under the inline one. Don't put the same text in both — that was the bug Jack hit (title held the whole string, description repeated it).
-- The name/socials row sits `mt-5` below the grid's top edge (nudged down from flush-with-the-photo on 2026-08-20 — "just a tad," not a measured value), **not** pinned to the photo's top edge — don't reintroduce `self-start` on the socials or you'll silently undo this. On desktop the socials are centred to the **name specifically** (an `order-1`/`order-2` flex-wrap trick: name + socials share the first line via `items-center`, and the tagline is forced onto its own full-width second line via `md:w-full` + `order-3`) — not to the whole name+tagline block, which is how it looked before 2026-09-02 and read as visually low. Mobile is untouched: name, tagline, socials stack in that DOM order regardless of the `order-*` classes, since mobile never wraps to a second line.
-- **Primary buttons are solid black from the start** — never outline-that-fills-on-hover, and hover must not invert to white (Jack, 2026-08-17). One shared `solidButton` class in `cards/shared.tsx` covers every card CTA plus Send Message and Subscribe; hover lifts, deepens the shadow, warms to `neutral-800`, and nudges the arrow. Change it there, not per-button. `ActionButton` also has a `link` variant — underlined text + ↗, no box — used as the quieter second option beside a solid button (the Book card's Website link).
-- Book card shows **two actions**: the solid CTA (`bookButton*`) and, when `bookWebsiteButtonUrl` is set, the underlined `link` beside it (`bookWebsiteButton*`, Desk only). Blank URL hides the link entirely.
-- On the desk, every label now sits **outside its object** — "About Me" moved from centred-on-the-notebook to `below` it (Jack's call, 2026-08-17), and the NFTs label was pulled close above the frame once the outline stopped over-reaching. Keep label gaps in that spirit: snug, just clear of the outline.
-- App/Book/NFT deliberately **share the `xl` modal size**; About is the odd one at `wide`.
-
-### Known Studio gaps (content tasks, not code)
-
-- `nftSectionTitle` is literally `"NFTs"`, which `NftCard` treats as *unset* — so the card shows "The Lost Library of Alexandria". Any other string is used verbatim.
-
-## Site chrome — title, favicon, app icons
-
-All of it lives in **`src/app/layout.tsx`**, so every route including `/studio` inherits it. Driven by `getSiteSettings()` (a small `cache()`-wrapped query in `homepage.ts`, separate from `HOMEPAGE_QUERY`).
-
-**Pages must not declare `icons`.** App Router metadata merges shallowly — a page-level `icons` replaces the layout's entire set, including `apple-touch-icon`. That is exactly what broke the favicon on mobile: `/` declared a single unsized icon, which lost to the scaffold `favicon.ico`'s declared `sizes="256x256"`. Pages may still override `title` (`/classic` does).
-
-- `src/app/favicon.ico` — Jack's icon at 16/32/48/64/128/256. **Must be RGBA**; Turbopack refuses to decode an RGB-encoded ICO.
-- `src/app/manifest.ts` → `/manifest.webmanifest`, 192 + 512 icons for Android install.
-- `apple-touch-icon` at 180×180 is what iOS Add-to-Home-Screen uses; without it iOS screenshots the page. Keep `siteFavicon` opaque — iOS fills transparency with black.
-- Regenerate the `.ico` from the Sanity asset with PIL after changing `siteFavicon`.
-
-## Sanity — `homepageSettings`
-
-**The one rule that keeps biting**: `HOMEPAGE_QUERY` must explicitly project every field a component reads. A field missing from the projection is `undefined` in the component no matter what Studio holds. Nested arrays need full sub-projections — `experienceEntries[]{_key, logo, jobTitle, dateRange, company, description}`, `logoFreeformEntries[]{_key, logo, title, dateRange, subtitle, description}`, `comingSoonItems[]{_key, logo, title, dateRange, subtitle, description, url, exploreMoreUrl}`. All three have silently rendered blank before.
-
-### Studio tabs mirror the Desk's cards
-
-Tabs are cut by **what a visitor sees**, not by legacy section names, and every classic-only field is quarantined in the last tab. Ordering: `Entry Cover` · `1 · App` · `2 · Book` · `3 · NFTs` · `About` · `Site & Tab` · `○ Classic only`.
-
-Every field description opens with a scope marker. **Keep tagging new fields** — the whole point is that Jack never has to guess which page an edit lands on:
-
-| Marker | Means |
-|---|---|
-| `● Desk only` | `entryTitle`, `entryCoverText`, `bookSubtitle`, `appTagline`, `appImages`, `appWebsiteButton*`, `nftSectionTitle`, `aboutTagline`, `aboutImage` |
-| `◆ Desk + Classic` | everything else in tabs 1–6 |
-| `○ Classic only` | `navItems`, all `hero*`, `comingSoonItems` — the last tab, safe to ignore |
-
-**`entryTitle` vs `entryCoverText`** — two fields on purpose. `entryCoverText` is the cover line typed verbatim (added 2026-08-17 so Jack controls the whole greeting, not just a name slotted into `"'s Portfolio"`); `entryTitle` is the bare name, which the About card still needs as its heading. Blank cover text falls back to `` `${entryTitle}'s Portfolio` ``, so nothing broke when the field was added.
-
-`entrySubtitle` was deleted on 2026-08-06 — it held no data, was never read from `settings`, and its render branches were unreachable. The entry cover is single-line in code now, with no subtitle prop to revive.
-
-Note the near-miss pairs: `comingSoonTagline` is on the **About** tab (it's the mailing-list line on the About card) while `comingSoonItems` is classic-only; `appImages` is Desk-only but `appImage` is shared.
-
-Gallery items carry an optional `url`; clicking falls back to `ctaButtonUrl`. Types live in `src/lib/types.ts`.
-
-Sanity **files** (hero videos, the gong) have no URL builder — `sanityFileUrl()` in `src/lib/sanityFile.ts` assembles the CDN URL from the `file-<id>-<ext>` ref. One shared copy; don't inline a fourth.
-
-### Studio structure
-
-`src/sanity/structure.ts` lists items **explicitly** — a new document type will not appear until you add it there. `homepageSettings` is a singleton pinned to `2d3fb790-8d0b-442f-b91e-362a31cf9ad3` so the sidebar opens the form directly; `sanity.config.ts` strips its delete/duplicate/unpublish actions, because every query reads `[0]` and a second copy would be picked at random. The unused `heroSection` type is parked under **Archive**.
-
-Schema changes: edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`.
-
 ## Environment
 
 ```
@@ -165,6 +44,4 @@ CONTACT_EMAIL=             # where those emails land
 CONTACT_FROM_EMAIL=        # sender (defaults to onboarding@resend.dev)
 ```
 
-## Final task
-
-Always update this file with any edits. Keep it short — deep detail belongs in `docs/`.
+Schema changes: edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`.
