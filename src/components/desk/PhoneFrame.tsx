@@ -26,8 +26,14 @@ export function PhoneFrame({
       style={
         {
           // capped by: the caller's max, viewport height (short laptops), and
-          // viewport width (so it clears the modal's ✕ on a phone)
-          "--pw": `min(${maxWidth}, 32dvh, 62vw)`,
+          // viewport width (so it clears the modal's ✕ on a phone).
+          //
+          // The vw cap is 54, not 62, because Jack wanted the device a little
+          // smaller on phones (2026-09-08). It is deliberately the lever for
+          // that: this term can only bind when 54vw < maxWidth, i.e. below a
+          // ~520px viewport — well under the md breakpoint — so lowering it
+          // touches phones only and leaves every desktop size untouched.
+          "--pw": `min(${maxWidth}, 32dvh, 54vw)`,
           width: "var(--pw)",
         } as React.CSSProperties
       }

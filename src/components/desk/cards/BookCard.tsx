@@ -31,10 +31,13 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
           pairing; the two are no longer meant to match. `max-h-[77dvh]` is the
           old 67dvh scaled by the same 15% so the cap doesn't clamp away the
           extra height on short laptops. */}
+      {/* `w-[78%] md:w-full` is the mobile-only size cut (Jack, 2026-09-08):
+          this same block renders in BOTH layouts below, so the phone width has
+          to be reset at md or it would shrink the desktop card too. */}
       <img
         src={cover}
         alt={title}
-        className="aspect-[3/4] max-h-[77dvh] w-full rounded-md object-cover shadow-2xl ring-1 ring-black/10"
+        className="aspect-[3/4] max-h-[77dvh] w-[78%] rounded-md object-cover shadow-2xl ring-1 ring-black/10 md:w-full"
         draggable={false}
       />
     </div>

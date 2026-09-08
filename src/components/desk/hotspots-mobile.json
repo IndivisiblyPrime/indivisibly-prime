@@ -3,28 +3,28 @@
   "app": {
     "corners": [[267, 315], [456, 315], [455, 695], [267, 698]],
     "cornerRadius": 18,
-    "labelX": 48.5,
+    "labelX": 58.5,
     "labelY": 14.3,
     "labelPlace": "above"
   },
   "book": {
     "corners": [[256, 780], [544, 781], [543, 1257], [250, 1257]],
     "cornerRadius": 8,
-    "labelX": 53.5,
+    "labelX": 63.5,
     "labelY": 35.7,
     "labelPlace": "above"
   },
   "nft": {
     "corners": [[41, 1314], [684, 1314], [687, 1622], [41, 1619]],
     "cornerRadius": 8,
-    "labelX": 51.6,
+    "labelX": 61.6,
     "labelY": 60.5,
     "labelPlace": "above"
   },
   "about": {
     "corners": [[281, 1652], [577, 1650], [580, 2128], [282, 2129]],
     "cornerRadius": 12,
-    "labelX": 59.2,
+    "labelX": 69.2,
     "labelY": 97.7,
     "labelPlace": "below"
   }
