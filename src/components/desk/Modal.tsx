@@ -35,7 +35,10 @@ export function Modal({
       <div
         className="relative max-h-[90dvh] overflow-y-auto overscroll-contain rounded-2xl border border-black/10 bg-[#f8f5ee] shadow-2xl duration-500 ease-out animate-in fade-in zoom-in-95 slide-in-from-bottom-4"
         style={{
-          width: size === "xl" ? "min(96vw, 76rem)" : size === "wide" ? "min(96vw, 60rem)" : "min(96vw, 46rem)",
+          // Widened on 2026-09-09 (76→84rem / 60→66rem) to carry the desktop
+          // 1.5x type scale — and specifically so the Book's title lands on one
+          // line instead of breaking after "The Greatest Wisdom of".
+          width: size === "xl" ? "min(96vw, 84rem)" : size === "wide" ? "min(96vw, 66rem)" : "min(96vw, 46rem)",
         }}
         onClick={(e) => e.stopPropagation()}
       >

@@ -10,6 +10,8 @@ npm run lint
 
 Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `IndivisiblyPrime/indivisibly-prime`).
 
+**Always commit and push when the work is done** (Jack, 2026-09-09) — don't leave finished changes sitting in the working tree waiting to be asked. Lint and build first, update `docs/architecture.md` in the same commit when the change touches what it describes, then commit to `main` and push, which deploys. Ask first only for something Jack would want to see before it's live.
+
 ## Architecture
 
 **[`docs/architecture.md`](docs/architecture.md) is the technical record** — the Desk, the hotspot calibration workflow, the viewport model, Sanity's shape, and the **locked decisions that must not be undone without asking Jack**. Read the relevant section before changing anything beyond copy, and **update it in the same commit when you change what it describes.** Nearly every gotcha in it was paid for once already.

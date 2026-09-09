@@ -54,7 +54,7 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
     <div>
       <Eyebrow>03 — The NFTs</Eyebrow>
       <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{heading}</h2>
-      <p className="mt-2 italic text-neutral-500">{subtitle}</p>
+      <p className="mt-2 italic text-neutral-500 md:mt-3 md:text-2xl">{subtitle}</p>
 
       {hasSanity ? (
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-5">
@@ -98,7 +98,7 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
             revealedClassName="text-black"
             revealDelayMs={50}
             triggerOnHover
-            className="text-xs"
+            className="text-xs md:text-lg"
           />
         </p>
       </div>

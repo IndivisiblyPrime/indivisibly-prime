@@ -586,7 +586,7 @@ export const homepageSettings = defineType({
       title: 'Mailing List Tagline',
       type: 'string',
       group: 'about',
-      description: `${BOTH} Small print under the "Join the mailing list" form at the bottom of the About card.`,
+      description: `${BOTH} Small print under the "Join the mailing list" form at the bottom of the About card. Rendered in parentheses. Leave it blank (or clear it to a single space) and the line disappears entirely — no empty brackets.`,
       initialValue: 'Zero spam and only a singular email when a new project has launched',
     }),
 

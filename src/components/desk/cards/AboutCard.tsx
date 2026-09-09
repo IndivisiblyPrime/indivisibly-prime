@@ -15,7 +15,7 @@ const iconBtn =
 
 const iconSize = "h-[1.35rem] w-[1.35rem]"
 
-const sectionLabel = "text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400"
+const sectionLabel = "text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 md:text-lg"
 
 export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const [showContact, setShowContact] = useState(false)
@@ -90,13 +90,13 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
               via order-1/order-2 + items-center), and the tagline is forced
               onto its own full-width second line via md:w-full + order-3. */}
           <div className="mt-5 flex flex-col items-center gap-4 text-center md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2 md:text-left">
-            <h2 className="order-1 font-serif text-3xl text-neutral-900 sm:text-4xl">{name}</h2>
+            <h2 className="order-1 font-serif text-3xl text-neutral-900 sm:text-4xl md:text-5xl">{name}</h2>
             {socials}
             {tagline && (
-              <p className="order-2 tracking-wide text-neutral-500 md:order-3 md:w-full">{tagline}</p>
+              <p className="order-2 tracking-wide text-neutral-500 md:order-3 md:w-full md:text-2xl">{tagline}</p>
             )}
           </div>
-          {intro && <p className="mt-5 leading-relaxed text-neutral-600">{intro}</p>}
+          {intro && <p className="mt-5 leading-relaxed text-neutral-600 md:text-2xl">{intro}</p>}
         </div>
       </div>
 
@@ -107,11 +107,11 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
             <button
               type="button"
               onClick={() => setShowContact(false)}
-              className="mb-5 inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-black"
+              className="mb-5 inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-black md:gap-2 md:text-[1.3125rem]"
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4 md:h-6 md:w-6" /> Back
             </button>
-            <h3 className="mb-5 font-serif text-2xl text-neutral-900">Contact Me</h3>
+            <h3 className="mb-5 font-serif text-2xl text-neutral-900 md:text-4xl">Contact Me</h3>
             <ContactForm />
           </div>
         ) : (
@@ -138,11 +138,15 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
                           {!isLast && <div className="mb-1 mt-1 w-px flex-1 bg-black/15" />}
                         </div>
                         <div className={`flex-1 ${isLast ? "pb-0" : "pb-6"}`}>
-                          <p className="text-sm font-semibold text-neutral-800">{entry.jobTitle}</p>
-                          {entry.company && <p className="text-sm text-neutral-600">{entry.company}</p>}
-                          {entry.dateRange && <p className="text-xs text-neutral-400">{entry.dateRange}</p>}
+                          {/* Company first and bold, job title italic beneath it
+                              (Jack, 2026-09-09 — these were swapped before). */}
+                          {entry.company && (
+                            <p className="text-sm font-semibold text-neutral-800 md:text-[1.3125rem]">{entry.company}</p>
+                          )}
+                          <p className="text-sm italic text-neutral-600 md:text-[1.3125rem]">{entry.jobTitle}</p>
+                          {entry.dateRange && <p className="text-xs text-neutral-400 md:text-lg">{entry.dateRange}</p>}
                           {entry.description && (
-                            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-neutral-600">
+                            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-neutral-600 md:text-[1.3125rem]">
                               {entry.description}
                             </p>
                           )}
@@ -164,7 +168,7 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
                 <h3 className={`mb-4 ${sectionLabel}`}>{talentsItem?.title || "Other Talents & Interests"}</h3>
                 <div className="space-y-3">
                   {talentEntries.map((entry) => (
-                    <div key={entry._key} className="text-sm leading-relaxed text-neutral-600">
+                    <div key={entry._key} className="text-sm leading-relaxed text-neutral-600 md:text-[1.3125rem]">
                       <span className="font-medium text-neutral-800">{entry.title}</span>
                       {entry.subtitle && <span className="text-neutral-500"> — {entry.subtitle}</span>}
                       {entry.description && (

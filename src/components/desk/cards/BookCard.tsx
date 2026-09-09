@@ -47,13 +47,24 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
   const titleBlock = (
     <>
       <Eyebrow>02 — The Book</Eyebrow>
-      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
-      {subtitle && <p className="mt-2 italic text-neutral-500">{subtitle}</p>}
+      {/* Jack, 2026-09-09: the default title must not break after "The Greatest
+          Wisdom of". The wider `xl` modal buys enough room at 48px from ~1300px
+          of viewport up; below that the clamp shaves the type instead of
+          wrapping, holding one line down to ~1150px. (Phone sizes untouched —
+          it wraps there and always did.) */}
+      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl md:text-[clamp(2.25rem,3.2vw,3rem)]">
+        {title}
+      </h2>
+      {subtitle && <p className="mt-2 italic text-neutral-500 md:mt-3 md:text-2xl">{subtitle}</p>}
     </>
   )
 
+  // Same as the App card: `max-w-md` is the phone measure, and the web card
+  // lets the commentary run the full text column.
   const descriptionBlock = description && (
-    <p className="max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600">{description}</p>
+    <p className="max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600 md:max-w-none md:text-2xl">
+      {description}
+    </p>
   )
 
   const buttonsBlock = (

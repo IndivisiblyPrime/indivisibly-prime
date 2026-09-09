@@ -82,14 +82,14 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
         ))}
       </PhoneFrame>
       {count > 1 && (
-        <div className="mt-6 flex items-center gap-4">
+        <div className="mt-6 flex items-center gap-4 md:mt-8 md:gap-6">
           <button
             type="button"
             onClick={() => go(-1)}
             aria-label="Previous screenshot"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white md:h-[3.375rem] md:w-[3.375rem]"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 md:h-6 md:w-6" />
           </button>
           <div className="flex items-center gap-1.5">
             {images.map((_, d) => (
@@ -98,7 +98,7 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
                 type="button"
                 onClick={() => setI(d)}
                 aria-label={`Go to screenshot ${d + 1}`}
-                className={`h-1.5 rounded-full transition-all ${d === i ? "w-5 bg-neutral-800" : "w-1.5 bg-neutral-300 hover:bg-neutral-500"}`}
+                className={`h-1.5 rounded-full transition-all md:h-2 ${d === i ? "w-5 bg-neutral-800 md:w-7" : "w-1.5 bg-neutral-300 hover:bg-neutral-500 md:w-2"}`}
               />
             ))}
           </div>
@@ -106,9 +106,9 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
             type="button"
             onClick={() => go(1)}
             aria-label="Next screenshot"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white md:h-[3.375rem] md:w-[3.375rem]"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 md:h-6 md:w-6" />
           </button>
         </div>
       )}
@@ -119,12 +119,18 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
     <>
       <Eyebrow>01 — The App</Eyebrow>
       <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
-      {tagline && <p className="mt-2 text-lg text-neutral-600">{tagline}</p>}
+      {tagline && <p className="mt-2 text-lg text-neutral-600 md:text-[1.6875rem]">{tagline}</p>}
     </>
   )
 
+  // `max-w-md` is a phone measure only. On the web card it cut the commentary
+  // off well short of the title's right edge (Jack, 2026-09-09), so from `md`
+  // up it runs the full width of the text column — which is exactly where the
+  // title ends.
   const descriptionBlock = description && (
-    <p className="max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600">{description}</p>
+    <p className="max-w-md whitespace-pre-wrap leading-relaxed text-neutral-600 md:max-w-none md:text-2xl">
+      {description}
+    </p>
   )
 
   const buttonsBlock = (

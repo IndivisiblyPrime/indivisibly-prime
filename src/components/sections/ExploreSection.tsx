@@ -709,7 +709,10 @@ function MailingListForm({ tagline }: { tagline?: string }) {
           {status === "sending" ? "…" : "Subscribe"}
         </button>
       </form>
-      {tagline && <p className="mt-2 text-xs text-neutral-400">({tagline})</p>}
+      {/* Trimmed: a tagline of " " (Studio's way of blanking a filled string
+          field) must not render as a bare "( )" — see the Desk's copy of this
+          form in cards/MailingListForm.tsx. */}
+      {tagline?.trim() && <p className="mt-2 text-xs text-neutral-400">({tagline.trim()})</p>}
       {status === "error" && (
         <p className="mt-2 text-xs text-red-600">Something went wrong. Please try again.</p>
       )}
