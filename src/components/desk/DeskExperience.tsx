@@ -53,7 +53,12 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
   const coverTitle = settings.entryCoverText || `${name}'s Portfolio`
 
   return (
-    <div className="fixed inset-x-0 top-0 h-[var(--app-h)] overflow-hidden bg-[#171009]">
+    // Fixed, viewport-sized shell on DESKTOP ONLY. On phones this is ordinary
+    // document flow, so the page scrolls natively and nothing is trying to match
+    // the visible viewport height — which is what makes the blank-strip bug
+    // structurally impossible there rather than merely corrected for. See
+    // "Viewport height" in docs/architecture.md.
+    <div className="relative bg-[#171009] md:fixed md:inset-x-0 md:top-0 md:h-[var(--app-h)] md:overflow-hidden">
       {/* Desktop desk (all objects at once) */}
       <div className="hidden h-full w-full md:block">
         <DeskStageWeb onOpen={open} pulseApp={pulseApp} revealed={coverGone} />
@@ -62,7 +67,7 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
       {/* Phone desk — one continuous photo, title overlaid on it. No attract
           outline here: the phone uses the engraved "Click for details" cues
           instead, so it needs neither pulseApp nor onInteract. */}
-      <div className="h-full w-full overflow-y-auto overscroll-none md:hidden">
+      <div className="w-full md:hidden">
         <DeskStagePhone onOpen={open} entryTitle={coverTitle} />
       </div>
 

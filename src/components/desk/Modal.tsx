@@ -25,6 +25,38 @@ export function Modal({
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
 
+  // Freeze the page behind the card. This became necessary on 2026-09-09, when the
+  // phone desk stopped living in a fixed shell and started scrolling the document
+  // natively (see "Viewport height" in docs/architecture.md): before that the page
+  // could not scroll at all, so an open card had nothing to scroll behind it.
+  //
+  // `overflow: hidden` alone is not enough on iOS — it does not stop touch scrolling
+  // of the document. Pinning the body with `position: fixed` at a negative offset is
+  // what actually holds it, and the offset is what stops the desk jumping back to the
+  // top; the scroll position is restored on close. Desktop is unaffected either way,
+  // since the shell there is fixed and the document never scrolls.
+  useEffect(() => {
+    const body = document.body
+    const y = window.scrollY
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    }
+    body.style.position = "fixed"
+    body.style.top = `-${y}px`
+    body.style.width = "100%"
+    body.style.overflow = "hidden"
+    return () => {
+      body.style.position = prev.position
+      body.style.top = prev.top
+      body.style.width = prev.width
+      body.style.overflow = prev.overflow
+      window.scrollTo(0, y)
+    }
+  }, [])
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 duration-300 animate-in fade-in sm:p-6"
