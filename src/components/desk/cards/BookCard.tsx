@@ -3,7 +3,7 @@
 
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
-import { Eyebrow, ActionButton } from "./shared"
+import { ActionButton } from "./shared"
 import { FALLBACK } from "../data"
 
 const DEFAULT_DESC =
@@ -46,13 +46,21 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
 
   const titleBlock = (
     <>
-      <Eyebrow>02 — The Book</Eyebrow>
-      {/* Jack, 2026-09-09: the default title must not break after "The Greatest
-          Wisdom of". The wider `xl` modal buys enough room at 48px from ~1300px
-          of viewport up; below that the clamp shaves the type instead of
-          wrapping, holding one line down to ~1150px. (Phone sizes untouched —
-          it wraps there and always did.) */}
-      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl md:text-[clamp(2.25rem,3.2vw,3rem)]">
+      {/* No "02 — The Book" kicker any more (Jack, 2026-09-10).
+          The title must not break after "The Greatest Wisdom of" (Jack,
+          2026-09-09), and it also had to grow 15% (2026-09-10) — which the
+          viewport-based clamp couldn't do without wrapping on narrower
+          laptops. So it's sized off the *text column* instead: the desktop
+          layout below is a container, and `7.6cqi` is comfortably under the
+          ~7.9% of column width the default title needs for one line, at every
+          width. `3.45rem` is the 15% cap (48 → 55.2px) and doubles as the
+          safety net if the container ever goes missing. A much longer
+          `bookTitle` from Studio will still wrap — lower the cqi figure then,
+          never `whitespace-nowrap`, which would overflow the modal. The 2rem
+          floor gives up the one-line rule below a ~1100px window rather than
+          shrink the title into illegibility; one line holds everywhere above
+          that. Measured: 48px/one line at a 1327px window, 53px at 1512. */}
+      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl md:text-[clamp(2rem,7.6cqi,3.45rem)]">
         {title}
       </h2>
       {subtitle && <p className="mt-2 italic text-neutral-500 md:mt-3 md:text-2xl">{subtitle}</p>}
@@ -92,10 +100,12 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
       {/* Desktop/web — unchanged from before the mobile reorder above. */}
       <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,380px)_1fr] md:items-start md:gap-14 lg:grid-cols-[minmax(0,31.5rem)_1fr]">
         {media}
-        <div className="flex flex-col">
+        {/* The container the title's `cqi` size measures against; margins are
+            web-only by construction (mt-5/mt-8 before 2026-09-10). */}
+        <div className="flex flex-col" style={{ containerType: "inline-size" }}>
           {titleBlock}
-          {descriptionBlock && <div className="mt-5">{descriptionBlock}</div>}
-          <div className="mt-8">{buttonsBlock}</div>
+          {descriptionBlock && <div className="mt-9">{descriptionBlock}</div>}
+          <div className="mt-14">{buttonsBlock}</div>
         </div>
       </div>
     </>

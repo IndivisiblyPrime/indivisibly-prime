@@ -1,9 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { solidButton } from "./shared"
+import { cn } from "@/lib/utils"
+import { buttonScalePhone, solidButton } from "./shared"
 
-/** Mailing list signup → POST /api/subscribe (same endpoint as /classic's Coming Soon panel). */
+/**
+ * Mailing list signup → POST /api/subscribe (same endpoint as /classic's Coming
+ * Soon panel).
+ *
+ * Deliberately **has no desktop 1.5× step** — Jack asked for this whole section
+ * a third smaller than the rest of the About card (2026-09-10), and a third off
+ * the web sizes is exactly the phone sizes. So: no `md:` classes here, and
+ * `buttonScalePhone` to hold Subscribe back to them too.
+ */
 export function MailingListForm({ tagline }: { tagline?: string }) {
   // Trimmed, because the parentheses are added here: a tagline of " " is
   // Studio's only way to blank a string field that already has a value, and it
@@ -30,28 +39,30 @@ export function MailingListForm({ tagline }: { tagline?: string }) {
   }
 
   if (status === "sent") {
-    return <p className="text-sm text-green-700 md:text-[1.3125rem]">You&apos;re on the list!</p>
+    return <p className="text-sm text-green-700">You&apos;re on the list!</p>
   }
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="flex max-w-md gap-3 md:max-w-2xl md:gap-4">
+      <form onSubmit={handleSubmit} className="flex max-w-md gap-3">
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com"
-          className="flex-1 rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:border-black focus:outline-none md:px-[1.125rem] md:py-[0.9375rem] md:text-[1.3125rem]"
+          className="flex-1 rounded border border-neutral-400 bg-white px-3 py-2.5 text-sm text-neutral-700 placeholder-neutral-400 focus:border-black focus:outline-none"
         />
-        <button type="submit" disabled={status === "sending"} className={`${solidButton} px-5 md:px-[1.875rem]`}>
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className={cn(solidButton, buttonScalePhone, "px-5 md:px-5")}
+        >
           {status === "sending" ? "…" : "Subscribe"}
         </button>
       </form>
-      {note && <p className="mt-2 text-xs text-neutral-400 md:text-lg">({note})</p>}
-      {status === "error" && (
-        <p className="mt-2 text-xs text-red-600 md:text-lg">Something went wrong. Please try again.</p>
-      )}
+      {note && <p className="mt-2 text-xs text-neutral-400">({note})</p>}
+      {status === "error" && <p className="mt-2 text-xs text-red-600">Something went wrong. Please try again.</p>}
     </div>
   )
 }

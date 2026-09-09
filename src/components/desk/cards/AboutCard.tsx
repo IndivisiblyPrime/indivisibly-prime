@@ -9,13 +9,16 @@ import { ContactForm } from "./ContactForm"
 import { MailingListForm } from "./MailingListForm"
 import { FALLBACK } from "../data"
 
-// ~33% larger than the old h-9/w-9 (Jack asked for 30–50% bigger, both viewports).
+// h-9 → h-12 (2026-08-17) → h-16 (Jack, 2026-09-10, another 33%), both
+// viewports. They stay on the name's line and centred against it — that comes
+// from the row's `md:items-center`, so growing them doesn't move them.
 const iconBtn =
-  "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-black/15 text-neutral-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black hover:text-white hover:shadow-md"
+  "flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border border-black/15 text-neutral-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black hover:text-white hover:shadow-md"
 
-const iconSize = "h-[1.35rem] w-[1.35rem]"
+const iconSize = "h-[1.8rem] w-[1.8rem]"
 
-const sectionLabel = "text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 md:text-lg"
+const sectionLabelBase = "text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400"
+const sectionLabel = `${sectionLabelBase} md:text-lg`
 
 export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const [showContact, setShowContact] = useState(false)
@@ -96,7 +99,9 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
               <p className="order-2 tracking-wide text-neutral-500 md:order-3 md:w-full md:text-2xl">{tagline}</p>
             )}
           </div>
-          {intro && <p className="mt-5 leading-relaxed text-neutral-600 md:text-2xl">{intro}</p>}
+          {/* A clear line between the name/tagline and any commentary Jack
+              adds under it (his ask, 2026-09-10) — mt-5 before. */}
+          {intro && <p className="mt-8 leading-relaxed text-neutral-600 md:mt-11 md:text-2xl">{intro}</p>}
         </div>
       </div>
 
@@ -137,7 +142,10 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
                           )}
                           {!isLast && <div className="mb-1 mt-1 w-px flex-1 bg-black/15" />}
                         </div>
-                        <div className={`flex-1 ${isLast ? "pb-0" : "pb-6"}`}>
+                        {/* pb-6 → pb-8/pb-12 (Jack, 2026-09-10: about one more
+                            line between roles). The connecting rule is `flex-1`
+                            above, so it stretches to match and stays unbroken. */}
+                        <div className={`flex-1 ${isLast ? "pb-0" : "pb-8 md:pb-12"}`}>
                           {/* Company first and bold, job title italic beneath it
                               (Jack, 2026-09-09 — these were swapped before). */}
                           {entry.company && (
@@ -181,9 +189,13 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
             )}
 
             {/* Mailing list — bottom of card, same copy/endpoint as /classic's Coming Soon panel */}
+            {/* This whole section keeps the phone sizes on the web — i.e. a
+                third smaller than the sections above it (Jack, 2026-09-10).
+                That's `sectionLabelBase` here and no `md:` step inside
+                MailingListForm. */}
             <hr className="my-8 border-neutral-200" />
             <div>
-              <h3 className={`mb-4 ${sectionLabel}`}>Join the Mailing List for future project launches</h3>
+              <h3 className={`mb-4 ${sectionLabelBase}`}>Join the Mailing List for future project launches</h3>
               <MailingListForm tagline={settings.comingSoonTagline} />
             </div>
           </>

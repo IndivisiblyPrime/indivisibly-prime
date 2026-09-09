@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
 import { sanityFileUrl } from "@/lib/sanityFile"
-import { Eyebrow, ActionButton } from "./shared"
+import { ActionButton } from "./shared"
 import { PhoneFrame } from "../PhoneFrame"
 import { FALLBACK } from "../data"
 
@@ -82,23 +82,30 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
         ))}
       </PhoneFrame>
       {count > 1 && (
-        <div className="mt-6 flex items-center gap-4 md:mt-8 md:gap-6">
+        /* 50% bigger than they were, on both viewports (Jack, 2026-09-10) —
+           arrows, dots and the gaps between them together, so the control row
+           scales as one thing. */
+        <div className="mt-6 flex items-center gap-6 md:mt-8 md:gap-9">
           <button
             type="button"
             onClick={() => go(-1)}
             aria-label="Previous screenshot"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white md:h-[3.375rem] md:w-[3.375rem]"
+            className="flex h-[3.375rem] w-[3.375rem] items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white md:h-[5.0625rem] md:w-[5.0625rem]"
           >
-            <ChevronLeft className="h-4 w-4 md:h-6 md:w-6" />
+            <ChevronLeft className="h-6 w-6 md:h-9 md:w-9" />
           </button>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-[0.5625rem]">
             {images.map((_, d) => (
               <button
                 key={d}
                 type="button"
                 onClick={() => setI(d)}
                 aria-label={`Go to screenshot ${d + 1}`}
-                className={`h-1.5 rounded-full transition-all md:h-2 ${d === i ? "w-5 bg-neutral-800 md:w-7" : "w-1.5 bg-neutral-300 hover:bg-neutral-500 md:w-2"}`}
+                className={`h-[0.5625rem] rounded-full transition-all md:h-3 ${
+                  d === i
+                    ? "w-[1.875rem] bg-neutral-800 md:w-[2.625rem]"
+                    : "w-[0.5625rem] bg-neutral-300 hover:bg-neutral-500 md:w-3"
+                }`}
               />
             ))}
           </div>
@@ -106,20 +113,27 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
             type="button"
             onClick={() => go(1)}
             aria-label="Next screenshot"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white md:h-[3.375rem] md:w-[3.375rem]"
+            className="flex h-[3.375rem] w-[3.375rem] items-center justify-center rounded-full border border-neutral-300 text-neutral-600 transition-colors hover:bg-black hover:text-white md:h-[5.0625rem] md:w-[5.0625rem]"
           >
-            <ChevronRight className="h-4 w-4 md:h-6 md:w-6" />
+            <ChevronRight className="h-6 w-6 md:h-9 md:w-9" />
           </button>
         </div>
       )}
     </div>
   )
 
+  // No "01 — The App" kicker any more (Jack, 2026-09-10 — pulled from all
+  // three cards). `min(6.9cqi, 3.45rem)` is the web title: 15% up on the old
+  // 48px cap, but measured against the *text column* (the desktop layout below
+  // makes it a container), so it can't outgrow the room it has and wrap. The
+  // rem cap is also the safety net — with no container it degrades to 55.2px,
+  // never to 6.9vw.
   const titleBlock = (
     <>
-      <Eyebrow>01 — The App</Eyebrow>
-      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl">{title}</h2>
-      {tagline && <p className="mt-2 text-lg text-neutral-600 md:text-[1.6875rem]">{tagline}</p>}
+      <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl md:text-[min(6.9cqi,3.45rem)]">
+        {title}
+      </h2>
+      {tagline && <p className="mt-2 text-lg text-neutral-600 md:mt-4 md:text-[1.6875rem]">{tagline}</p>}
     </>
   )
 
@@ -158,10 +172,15 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
       {/* Desktop/web — unchanged from before the mobile reorder above. */}
       <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
         {media}
-        <div className="flex flex-col">
+        {/* `containerType` is what the title's `cqi` size measures against —
+            set in a style so it can't be lost to a class rename. The margins
+            here are web-only by construction (this block is `hidden` below
+            md); they were mt-5/mt-8 before Jack asked for more air between
+            title, commentary and buttons on 2026-09-10. */}
+        <div className="flex flex-col" style={{ containerType: "inline-size" }}>
           {titleBlock}
-          {descriptionBlock && <div className="mt-5">{descriptionBlock}</div>}
-          <div className="mt-8">{buttonsBlock}</div>
+          {descriptionBlock && <div className="mt-9">{descriptionBlock}</div>}
+          <div className="mt-14">{buttonsBlock}</div>
         </div>
       </div>
     </>

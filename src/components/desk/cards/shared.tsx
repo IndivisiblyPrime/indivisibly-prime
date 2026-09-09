@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 /**
  * **The desktop 1.5× scale (Jack, 2026-09-09).** Every card's supporting text
@@ -11,6 +12,11 @@ import { ArrowUpRight } from "lucide-react"
  * and 1.5× would wrap them, so they stayed put.
  */
 
+/**
+ * The "01 — The App" kicker. **Nothing renders it any more** — Jack pulled the
+ * numbered eyebrow off all three cards on 2026-09-10 to see how they feel
+ * without it. Kept here, unused, as the one-line revert path.
+ */
 export function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 md:mb-4 md:text-lg">
@@ -45,29 +51,51 @@ const ghostButton =
 const linkAction =
   "group inline-flex items-center gap-2 border-b border-neutral-300 pb-1.5 text-base font-medium md:gap-3 md:pb-[0.5625rem] md:text-2xl text-neutral-800 transition-colors duration-200 hover:border-black hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:ring-offset-2"
 
+/**
+ * Two opt-outs from the desktop 1.5× step, for the buttons Jack wants quieter
+ * than the App/Book CTAs (2026-09-10). Pass them through `cn()` *after* the
+ * base string — tailwind-merge drops the class they replace, so the arbitrary
+ * values here win over `solidButton`'s own `md:` sizes.
+ *
+ * - `buttonScale75` — three quarters of the desktop size. The NFT card's
+ *   "All NFT Galleries", so the artwork keeps the attention.
+ * - `buttonScalePhone` — no desktop step at all, i.e. a third smaller on the
+ *   web. The mailing list's Subscribe, part of shrinking that whole section.
+ */
+export const buttonScale75 = "md:gap-[0.5625rem] md:px-[1.6875rem] md:py-[0.703125rem] md:text-[0.984375rem]"
+export const buttonIconScale75 = "md:h-[1.125rem] md:w-[1.125rem]"
+export const buttonScalePhone = "md:gap-2 md:px-6 md:py-2.5 md:text-sm"
+export const buttonIconScalePhone = "md:h-4 md:w-4"
+
 export function ActionButton({
   children,
   href,
   variant = "solid",
+  className,
+  iconClassName,
 }: {
   children: React.ReactNode
   href?: string
   variant?: "solid" | "ghost" | "link"
+  /** Scale override, e.g. `buttonScale75`. Merged over the shared class. */
+  className?: string
+  iconClassName?: string
 }) {
-  const cls = variant === "solid" ? solidButton : variant === "link" ? linkAction : ghostButton
+  const cls = cn(variant === "solid" ? solidButton : variant === "link" ? linkAction : ghostButton, className)
+  const icon = <ArrowUpRight className={cn(solidButtonIcon, iconClassName)} />
 
   if (href) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
         {children}
-        <ArrowUpRight className={solidButtonIcon} />
+        {icon}
       </a>
     )
   }
   return (
     <button type="button" className={cls}>
       {children}
-      <ArrowUpRight className={solidButtonIcon} />
+      {icon}
     </button>
   )
 }

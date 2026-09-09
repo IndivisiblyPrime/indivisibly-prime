@@ -4,13 +4,15 @@
 import { HomepageSettings, NFTItem } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
 import { EncryptedText } from "@/components/ui/encrypted-text"
-import { Eyebrow, ActionButton } from "./shared"
+import { ActionButton, buttonScale75, buttonIconScale75 } from "./shared"
 import { FALLBACK } from "../data"
 
 export function NftCard({ settings }: { settings: HomepageSettings }) {
   const rawTitle = settings.nftSectionTitle
   const heading = rawTitle && rawTitle !== "NFTs" ? rawTitle : "The Lost Library of Alexandria"
-  const subtitle = settings.nftSectionSubtitle || "Select highlights from the collection"
+  // No fallback: Jack leaves this blank on purpose, and it used to fill itself
+  // back in with "Select highlights from the collection" (2026-09-10).
+  const subtitle = settings.nftSectionSubtitle
   const ctaText = settings.ctaButtonText || "All NFT Galleries"
   const ctaUrl = settings.ctaButtonUrl
   const cryptic = settings.encryptedText || "rx eu Hr AF Dgibce"
@@ -52,9 +54,11 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
 
   return (
     <div>
-      <Eyebrow>03 — The NFTs</Eyebrow>
-      <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl">{heading}</h2>
-      <p className="mt-2 italic text-neutral-500 md:mt-3 md:text-2xl">{subtitle}</p>
+      {/* No "03 — The NFTs" kicker any more (Jack, 2026-09-10); the heading is
+          15% up on the web (36 → 41.4px), and there's no cover column here to
+          crowd it. */}
+      <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl md:text-[2.5875rem]">{heading}</h2>
+      {subtitle && <p className="mt-2 italic text-neutral-500 md:mt-3 md:text-2xl">{subtitle}</p>}
 
       {hasSanity ? (
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.5fr_1fr] sm:items-end sm:gap-5">
@@ -89,8 +93,12 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
         </div>
       )}
 
+      {/* Both a quarter smaller than the App/Book CTAs on the web (Jack,
+          2026-09-10) — this card is about the images, not its buttons. */}
       <div className="mt-8">
-        <ActionButton href={ctaUrl}>{ctaText}</ActionButton>
+        <ActionButton href={ctaUrl} className={buttonScale75} iconClassName={buttonIconScale75}>
+          {ctaText}
+        </ActionButton>
         <p className="mt-4">
           <EncryptedText
             text={cryptic}
@@ -98,7 +106,7 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
             revealedClassName="text-black"
             revealDelayMs={50}
             triggerOnHover
-            className="text-xs md:text-lg"
+            className="text-xs md:text-[0.84375rem]"
           />
         </p>
       </div>
