@@ -4,7 +4,7 @@
 import { HomepageSettings, NFTItem } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
 import { EncryptedText } from "@/components/ui/encrypted-text"
-import { ActionButton, buttonScale75, buttonIconScale75 } from "./shared"
+import { Eyebrow, ActionButton, buttonScale75, buttonIconScale75 } from "./shared"
 import { FALLBACK } from "../data"
 
 export function NftCard({ settings }: { settings: HomepageSettings }) {
@@ -54,9 +54,9 @@ export function NftCard({ settings }: { settings: HomepageSettings }) {
 
   return (
     <div>
-      {/* No "03 — The NFTs" kicker any more (Jack, 2026-09-10); the heading is
-          15% up on the web (36 → 41.4px), and there's no cover column here to
-          crowd it. */}
+      <Eyebrow>03 — The NFTs</Eyebrow>
+      {/* The heading is 15% up on the web (36 → 41.4px); there's no cover
+          column here to crowd it. */}
       <h2 className="font-serif text-3xl text-neutral-900 sm:text-4xl md:text-[2.5875rem]">{heading}</h2>
       {subtitle && <p className="mt-2 italic text-neutral-500 md:mt-3 md:text-2xl">{subtitle}</p>}
 

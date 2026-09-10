@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
 import { sanityFileUrl } from "@/lib/sanityFile"
-import { ActionButton } from "./shared"
+import { Eyebrow, ActionButton } from "./shared"
 import { PhoneFrame } from "../PhoneFrame"
 import { FALLBACK } from "../data"
 
@@ -122,14 +122,14 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
     </div>
   )
 
-  // No "01 — The App" kicker any more (Jack, 2026-09-10 — pulled from all
-  // three cards). `min(6.9cqi, 3.45rem)` is the web title: 15% up on the old
-  // 48px cap, but measured against the *text column* (the desktop layout below
-  // makes it a container), so it can't outgrow the room it has and wrap. The
-  // rem cap is also the safety net — with no container it degrades to 55.2px,
-  // never to 6.9vw.
+  // `min(6.9cqi, 3.45rem)` is the web title: 15% up on the old 48px cap, but
+  // measured against the *text column* (the desktop layout below makes it a
+  // container), so it can't outgrow the room it has and wrap. The rem cap is
+  // also the safety net — with no container it degrades to 55.2px, never to
+  // 6.9vw. The eyebrow above it deliberately stays at its original size.
   const titleBlock = (
     <>
+      <Eyebrow>01 — The App</Eyebrow>
       <h2 className="font-serif text-4xl leading-tight text-neutral-900 sm:text-5xl md:text-[min(6.9cqi,3.45rem)]">
         {title}
       </h2>

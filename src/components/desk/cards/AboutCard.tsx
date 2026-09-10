@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { useState } from "react"
+import { useState, type CSSProperties } from "react"
 import { Linkedin, Instagram, Mail, ArrowLeft } from "lucide-react"
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
@@ -26,7 +26,21 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
   const name = settings.entryTitle || "Jack Harvey"
   const tagline = settings.aboutTagline || "Builder · Investor · Lifelong Meditator"
   const intro = settings.aboutIntroText || "email me your thoughts"
-  const photo = settings.aboutImage ? urlFor(settings.aboutImage).width(600).height(750).url() : FALLBACK.journal
+  // Jack's upload is 4032×3024 — landscape. This card used to force every
+  // photo into a 4:5 portrait (a `height()` on the CDN URL *and*
+  // `aspect-[4/5] object-cover` in CSS), which threw away about half the width
+  // of a shot like that (Jack, 2026-09-11). The photo now keeps its own
+  // proportions: the URL asks for a width only, and the `<img>` sets its own
+  // height.
+  //
+  // The asset ref carries the pixel dimensions (`image-<id>-<w>x<h>-<ext>`),
+  // so the column can size itself to the shape it's handed — a landscape photo
+  // needs a wider one, or it renders as a thumbnail beside a 48px name. Any
+  // future portrait upload still gets the old 15rem column, unchanged.
+  const assetRef = (settings.aboutImage as { asset?: { _ref?: string } } | undefined)?.asset?._ref
+  const dims = assetRef?.match(/-(\d+)x(\d+)-/)
+  const isWidePhoto = dims ? Number(dims[1]) / Number(dims[2]) > 1.1 : false
+  const photo = settings.aboutImage ? urlFor(settings.aboutImage).width(900).auto("format").url() : FALLBACK.journal
 
   const linkedin = settings.socialLinks?.find((l) => l.platform === "linkedin")?.url
   const instagram = settings.socialLinks?.find((l) => l.platform === "instagram")?.url || settings.instagramUrl
@@ -76,12 +90,18 @@ export function AboutCard({ settings }: { settings: HomepageSettings }) {
           — plus the socials centred to the name block rather than pinned to
           the photo. `md:items-start` on the grid just keeps the photo itself
           from stretching to the (usually taller) text column's height. */}
-      <div className="grid gap-6 md:grid-cols-[minmax(0,240px)_1fr] md:items-start md:gap-10">
-        <div className="mx-auto w-full max-w-[220px] md:mx-0 md:max-w-none">
+      <div
+        className="grid gap-6 md:grid-cols-[minmax(0,var(--about-photo-w))_1fr] md:items-start md:gap-10"
+        style={{ "--about-photo-w": isWidePhoto ? "22rem" : "15rem" } as CSSProperties}
+      >
+        <div
+          className={`mx-auto w-full md:mx-0 md:max-w-none ${isWidePhoto ? "max-w-[320px]" : "max-w-[220px]"}`}
+        >
+          {/* No `aspect-*` and no `object-cover`: the photo is shown whole. */}
           <img
             src={photo}
             alt={name}
-            className="aspect-[4/5] w-full rounded-lg object-cover shadow-lg ring-1 ring-black/10"
+            className="h-auto w-full rounded-lg shadow-lg ring-1 ring-black/10"
             draggable={false}
           />
         </div>

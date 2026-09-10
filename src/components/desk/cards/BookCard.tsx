@@ -3,7 +3,7 @@
 
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
-import { ActionButton } from "./shared"
+import { Eyebrow, ActionButton } from "./shared"
 import { FALLBACK } from "../data"
 
 const DEFAULT_DESC =
@@ -46,8 +46,8 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
 
   const titleBlock = (
     <>
-      {/* No "02 — The Book" kicker any more (Jack, 2026-09-10).
-          The title must not break after "The Greatest Wisdom of" (Jack,
+      <Eyebrow>02 — The Book</Eyebrow>
+      {/* The title must not break after "The Greatest Wisdom of" (Jack,
           2026-09-09), and it also had to grow 15% (2026-09-10) — which the
           viewport-based clamp couldn't do without wrapping on narrower
           laptops. So it's sized off the *text column* instead: the desktop
@@ -75,11 +75,14 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
     </p>
   )
 
+  // Identical to the App card's pair — same `ghost` variant, same `gap-3` row
+  // (Jack, 2026-09-11: it was the underlined `link` variant, which read as a
+  // different kind of button next to the App's).
   const buttonsBlock = (
-    <div className="flex flex-wrap items-center gap-x-7 gap-y-4">
+    <div className="flex flex-wrap gap-3">
       <ActionButton href={settings.bookButtonUrl}>{btnText}</ActionButton>
       {settings.bookWebsiteButtonUrl && (
-        <ActionButton href={settings.bookWebsiteButtonUrl} variant="link">
+        <ActionButton href={settings.bookWebsiteButtonUrl} variant="ghost">
           {settings.bookWebsiteButtonText || "Website"}
         </ActionButton>
       )}

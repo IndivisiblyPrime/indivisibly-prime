@@ -13,13 +13,14 @@ import { cn } from "@/lib/utils"
  */
 
 /**
- * The "01 — The App" kicker. **Nothing renders it any more** — Jack pulled the
- * numbered eyebrow off all three cards on 2026-09-10 to see how they feel
- * without it. Kept here, unused, as the one-line revert path.
+ * The "01 — The App" kicker, above each card's title. Briefly pulled from all
+ * three cards on 2026-09-10 and back the next day — at its **original** size,
+ * deliberately outside the desktop 1.5× scale: Jack asked for the old font
+ * size and style back, so there is no `md:` step here. Don't add one.
  */
 export function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 md:mb-4 md:text-lg">
+    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400">
       {children}
     </p>
   )
