@@ -58,7 +58,9 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
     // the visible viewport height — which is what makes the blank-strip bug
     // structurally impossible there rather than merely corrected for. See
     // "Viewport height" in docs/architecture.md.
-    <div className="relative bg-[#171009] md:fixed md:inset-x-0 md:top-0 md:h-[var(--app-h)] md:overflow-hidden">
+    //
+    // `data-desk` switches on the desktop 2/3 render scale in globals.css.
+    <div data-desk className="relative bg-[#171009] md:fixed md:inset-x-0 md:top-0 md:h-[var(--app-h)] md:overflow-hidden">
       {/* Desktop desk (all objects at once) */}
       <div className="hidden h-full w-full md:block">
         <DeskStageWeb onOpen={open} pulseApp={pulseApp} revealed={coverGone} />

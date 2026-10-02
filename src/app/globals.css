@@ -132,6 +132,24 @@
   }
 }
 
+/* The web desk renders at two thirds — exactly Chrome's 67% zoom step, which is
+   where Jack viewed and signed off every desktop size before 2026-10-01. At 100%
+   everything came out 1.5x what he'd approved (friends' laptops), while the desk
+   photo looked identical, because browser zoom shrinks rem and px but not vw/vh.
+   Shrinking the root font-size reproduces that exactly: every rem-based size —
+   type, spacing, card widths, the phone frame — drops to 2/3, while the photo
+   and every vw/vh/dvh cap stay put. Media queries read the browser's default
+   font size, not this, so the `md:` breakpoint itself doesn't move.
+
+   Scoped to pages that render the Desk (`data-desk` on DeskExperience's root),
+   so /classic and /studio are untouched, and to `md` up, so the phone is too.
+   See "The desktop render scale" in docs/architecture.md. */
+html:has([data-desk]) {
+  @variant md {
+    font-size: calc(100% * 2 / 3);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

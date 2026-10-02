@@ -169,8 +169,10 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
         {buttonsBlock}
       </div>
 
-      {/* Desktop/web — unchanged from before the mobile reorder above. */}
-      <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,340px)_1fr] md:items-start md:gap-14">
+      {/* Desktop/web — unchanged from before the mobile reorder above. The
+          media column is in rem (21.25rem = the old 340px) so it shrinks with
+          the desktop 2/3 render scale instead of crowding the text column. */}
+      <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,21.25rem)_1fr] md:items-start md:gap-14">
         {media}
         {/* `containerType` is what the title's `cqi` size measures against —
             set in a style so it can't be lost to a class rename. The margins

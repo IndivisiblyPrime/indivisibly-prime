@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils"
  * (`md:text-2xl`), 18→27px (`md:text-[1.6875rem]`) — and padding scales the
  * same way. Card *titles* are the exception: they were already display-sized
  * and 1.5× would wrap them, so they stayed put.
+ *
+ * These are pre-scale values. Jack chose them at Chrome's 67% zoom, so since
+ * 2026-10-01 the web desk renders every rem at 2/3 (globals.css) — on screen
+ * the 1.5× step lands back on exactly the phone sizes. To resize something,
+ * change the value here, never that factor.
  */
 
 /**

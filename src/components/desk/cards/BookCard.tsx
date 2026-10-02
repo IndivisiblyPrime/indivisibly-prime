@@ -100,8 +100,10 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
         {buttonsBlock}
       </div>
 
-      {/* Desktop/web — unchanged from before the mobile reorder above. */}
-      <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,380px)_1fr] md:items-start md:gap-14 lg:grid-cols-[minmax(0,31.5rem)_1fr]">
+      {/* Desktop/web — unchanged from before the mobile reorder above. The
+          md column is in rem (23.75rem = the old 380px) so it shrinks with the
+          desktop 2/3 render scale like everything else. */}
+      <div className="hidden gap-8 md:grid md:grid-cols-[minmax(0,23.75rem)_1fr] md:items-start md:gap-14 lg:grid-cols-[minmax(0,31.5rem)_1fr]">
         {media}
         {/* The container the title's `cqi` size measures against; margins are
             web-only by construction (mt-5/mt-8 before 2026-09-10). */}
