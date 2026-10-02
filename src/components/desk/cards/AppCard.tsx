@@ -147,9 +147,9 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
     </p>
   )
 
-  // Both 10% under the shared desktop size (Jack, 2026-10-01) — this card
-  // only; the Book's pair stays at full size. Web only: the opt-out is all
-  // `md:` classes, so the phone buttons are unchanged.
+  // Both 10% under the shared desktop size (Jack, 2026-10-01), and the Book's
+  // pair matches. Web only: the opt-out is all `md:` classes, so the phone
+  // buttons are unchanged.
   const buttonsBlock = (
     <div className="flex flex-wrap gap-3">
       <ActionButton href={settings.appButtonUrl} className={buttonScale90} iconClassName={buttonIconScale90}>

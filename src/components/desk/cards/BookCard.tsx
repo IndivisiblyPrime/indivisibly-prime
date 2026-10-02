@@ -3,7 +3,7 @@
 
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
-import { Eyebrow, ActionButton } from "./shared"
+import { Eyebrow, ActionButton, buttonScale90, buttonIconScale90 } from "./shared"
 import { FALLBACK } from "../data"
 
 const DEFAULT_DESC =
@@ -77,12 +77,20 @@ export function BookCard({ settings }: { settings: HomepageSettings }) {
 
   // Identical to the App card's pair — same `ghost` variant, same `gap-3` row
   // (Jack, 2026-09-11: it was the underlined `link` variant, which read as a
-  // different kind of button next to the App's).
+  // different kind of button next to the App's), and the same 10%-smaller web
+  // size (2026-10-01).
   const buttonsBlock = (
     <div className="flex flex-wrap gap-3">
-      <ActionButton href={settings.bookButtonUrl}>{btnText}</ActionButton>
+      <ActionButton href={settings.bookButtonUrl} className={buttonScale90} iconClassName={buttonIconScale90}>
+        {btnText}
+      </ActionButton>
       {settings.bookWebsiteButtonUrl && (
-        <ActionButton href={settings.bookWebsiteButtonUrl} variant="ghost">
+        <ActionButton
+          href={settings.bookWebsiteButtonUrl}
+          variant="ghost"
+          className={buttonScale90}
+          iconClassName={buttonIconScale90}
+        >
           {settings.bookWebsiteButtonText || "Website"}
         </ActionButton>
       )}

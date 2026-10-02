@@ -63,8 +63,8 @@ const linkAction =
  * base string — tailwind-merge drops the class they replace, so the arbitrary
  * values here win over `solidButton`'s own `md:` sizes.
  *
- * - `buttonScale90` — 90% of the desktop size. The App card's Download and
- *   Website pair (Jack, 2026-10-01).
+ * - `buttonScale90` — 90% of the desktop size. The App and Book cards' CTA +
+ *   Website pairs (Jack, 2026-10-01).
  * - `buttonScale75` — three quarters of the desktop size. The NFT card's
  *   "All NFT Galleries", so the artwork keeps the attention.
  * - `buttonScalePhone` — no desktop step at all, i.e. a third smaller on the
