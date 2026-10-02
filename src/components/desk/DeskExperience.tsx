@@ -82,9 +82,14 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
       </div>
 
       {/* Detail card. App/Book/NFT share the biggest (xl) shell; About is the one
-          intentionally different size ("wide"), per Jack. */}
+          intentionally different size ("wide"), per Jack — and on the web it
+          renders 10% smaller again, as if at 90% zoom (Jack, 2026-10-01). */}
       {active && (
-        <Modal onClose={close} size={active === "about" ? "wide" : "xl"}>
+        <Modal
+          onClose={close}
+          size={active === "about" ? "wide" : "xl"}
+          zoom={active === "about" ? 0.9 : 1}
+        >
           {active === "app" && <AppCard settings={settings} />}
           {active === "book" && <BookCard settings={settings} />}
           {active === "nft" && <NftCard settings={settings} />}

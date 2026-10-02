@@ -63,12 +63,16 @@ const linkAction =
  * base string — tailwind-merge drops the class they replace, so the arbitrary
  * values here win over `solidButton`'s own `md:` sizes.
  *
+ * - `buttonScale90` — 90% of the desktop size. The App card's Download and
+ *   Website pair (Jack, 2026-10-01).
  * - `buttonScale75` — three quarters of the desktop size. The NFT card's
  *   "All NFT Galleries", so the artwork keeps the attention.
  * - `buttonScalePhone` — no desktop step at all, i.e. a third smaller on the
  *   web. The mailing list's Subscribe, part of shrinking that whole section.
  */
-export const buttonScale75 = "md:gap-[0.5625rem] md:px-[1.6875rem] md:py-[0.703125rem] md:text-[0.984375rem]"
+export const buttonScale90 = "md:gap-[0.675rem] md:px-[2.025rem] md:py-[0.84375rem] md:text-[1.18125rem]"
+export const buttonIconScale90 = "md:h-[1.35rem] md:w-[1.35rem]"
+export const buttonScale75 ="md:gap-[0.5625rem] md:px-[1.6875rem] md:py-[0.703125rem] md:text-[0.984375rem]"
 export const buttonIconScale75 = "md:h-[1.125rem] md:w-[1.125rem]"
 export const buttonScalePhone = "md:gap-2 md:px-6 md:py-2.5 md:text-sm"
 export const buttonIconScalePhone = "md:h-4 md:w-4"

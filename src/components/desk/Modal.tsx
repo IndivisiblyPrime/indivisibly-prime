@@ -11,10 +11,18 @@ import { X } from "lucide-react"
 export function Modal({
   onClose,
   size = "base",
+  zoom = 1,
   children,
 }: {
   onClose: () => void
   size?: "base" | "wide" | "xl"
+  /**
+   * Web-only (md+) scale for one whole card, as if the browser were zoomed to
+   * it — e.g. 0.9 is the card at 90% zoom. The panel's width cap shrinks by
+   * the same factor; its `90dvh` height cap and the backdrop don't, exactly as
+   * under real zoom.
+   */
+  zoom?: number
   children: React.ReactNode
 }) {
   useEffect(() => {
@@ -70,19 +78,24 @@ export function Modal({
           // Widened on 2026-09-09 (76→84rem / 60→66rem) to carry the desktop
           // 1.5x type scale — and specifically so the Book's title lands on one
           // line instead of breaking after "The Greatest Wisdom of".
-          width: size === "xl" ? "min(96vw, 84rem)" : size === "wide" ? "min(96vw, 66rem)" : "min(96vw, 46rem)",
+          width: `min(96vw, ${(size === "xl" ? 84 : size === "wide" ? 66 : 46) * zoom}rem)`,
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/5 text-neutral-500 backdrop-blur-sm transition-colors hover:bg-black hover:text-white sm:right-4 sm:top-4"
-        >
-          <X className="h-4 w-4" />
-        </button>
-        <div className="p-5 sm:p-8 md:p-10">{children}</div>
+        {/* `zoom` scales everything inside — type, spacing, px and all — the
+            way browser zoom does. Only safe because nothing in a card's content
+            is sized in viewport units; keep it that way for a zoomed card. */}
+        <div className="md:[zoom:var(--card-zoom)]" style={{ "--card-zoom": zoom } as React.CSSProperties}>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/5 text-neutral-500 backdrop-blur-sm transition-colors hover:bg-black hover:text-white sm:right-4 sm:top-4"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="p-5 sm:p-8 md:p-10">{children}</div>
+        </div>
       </div>
     </div>
   )

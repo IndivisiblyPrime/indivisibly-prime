@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { HomepageSettings } from "@/lib/types"
 import { urlFor } from "@/sanity/lib/image"
 import { sanityFileUrl } from "@/lib/sanityFile"
-import { Eyebrow, ActionButton } from "./shared"
+import { Eyebrow, ActionButton, buttonScale90, buttonIconScale90 } from "./shared"
 import { PhoneFrame } from "../PhoneFrame"
 import { FALLBACK } from "../data"
 
@@ -147,11 +147,21 @@ export function AppCard({ settings }: { settings: HomepageSettings }) {
     </p>
   )
 
+  // Both 10% under the shared desktop size (Jack, 2026-10-01) — this card
+  // only; the Book's pair stays at full size. Web only: the opt-out is all
+  // `md:` classes, so the phone buttons are unchanged.
   const buttonsBlock = (
     <div className="flex flex-wrap gap-3">
-      <ActionButton href={settings.appButtonUrl}>{downloadText}</ActionButton>
+      <ActionButton href={settings.appButtonUrl} className={buttonScale90} iconClassName={buttonIconScale90}>
+        {downloadText}
+      </ActionButton>
       {settings.appWebsiteButtonUrl && (
-        <ActionButton href={settings.appWebsiteButtonUrl} variant="ghost">
+        <ActionButton
+          href={settings.appWebsiteButtonUrl}
+          variant="ghost"
+          className={buttonScale90}
+          iconClassName={buttonIconScale90}
+        >
           {websiteText}
         </ActionButton>
       )}
