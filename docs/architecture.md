@@ -166,12 +166,25 @@ It costs the live site nothing: the tool compiles to its own ~14KB chunk referen
 
 All of it lives in **`src/app/layout.tsx`**, so every route including `/studio` inherits it. Driven by `getSiteSettings()` (a small `cache()`-wrapped query in `homepage.ts`, separate from `HOMEPAGE_QUERY`).
 
+**The tab title is no longer `siteTitle`** (2026-11-09). `<title>` and the description come from `src/lib/site.ts` (see "Search & sharing" below); `siteTitle` — relabelled "Home-Screen Name" in Studio — now only names the site for Add to Home Screen (`applicationName`, `appleWebApp.title`, the manifest) and builds `/classic`'s title.
+
 **Pages must not declare `icons`.** App Router metadata merges shallowly — a page-level `icons` replaces the layout's entire set, including `apple-touch-icon`. That is exactly what broke the favicon on mobile: `/` declared a single unsized icon, which lost to the scaffold `favicon.ico`'s declared `sizes="256x256"`. Pages may still override `title` (`/classic` does).
 
 - `src/app/favicon.ico` — Jack's icon at 16/32/48/64/128/256. **Must be RGBA**; Turbopack refuses to decode an RGB-encoded ICO.
 - `src/app/manifest.ts` → `/manifest.webmanifest`, 192 + 512 icons for Android install.
 - `apple-touch-icon` at 180×180 is what iOS Add-to-Home-Screen uses; without it iOS screenshots the page. Keep `siteFavicon` opaque — iOS fills transparency with black.
 - Regenerate the `.ico` from the Sanity asset with PIL after changing `siteFavicon`.
+
+## Search & sharing — `src/lib/site.ts` (2026-11-09)
+
+What Google, Bing and link previews (iMessage, Slack, LinkedIn) read. None of it is visible except the tab title.
+
+- **Title + description are code, not Studio.** Both used to be `siteTitle` = "Jack Harvey", which told Google nothing that set this Jack Harvey apart from the others and gave it no words to match a search for the app or the book. `SITE_TITLE` names both projects; `SITE_DESCRIPTION` is under 160 characters so Google shows it whole.
+- **Link-preview image:** `src/app/opengraph-image.jpg` and `twitter-image.jpg` (identical, + `.alt.txt`), a 1200×630 JPEG crop of `public/desk.png` (~175KB, made with `sips`). Next attaches them to every route by file convention, with width/height/alt. **Regenerate them if `desk.png` is swapped** — `sips -s format jpeg -s formatOptions 82 --resampleWidth 1200 public/desk.png --out og.jpg && sips --cropToHeightWidth 630 1200 og.jpg`. Not the 2.5MB PNG itself: WhatsApp and others silently drop previews over a few hundred KB.
+- **`DeskIndex` (`components/desk/DeskIndex.tsx`) is a visually hidden summary of the App, Book and About cards** — headline, blurb and links, from the same Studio fields and fallbacks (the cards export their `DEFAULT_DESC`). The cards only mount on click and crawlers never click, so before this the homepage linked *nowhere* — not to breathebonsai.com, not to thegreatestwisdomofzen.com, not to LinkedIn — and Google had no path from this site to the other two. Its links are `tabIndex={-1}`: they're invisible, keyboard users already reach every card through the hotspots, and screen readers still read and follow them. If a card gains a link, add it here too.
+- **Structured data** (`homeJsonLd`, via `components/JsonLd.tsx`, on `/` only): `WebSite` (the site's name) + `ProfilePage` → `Person` with `sameAs` = the Studio's LinkedIn/Instagram, which is how Google ties this page and those profiles together as one person.
+- **One indexable page.** `/` has `canonical: "/"`; `/desk` is an alias, so its canonical points at `/`; `/classic` is `noindex, follow`. `robots.ts` keeps crawlers out of `/studio` and `/api/`; `sitemap.ts` lists `/` alone.
+- **Not code, set up outside the repo:** Google Search Console + Bing Webmaster Tools. DNS for jackharvey.me is on **Vercel** (ns1/ns2.vercel-dns.com), so Search Console's TXT verification record goes in Vercel → Domains → jackharvey.me, not at a registrar.
 
 ## Sanity — `homepageSettings`
 

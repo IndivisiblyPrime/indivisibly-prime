@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Dancing_Script, Cormorant_Garamond } from "next/font
 import { urlFor } from "@/sanity/lib/image";
 import { getSiteSettings } from "@/sanity/lib/homepage";
 import { ViewportSync } from "@/components/ViewportSync";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,9 +60,21 @@ export async function generateMetadata(): Promise<Metadata> {
     urlFor(favicon!).width(size).height(size).format("png").url();
 
   return {
-    metadataBase: new URL("https://jackharvey.me"),
-    title,
-    description: title,
+    metadataBase: new URL(SITE_URL),
+    // The tab/search title and description come from src/lib/site.ts, not Studio:
+    // `title` (siteTitle) is only the short home-screen name below.
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    // The preview image itself is app/opengraph-image.jpg + twitter-image.jpg,
+    // which Next adds to every route automatically.
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "en_US",
+      title: SITE_TITLE,
+      description: SITE_DESCRIPTION,
+    },
+    twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION },
     applicationName: title,
     // Gives iOS a proper name + dark status bar when added to the home screen.
     appleWebApp: { capable: true, title, statusBarStyle: "black-translucent" },

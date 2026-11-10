@@ -6,7 +6,7 @@ import { urlFor } from "@/sanity/lib/image"
 import { Eyebrow, ActionButton, buttonScale90, buttonIconScale90 } from "./shared"
 import { FALLBACK } from "../data"
 
-const DEFAULT_DESC =
+export const DEFAULT_DESC =
   "For centuries, seekers have pursued the greatest wisdom of Zen. They've sat in silence, listened to masters speak in riddles, and searched endlessly for truth. At last, a synthesis of all the answers are here…"
 
 export function BookCard({ settings }: { settings: HomepageSettings }) {

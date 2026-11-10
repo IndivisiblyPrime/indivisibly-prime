@@ -13,6 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${title} — Classic`,
     description: title,
+    // The previous homepage, kept for reference — not something to send searchers to.
+    robots: { index: false, follow: true },
   }
 }
 

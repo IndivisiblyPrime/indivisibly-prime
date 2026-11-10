@@ -11,6 +11,7 @@ import { AppCard } from "./cards/AppCard"
 import { BookCard } from "./cards/BookCard"
 import { NftCard } from "./cards/NftCard"
 import { AboutCard } from "./cards/AboutCard"
+import { DeskIndex } from "./DeskIndex"
 
 const COVER_KEY = "desk-cover-seen"
 
@@ -96,6 +97,10 @@ export function DeskExperience({ settings }: { settings: HomepageSettings }) {
           {active === "about" && <AboutCard settings={settings} />}
         </Modal>
       )}
+
+      {/* Hidden summary of the cards, so search engines (which never click) can see
+          and follow their links. After the desk so it doesn't come first in reading order. */}
+      <DeskIndex settings={settings} />
     </div>
   )
 }

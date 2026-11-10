@@ -30,6 +30,7 @@ Studio is embedded at `/studio`. Push to `main` → Vercel deploys (remote: `Ind
 | `/calibrate`, `/api/calibrate` | **local only** (404 in prod) — click the desk objects' corners, writes `hotspots.json` |
 | `/calibrate-mobile`, `/api/calibrate-mobile` | **local only** (404 in prod) — same tool for the phone photo, writes `hotspots-mobile.json` |
 | `/preview-mobile` | **local only** (404 in prod) — the real site in a phone-width iframe, for checking mobile from a laptop |
+| `/robots.txt`, `/sitemap.xml`, `/opengraph-image.jpg` | search + link previews — titles and descriptions live in `src/lib/site.ts`. See "Search & sharing" in `docs/architecture.md`. |
 
 Revert path if the Desk ever needs undoing: git tag `pre-desk-redesign` / branch `backup/classic-homepage`, or point `src/app/page.tsx` back at `Navbar` + `HeroSection` + `ExploreSection`. Tag `v1.0-desk-live` is the Desk as it stood on 2026-08-06, before the favicon fix and the Studio reorg.
 

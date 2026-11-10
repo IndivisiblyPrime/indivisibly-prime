@@ -7,6 +7,8 @@ import { DeskExperience } from "@/components/desk/DeskExperience"
 export const metadata: Metadata = {
   title: "Jack Harvey — The Desk",
   description: "An interactive desk. Explore the app, the book, the art, and the story behind them.",
+  // Same page as / — tell search engines to file it there rather than as a duplicate.
+  alternates: { canonical: "/" },
 }
 
 // Alias of the homepage — the Desk now lives at `/` too.

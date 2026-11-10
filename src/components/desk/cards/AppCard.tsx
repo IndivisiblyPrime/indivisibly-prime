@@ -10,7 +10,7 @@ import { Eyebrow, ActionButton, buttonScale90, buttonIconScale90 } from "./share
 import { PhoneFrame } from "../PhoneFrame"
 import { FALLBACK } from "../data"
 
-const DEFAULT_DESC =
+export const DEFAULT_DESC =
   "An iOS advanced meditation timer. Focus, breathe, and grow — a quiet space to build a daily practice, one session at a time."
 
 export function AppCard({ settings }: { settings: HomepageSettings }) {

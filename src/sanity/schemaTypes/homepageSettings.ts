@@ -593,10 +593,10 @@ export const homepageSettings = defineType({
     // ═══ SITE & BROWSER TAB ═════════════════════════════════════════════════
     defineField({
       name: 'siteTitle',
-      title: 'Browser Tab Title',
+      title: 'Home-Screen Name',
       type: 'string',
       group: 'site',
-      description: `${BOTH} Shown in the browser tab, and used as the name if someone adds the site to their phone's home screen.`,
+      description: `${BOTH} The name used if someone adds the site to their phone's home screen. The browser-tab and Google title is set in code (src/lib/site.ts), so it can name the app and the book.`,
       initialValue: 'Jack Harvey',
     }),
     defineField({
